@@ -17,6 +17,7 @@ interface Agency {
   contact_email: string;
   website: string;
   business_hours: string;
+  brochure_url?: string;
   photos?: Array<{
     id: string;
     url: string;
@@ -90,6 +91,7 @@ export function useAgency(slug: string | undefined) {
             contact_email: agencyData.contact_email || '',
             website: agencyData.website || '',
             business_hours: agencyData.business_hours || '',
+            brochure_url: agencyData.brochure_url || undefined,
             photos: photosData || []
           });
           setError(null);

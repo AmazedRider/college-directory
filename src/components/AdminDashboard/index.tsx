@@ -227,6 +227,89 @@ export function AdminDashboard() {
     }
   };
 
+  const handleBrochureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !selectedAgency) return;
+
+    // Validate file type
+    if (!file.type.startsWith('application/pdf')) {
+      toast.error('Please upload a PDF file');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('File size must be less than 10MB');
+      return;
+    }
+
+    try {
+      // Create a unique file name
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      // Upload file to Supabase Storage
+      const { data, error: uploadError } = await supabase.storage
+        .from('agency-brochures')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('agency-brochures')
+        .getPublicUrl(filePath);
+
+      // Update agency with brochure URL
+      const { error: updateError } = await supabase
+        .from('agencies')
+        .update({ brochure_url: publicUrl })
+        .eq('id', selectedAgency.id);
+
+      if (updateError) throw updateError;
+
+      // Update local state
+      setSelectedAgency({ ...selectedAgency, brochure_url: publicUrl });
+      toast.success('Brochure uploaded successfully');
+    } catch (error) {
+      console.error('Error uploading brochure:', error);
+      toast.error('Failed to upload brochure');
+    }
+  };
+
+  const handleDeleteBrochure = async () => {
+    if (!selectedAgency?.brochure_url) return;
+
+    try {
+      // Extract file name from URL
+      const fileName = selectedAgency.brochure_url.split('/').pop();
+      if (!fileName) throw new Error('Invalid file name');
+
+      // Delete file from storage
+      const { error: deleteError } = await supabase.storage
+        .from('agency-brochures')
+        .remove([fileName]);
+
+      if (deleteError) throw deleteError;
+
+      // Update agency to remove brochure URL
+      const { error: updateError } = await supabase
+        .from('agencies')
+        .update({ brochure_url: null })
+        .eq('id', selectedAgency.id);
+
+      if (updateError) throw updateError;
+
+      // Update local state
+      setSelectedAgency({ ...selectedAgency, brochure_url: undefined });
+      toast.success('Brochure deleted successfully');
+    } catch (error) {
+      console.error('Error deleting brochure:', error);
+      toast.error('Failed to delete brochure');
+    }
+  };
+
   const handleSetCoverPhoto = async (photoId: string) => {
     if (!selectedAgency) return;
 
@@ -354,7 +437,15 @@ export function AdminDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Agency Dashboard</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">Agency Dashboard</h1>
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+        >
+          Create New Agency
+        </button>
+      </div>
 
       {agencies.length === 0 ? (
         <div className="bg-white p-6 rounded-lg shadow-md">
@@ -395,6 +486,42 @@ export function AdminDashboard() {
                 onDeletePhoto={handleDeletePhoto}
                 onSetCover={handleSetCoverPhoto}
               />
+
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Brochure</h2>
+                <div className="space-y-4">
+                  {selectedAgency.brochure_url ? (
+                    <div className="flex items-center justify-between">
+                      <a
+                        href={selectedAgency.brochure_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-indigo-600 hover:text-indigo-700"
+                      >
+                        View Current Brochure
+                      </a>
+                      <button
+                        onClick={handleDeleteBrochure}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        Delete Brochure
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Upload Brochure (PDF, Max 10MB)
+                      </label>
+                      <input
+                        type="file"
+                        accept=".pdf"
+                        onChange={handleBrochureUpload}
+                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
 
               <ServicesList
                 services={services}

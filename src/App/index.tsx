@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { useAuth } from '../components/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -9,6 +9,7 @@ import { UserProfile } from '../components/UserProfile';
 import { Navigation } from './components/Navigation';
 import { HomePage } from './pages/HomePage';
 import { AgencyPage } from './pages/AgencyPage';
+import { AboutPage } from './pages/AboutPage';
 import { Footer } from './components/Footer';
 import toast from 'react-hot-toast';
 
@@ -157,6 +158,7 @@ function App() {
       ) : (
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
           <Route path="/agency/:slug" element={<AgencyPage />} />
         </Routes>
       )}

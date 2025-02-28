@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AgencyCard } from './AgencyCard';
 import { FilterOptions } from './SearchSection';
 import { supabase } from '../../lib/supabase';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface AgencyListingsProps {
@@ -32,6 +33,8 @@ interface Agency {
 export function AgencyListings({ searchQuery, filters }: AgencyListingsProps) {
   const [agencies, setAgencies] = useState<Agency[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
 
   useEffect(() => {
     loadAgencies();
@@ -39,6 +42,7 @@ export function AgencyListings({ searchQuery, filters }: AgencyListingsProps) {
 
   const loadAgencies = async () => {
     try {
+      // First fetch basic agency data
       const { data: agenciesData, error: agenciesError } = await supabase
         .from('agencies')
         .select(`
@@ -54,6 +58,12 @@ export function AgencyListings({ searchQuery, filters }: AgencyListingsProps) {
           is_verified,
           agency_services (
             name
+          ),
+          agency_photos (
+            id,
+            url,
+            caption,
+            is_cover
           )
         `)
         .eq('status', 'approved')
@@ -61,28 +71,17 @@ export function AgencyListings({ searchQuery, filters }: AgencyListingsProps) {
 
       if (agenciesError) throw agenciesError;
 
-      // Fetch photos for each agency
-      const agenciesWithPhotos = await Promise.all(
-        agenciesData.map(async (agency) => {
-          const { data: photos } = await supabase
-            .from('agency_photos')
-            .select('*')
-            .eq('agency_id', agency.id)
-            .order('is_cover', { ascending: false }) // Cover photos first
-            .order('created_at', { ascending: true });
+      // Process the data with photos included in the initial query
+      const processedAgencies = agenciesData.map(agency => ({
+        ...agency,
+        specializations: agency.agency_services?.map((s: any) => s.name) || [],
+        photos: agency.agency_photos || []
+      }));
 
-          return {
-            ...agency,
-            specializations: agency.agency_services?.map((s: any) => s.name) || [],
-            photos: photos || []
-          };
-        })
-      );
-
-      setAgencies(agenciesWithPhotos);
+      setAgencies(processedAgencies);
     } catch (error) {
       console.error('Error loading agencies:', error);
-      toast.error('Failed to load agencies');
+      toast.error('Failed to load agencies. Please try refreshing the page.');
     } finally {
       setLoading(false);
     }
@@ -127,6 +126,23 @@ export function AgencyListings({ searchQuery, filters }: AgencyListingsProps) {
     return true;
   });
 
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredAgencies.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentAgencies = filteredAgencies.slice(startIndex, endIndex);
+
+  // Handle page changes
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Reset to first page when filters or search change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filters]);
+
   // Helper function to get the display image for an agency
   const getAgencyImage = (agency: Agency): string => {
     // First try to find the cover photo
@@ -149,29 +165,70 @@ export function AgencyListings({ searchQuery, filters }: AgencyListingsProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {filteredAgencies.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-500">No consultants found matching your criteria.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredAgencies.map((agency) => (
-            <AgencyCard
-              key={agency.id}
-              name={agency.name}
-              location={agency.location}
-              description={agency.description}
-              rating={agency.rating}
-              imageUrl={getAgencyImage(agency)}
-              trustScore={agency.trust_score}
-              price={agency.price}
-              specializations={agency.specializations}
-              isVerified={agency.is_verified}
-              slug={agency.slug}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {currentAgencies.map((agency) => (
+              <AgencyCard
+                key={agency.id}
+                name={agency.name}
+                location={agency.location}
+                description={agency.description}
+                rating={agency.rating}
+                imageUrl={getAgencyImage(agency)}
+                trustScore={agency.trust_score}
+                price={agency.price}
+                specializations={agency.specializations}
+                isVerified={agency.is_verified}
+                slug={agency.slug}
+              />
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-2">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
+                <button
+                  key={pageNumber}
+                  onClick={() => handlePageChange(pageNumber)}
+                  className={`px-4 py-2 rounded-lg ${
+                    currentPage === pageNumber
+                      ? 'bg-indigo-600 text-white'
+                      : 'hover:bg-gray-100'
+                  }`}
+                >
+                  {pageNumber}
+                </button>
+              ))}
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </div>
+          )}
+
+          <div className="text-center text-gray-500">
+            Showing {startIndex + 1} to {Math.min(endIndex, filteredAgencies.length)} of {filteredAgencies.length} consultants
+          </div>
+        </>
       )}
     </div>
   );

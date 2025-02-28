@@ -14,6 +14,7 @@ export interface Agency {
   is_verified?: boolean;
   trust_score?: number;
   image_url?: string;
+  brochure_url?: string;
 }
 
 export interface Service {
