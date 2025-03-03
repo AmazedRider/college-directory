@@ -10,6 +10,7 @@ import { Navigation } from './components/Navigation';
 import { HomePage } from './pages/HomePage';
 import { AgencyPage } from './pages/AgencyPage';
 import { AboutPage } from './pages/AboutPage';
+import { BlogPage } from './pages/BlogPage';
 import { Footer } from './components/Footer';
 import toast from 'react-hot-toast';
 
@@ -159,6 +160,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/blog" element={<BlogPage />} />
           <Route path="/agency/:slug" element={<AgencyPage />} />
         </Routes>
       )}

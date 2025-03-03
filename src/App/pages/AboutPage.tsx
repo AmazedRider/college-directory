@@ -10,7 +10,7 @@ interface FeatureCardProps {
 function FeatureCard({ icon, title, description }: FeatureCardProps) {
   return (
     <div className="bg-white rounded-lg shadow-md p-6 transition-transform hover:scale-105">
-      <div className="text-indigo-600 mb-4">
+      <div className="text-blue-600 mb-4">
         {icon}
       </div>
       <h3 className="text-xl font-semibold mb-2">{title}</h3>
@@ -28,7 +28,7 @@ function ContactCard({ icon, title, content, link }: { icon: React.ReactNode; ti
       rel={link ? "noopener noreferrer" : undefined}
       className={`bg-white rounded-lg shadow-md p-6 flex flex-col items-center text-center ${link ? 'hover:shadow-lg transition-shadow cursor-pointer' : ''}`}
     >
-      <div className="text-indigo-600 mb-4">
+      <div className="text-blue-600 mb-4">
         {icon}
       </div>
       <h3 className="text-lg font-semibold mb-2">{title}</h3>
@@ -39,13 +39,13 @@ function ContactCard({ icon, title, content, link }: { icon: React.ReactNode; ti
 
 export function AboutPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       {/* Hero Section */}
-      <div className="bg-indigo-600 text-white py-20">
+      <div className="bg-gradient-to-r from-blue-800 to-blue-600 text-white py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">About Admissions.app</h1>
-            <p className="text-xl text-indigo-100">
+            <p className="text-xl text-blue-100">
               Your trusted partner in the college admissions journey, connecting ambitious students with expert consultants.
             </p>
           </div>
@@ -56,7 +56,7 @@ export function AboutPage() {
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-3xl mx-auto">
           <div className="bg-white rounded-lg shadow-lg p-8 mb-12 transform -mt-20">
-            <h2 className="text-3xl font-bold mb-6 text-center text-indigo-600">Our Mission</h2>
+            <h2 className="text-3xl font-bold mb-6 text-center text-blue-600">Our Mission</h2>
             <p className="text-lg text-gray-700 leading-relaxed">
               We believe that every student deserves access to quality college consulting. Our mission is to democratize the college admissions process by making expert guidance accessible to students from all backgrounds. Through our platform, we're breaking down barriers and empowering students to reach their full potential.
             </p>
@@ -83,17 +83,17 @@ export function AboutPage() {
         </div>
 
         {/* Stats Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 bg-indigo-50 rounded-lg p-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 bg-blue-50 rounded-lg p-8">
           <div className="text-center">
-            <div className="text-4xl font-bold text-indigo-600 mb-2">500+</div>
+            <div className="text-4xl font-bold text-blue-600 mb-2">500+</div>
             <div className="text-gray-600">Successful Applications</div>
           </div>
           <div className="text-center">
-            <div className="text-4xl font-bold text-indigo-600 mb-2">50+</div>
+            <div className="text-4xl font-bold text-blue-600 mb-2">50+</div>
             <div className="text-gray-600">Expert Consultants</div>
           </div>
           <div className="text-center">
-            <div className="text-4xl font-bold text-indigo-600 mb-2">95%</div>
+            <div className="text-4xl font-bold text-blue-600 mb-2">95%</div>
             <div className="text-gray-600">Satisfaction Rate</div>
           </div>
         </div>
@@ -103,25 +103,25 @@ export function AboutPage() {
           <h2 className="text-3xl font-bold mb-8 text-center">Our Values</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-xl font-semibold mb-4 text-indigo-600">Excellence</h3>
+              <h3 className="text-xl font-semibold mb-4 text-blue-600">Excellence</h3>
               <p className="text-gray-600">
                 We maintain the highest standards of quality in our consulting services and platform features.
               </p>
             </div>
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-xl font-semibold mb-4 text-indigo-600">Accessibility</h3>
+              <h3 className="text-xl font-semibold mb-4 text-blue-600">Accessibility</h3>
               <p className="text-gray-600">
                 Making quality college consulting available to students regardless of their background.
               </p>
             </div>
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-xl font-semibold mb-4 text-indigo-600">Transparency</h3>
+              <h3 className="text-xl font-semibold mb-4 text-blue-600">Transparency</h3>
               <p className="text-gray-600">
                 Providing clear, honest information and maintaining an open review system.
               </p>
             </div>
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-xl font-semibold mb-4 text-indigo-600">Innovation</h3>
+              <h3 className="text-xl font-semibold mb-4 text-blue-600">Innovation</h3>
               <p className="text-gray-600">
                 Continuously improving our platform to better serve students and consultants.
               </p>
@@ -159,13 +159,13 @@ export function AboutPage() {
             />
           </div>
 
-          <div className="mt-12 bg-indigo-50 rounded-lg p-8 text-center">
-            <MessageSquare className="h-12 w-12 text-indigo-600 mx-auto mb-4" />
+          <div className="mt-12 bg-blue-50 rounded-lg p-8 text-center">
+            <MessageSquare className="h-12 w-12 text-blue-600 mx-auto mb-4" />
             <h3 className="text-2xl font-semibold mb-4">Schedule a Consultation</h3>
             <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
               Want to discuss your college admissions journey? Schedule a free consultation with one of our expert advisors.
             </p>
-            <button className="bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700 transition-colors">
+            <button className="bg-gradient-to-r from-blue-800 to-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors">
               Book a Call
             </button>
           </div>
@@ -173,4 +173,4 @@ export function AboutPage() {
       </div>
     </div>
   );
-} 
+}

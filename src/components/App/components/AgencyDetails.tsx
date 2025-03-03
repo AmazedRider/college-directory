@@ -162,7 +162,7 @@ export function AgencyDetails({ agency }: AgencyDetailsProps) {
               <div className="mb-6">
                 <h3 className="text-lg font-semibold mb-2">Starting Price</h3>
                 <p className="text-2xl font-bold text-indigo-600">
-                  ${agency.price.toLocaleString()}
+                  ₹{agency.price.toLocaleString()}
                 </p>
               </div>
 

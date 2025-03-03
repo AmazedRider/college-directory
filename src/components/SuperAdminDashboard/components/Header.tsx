@@ -15,7 +15,7 @@ export function Header({ filter, onFilterChange, onUploadClick }: HeaderProps) {
         <select
           value={filter}
           onChange={(e) => onFilterChange(e.target.value as typeof filter)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         >
           <option value="all">All Agencies</option>
           <option value="pending">Pending</option>
@@ -24,7 +24,7 @@ export function Header({ filter, onFilterChange, onUploadClick }: HeaderProps) {
         </select>
         <button
           onClick={onUploadClick}
-          className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+          className="flex items-center gap-2 bg-gradient-to-r from-blue-800 to-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
         >
           <Upload className="h-5 w-5" />
           Bulk Upload

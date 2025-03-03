@@ -8,6 +8,7 @@ import { AdminRequestsTable } from './components/AdminRequestsTable';
 import { AdminAssignments } from './components/AdminAssignments';
 import { AdminManagement } from './components/AdminManagement';
 import { UserAdminManagement } from './components/UserAdminManagement';
+import { BlogManagement } from './components/BlogManagement';
 import { Header } from './components/Header';
 import { AddAdminModal } from './components/AddAdminModal';
 import { Agency, CSVAgency } from './types';
@@ -22,6 +23,7 @@ export function SuperAdminDashboard() {
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showAddAdminModal, setShowAddAdminModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<'agencies' | 'admins' | 'blog'>('agencies');
   const [uploadStatus, setUploadStatus] = useState({
     total: 0,
     processed: 0,
@@ -305,32 +307,61 @@ export function SuperAdminDashboard() {
         </div>
       </div>
 
+      <div className="flex space-x-4 mb-6">
+        <button
+          onClick={() => setActiveTab('agencies')}
+          className={`px-4 py-2 font-medium rounded-lg ${
+            activeTab === 'agencies'
+              ? 'bg-indigo-600 text-white'
+              : 'bg-white text-gray-600 hover:bg-gray-100'
+          }`}
+        >
+          Agencies & Admins
+        </button>
+        <button
+          onClick={() => setActiveTab('blog')}
+          className={`px-4 py-2 font-medium rounded-lg ${
+            activeTab === 'blog'
+              ? 'bg-indigo-600 text-white'
+              : 'bg-white text-gray-600 hover:bg-gray-100'
+          }`}
+        >
+          Blog Management
+        </button>
+      </div>
+
       <div className="space-y-8">
-        <UserAdminManagement />
+        {activeTab === 'agencies' ? (
+          <>
+            <UserAdminManagement />
 
-        <AdminManagement
-          admins={admins}
-          onAdminDeleted={loadAdmins}
-        />
+            <AdminManagement
+              admins={admins}
+              onAdminDeleted={loadAdmins}
+            />
 
-        <AdminRequestsTable
-          requests={adminRequests}
-          onApprove={handleApproveAdminRequest}
-          onReject={handleRejectAdminRequest}
-        />
+            <AdminRequestsTable
+              requests={adminRequests}
+              onApprove={handleApproveAdminRequest}
+              onReject={handleRejectAdminRequest}
+            />
 
-        <AdminAssignments
-          agencies={agencies}
-          admins={admins}
-          onAssignmentChange={loadAgencies}
-        />
+            <AdminAssignments
+              agencies={agencies}
+              admins={admins}
+              onAssignmentChange={loadAgencies}
+            />
 
-        <AgencyTable
-          agencies={agencies}
-          onStatusChange={handleStatusChange}
-          onVerificationChange={handleVerificationChange}
-          onTrustScoreChange={handleTrustScoreChange}
-        />
+            <AgencyTable
+              agencies={agencies}
+              onStatusChange={handleStatusChange}
+              onVerificationChange={handleVerificationChange}
+              onTrustScoreChange={handleTrustScoreChange}
+            />
+          </>
+        ) : (
+          <BlogManagement />
+        )}
       </div>
 
       {showUploadModal && (

@@ -130,7 +130,22 @@ export function AgencyListings({ searchQuery, filters }: AgencyListingsProps) {
   const totalPages = Math.ceil(filteredAgencies.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentAgencies = filteredAgencies.slice(startIndex, endIndex);
+  
+  // Sort agencies alphabetically, with numeric names at the end
+  const sortedAgencies = [...filteredAgencies].sort((a, b) => {
+    // Check if name starts with a number
+    const aStartsWithNumber = /^\d/.test(a.name);
+    const bStartsWithNumber = /^\d/.test(b.name);
+    
+    // If one starts with a number and the other doesn't, prioritize alphabetic names
+    if (aStartsWithNumber && !bStartsWithNumber) return 1;
+    if (!aStartsWithNumber && bStartsWithNumber) return -1;
+    
+    // Otherwise, sort alphabetically
+    return a.name.localeCompare(b.name);
+  });
+  
+  const currentAgencies = sortedAgencies.slice(startIndex, endIndex);
 
   // Handle page changes
   const handlePageChange = (pageNumber: number) => {

@@ -15,7 +15,21 @@ export function AgencyList({ agencies, selectedAgency, onSelectAgency }: AgencyL
 
   useEffect(() => {
     if (searchQuery.trim() === '') {
-      setFilteredAgencies(agencies);
+      // Sort agencies alphabetically with numeric names at the end
+      const sortedAgencies = [...agencies].sort((a, b) => {
+        // Check if name starts with a number
+        const aStartsWithNumber = /^\d/.test(a.name);
+        const bStartsWithNumber = /^\d/.test(b.name);
+        
+        // If one starts with a number and the other doesn't, prioritize alphabetic names
+        if (aStartsWithNumber && !bStartsWithNumber) return 1;
+        if (!aStartsWithNumber && bStartsWithNumber) return -1;
+        
+        // Otherwise, sort alphabetically
+        return a.name.localeCompare(b.name);
+      });
+      
+      setFilteredAgencies(sortedAgencies);
       return;
     }
 
@@ -24,7 +38,22 @@ export function AgencyList({ agencies, selectedAgency, onSelectAgency }: AgencyL
       agency.name.toLowerCase().includes(query) ||
       agency.location.toLowerCase().includes(query)
     );
-    setFilteredAgencies(filtered);
+    
+    // Sort the filtered results as well
+    const sortedFiltered = [...filtered].sort((a, b) => {
+      // Check if name starts with a number
+      const aStartsWithNumber = /^\d/.test(a.name);
+      const bStartsWithNumber = /^\d/.test(b.name);
+      
+      // If one starts with a number and the other doesn't, prioritize alphabetic names
+      if (aStartsWithNumber && !bStartsWithNumber) return 1;
+      if (!aStartsWithNumber && bStartsWithNumber) return -1;
+      
+      // Otherwise, sort alphabetically
+      return a.name.localeCompare(b.name);
+    });
+    
+    setFilteredAgencies(sortedFiltered);
   }, [searchQuery, agencies]);
 
   return (
