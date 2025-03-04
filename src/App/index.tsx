@@ -97,7 +97,9 @@ function App() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <p className="text-red-600 mb-4">Access Denied</p>
-          <p className="text-gray-600 mb-4">Please sign in to access the dashboard.</p>
+          <p className="text-gray-600 mb-4">
+            Please sign in to access the dashboard.
+          </p>
           <button
             onClick={() => {
               setShowDashboard(false);
@@ -113,12 +115,18 @@ function App() {
   }
 
   // If trying to access super admin dashboard but not a super admin
-  if (showDashboard && !isSuperAdmin && user?.email === 'superadmin@superadmin.com') {
+  if (
+    showDashboard &&
+    !isSuperAdmin &&
+    user?.email === 'superadmin@superadmin.com'
+  ) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <p className="text-red-600 mb-4">Access Denied</p>
-          <p className="text-gray-600 mb-4">You do not have permission to access the Super Admin Dashboard.</p>
+          <p className="text-gray-600 mb-4">
+            You do not have permission to access the Super Admin Dashboard.
+          </p>
           <button
             onClick={() => setShowDashboard(false)}
             className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
@@ -155,7 +163,13 @@ function App() {
       )}
 
       {showDashboard ? (
-        isSuperAdmin ? <SuperAdminDashboard /> : isAdmin ? <AdminDashboard /> : <HomePage />
+        isSuperAdmin ? (
+          <SuperAdminDashboard />
+        ) : isAdmin ? (
+          <AdminDashboard />
+        ) : (
+          <HomePage />
+        )
       ) : (
         <Routes>
           <Route path="/" element={<HomePage />} />

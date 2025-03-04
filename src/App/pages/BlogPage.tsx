@@ -10,7 +10,7 @@ interface BlogPost {
   content: string;
   author: string;
   date: string;
-  imageUrl: string;
+  image_url: string;
   category: string;
   created_at: string;
 }
@@ -51,7 +51,7 @@ export function BlogPage() {
       content: "Full article content would go here...",
       author: "Dr. Sarah Johnson",
       date: "2025-02-28",
-      imageUrl: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      image_url: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
       category: "College Selection",
       created_at: "2025-02-28"
     },
@@ -62,7 +62,7 @@ export function BlogPage() {
       content: "Full article content would go here...",
       author: "Michael Rodriguez",
       date: "2025-02-15",
-      imageUrl: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      image_url: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
       category: "Financial Aid",
       created_at: "2025-02-15"
     },
@@ -73,7 +73,7 @@ export function BlogPage() {
       content: "Full article content would go here...",
       author: "Jennifer Lee",
       date: "2025-02-05",
-      imageUrl: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      image_url: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
       category: "Admissions",
       created_at: "2025-02-05"
     },
@@ -84,7 +84,7 @@ export function BlogPage() {
       content: "Full article content would go here...",
       author: "David Wilson",
       date: "2025-01-22",
-      imageUrl: "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      image_url: "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
       category: "Campus Life",
       created_at: "2025-01-22"
     },
@@ -95,7 +95,7 @@ export function BlogPage() {
       content: "Full article content would go here...",
       author: "Dr. Robert Chang",
       date: "2025-01-10",
-      imageUrl: "https://images.unsplash.com/photo-1501504905252-473c47e087f8?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      image_url: "https://images.unsplash.com/photo-1501504905252-473c47e087f8?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
       category: "Education Trends",
       created_at: "2025-01-10"
     }
@@ -130,7 +130,7 @@ export function BlogPage() {
                     <div className="md:flex-shrink-0 md:w-1/2">
                       <img 
                         className="h-64 w-full object-cover md:h-full" 
-                        src={displayPosts[0].imageUrl || 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'} 
+                        src={displayPosts[0].image_url || 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'} 
                         alt={displayPosts[0].title} 
                       />
                     </div>
@@ -183,13 +183,13 @@ export function BlogPage() {
             )}
 
             {/* Blog Post Grid */}
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-8 md:grid-cols-2 lg:gri d-cols-3">
               {displayPosts.slice(1).map((post) => (
                 <div key={post.id} className="bg-white rounded-xl shadow-md overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
                   <div className="relative h-48">
                     <img 
                       className="h-full w-full object-cover" 
-                      src={post.imageUrl || `https://images.unsplash.com/photo-1501504905252-473c47e087f8?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80`} 
+                      src={post.image_url || `https://images.unsplash.com/photo-1501504905252-473c47e087f8?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80`} 
                       alt={post.title} 
                     />
                     <div className="absolute top-4 left-4">

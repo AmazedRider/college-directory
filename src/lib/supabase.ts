@@ -4,7 +4,9 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables. Please click the "Connect to Supabase" button in the top right to set up Supabase.');
+  throw new Error(
+    'Missing Supabase environment variables. Please click the "Connect to Supabase" button in the top right to set up Supabase.'
+  );
 }
 
 // Create Supabase client with enhanced retry configuration
@@ -12,22 +14,22 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true
+    detectSessionInUrl: true,
   },
   global: {
     headers: {
-      'X-Client-Info': 'college-consultancy-directory'
-    }
+      'X-Client-Info': 'college-consultancy-directory',
+    },
   },
   db: {
-    schema: 'public'
+    schema: 'public',
   },
   // Add retry configuration
   realtime: {
     params: {
-      eventsPerSecond: 2
-    }
-  }
+      eventsPerSecond: 2,
+    },
+  },
 });
 
 // Enhanced retry logic with exponential backoff and circuit breaker
@@ -47,7 +49,7 @@ export async function retryableQuery<T>(
   }
 
   let lastError: any;
-  
+
   for (let i = 0; i < maxRetries; i++) {
     try {
       const result = await queryFn();
@@ -56,7 +58,7 @@ export async function retryableQuery<T>(
       return result;
     } catch (error) {
       lastError = error;
-      
+
       // Only retry on network errors or rate limit errors
       if (isRetryableError(error)) {
         // Increment consecutive failures
@@ -65,44 +67,52 @@ export async function retryableQuery<T>(
         // If we hit the threshold, activate circuit breaker
         if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
           activateCircuitBreaker();
-          throw new Error('Service temporarily unavailable. Please try again later.');
+          throw new Error(
+            'Service temporarily unavailable. Please try again later.'
+          );
         }
 
         // Exponential backoff with jitter
         const delay = initialDelay * Math.pow(2, i) + Math.random() * 1000;
-        console.log(`Retrying query attempt ${i + 1} after ${Math.round(delay)}ms`);
-        await new Promise(resolve => setTimeout(resolve, delay));
+        console.log(
+          `Retrying query attempt ${i + 1} after ${Math.round(delay)}ms`
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
         continue;
       }
-      
+
       throw error;
     }
   }
-  
+
   throw lastError;
 }
 
 // Helper function to check if error is retryable
 function isRetryableError(error: any): boolean {
   // Network errors
-  if (error instanceof Error && 
-      (error.message === 'Failed to fetch' || 
-       error.message.includes('NetworkError') ||
-       error.message.includes('Network request failed'))) {
+  if (
+    error instanceof Error &&
+    (error.message === 'Failed to fetch' ||
+      error.message.includes('NetworkError') ||
+      error.message.includes('Network request failed'))
+  ) {
     return true;
   }
-  
+
   // Rate limit errors
   if (error?.code === '429' || error?.message?.includes('Too many requests')) {
     return true;
   }
-  
+
   // Connection errors
-  if (error?.message?.includes('connection') || 
-      error?.message?.includes('timeout')) {
+  if (
+    error?.message?.includes('connection') ||
+    error?.message?.includes('timeout')
+  ) {
     return true;
   }
-  
+
   return false;
 }
 
@@ -129,7 +139,7 @@ export function handleSupabaseError(error: any): string {
   if (isRetryableError(error)) {
     return 'Connection issue detected. Retrying...';
   }
-  
+
   // Common Supabase error codes
   switch (error?.code) {
     case 'PGRST116':
@@ -141,7 +151,7 @@ export function handleSupabaseError(error: any): string {
     case '23503':
       return 'This operation would break data relationships.';
     case '42501':
-      return 'You don\'t have permission to perform this action.';
+      return "You don't have permission to perform this action.";
     default:
       if (error?.message?.includes('JWT')) {
         return 'Your session has expired. Please log in again.';
@@ -153,7 +163,10 @@ export function handleSupabaseError(error: any): string {
 // Helper to check connection status
 export async function checkSupabaseConnection(): Promise<boolean> {
   try {
-    const { data, error } = await supabase.from('profiles').select('count').limit(1);
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('count')
+      .limit(1);
     return !error;
   } catch {
     return false;

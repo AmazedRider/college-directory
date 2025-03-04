@@ -3,11 +3,13 @@ const handleSubmit = async (values: AgencyFormData) => {
   try {
     const { data: agency, error } = await supabase
       .from('agencies')
-      .insert([{
-        ...values,
-        owner_id: user?.id,
-        status: 'pending'
-      }])
+      .insert([
+        {
+          ...values,
+          owner_id: user?.id,
+          status: 'pending',
+        },
+      ])
       .select()
       .single();
 
@@ -27,8 +29,8 @@ const handleSubmit = async (values: AgencyFormData) => {
           data: {
             agencyName: values.name,
             location: values.location,
-            contactEmail: values.contact_email
-          }
+            contactEmail: values.contact_email,
+          },
         });
       }
     }

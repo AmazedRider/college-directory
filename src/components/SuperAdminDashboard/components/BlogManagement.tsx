@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../../lib/supabase';
-import { PencilIcon, TrashIcon, PlusIcon } from 'lucide-react';
+import { PencilIcon, TrashIcon, PlusIcon, Upload, X, Image as ImageIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface BlogPost {
@@ -10,7 +10,7 @@ interface BlogPost {
   content: string;
   author: string;
   date: string;
-  imageUrl: string;
+  image_url: string;
   category: string;
   created_at: string;
 }
@@ -73,7 +73,7 @@ export function BlogManagement() {
       excerpt: '',
       content: '',
       author: '',
-      imageUrl: '',
+      image_url: '',
       category: '',
       date: new Date().toISOString().split('T')[0]
     });
@@ -193,15 +193,78 @@ function BlogPostModal({ post, onClose, onSave }: BlogPostModalProps) {
     excerpt: post?.excerpt || '',
     content: post?.content || '',
     author: post?.author || '',
-    imageUrl: post?.imageUrl || '',
+    image_url: post?.image_url || '',
     category: post?.category || '',
     date: post?.date || new Date().toISOString().split('T')[0]
   });
   const [loading, setLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File size must be less than 5MB');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setUploadProgress(0);
+
+      // Create a unique file name
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `blog-images/${fileName}`;
+
+      // Upload file to Supabase Storage
+      const { data, error: uploadError } = await supabase.storage
+        .from('blog-images')
+        .upload(filePath, file, {
+          onUploadProgress: (progress) => {
+            const percent = (progress.loaded / progress.total) * 100;
+            setUploadProgress(Math.round(percent));
+          }
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('blog-images')
+        .getPublicUrl(filePath);
+
+      // Update form data with new image URL
+      setFormData(prev => ({ ...prev, image_url: publicUrl }));
+      toast.success('Image uploaded successfully');
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast.error('Failed to upload image');
+    } finally {
+      setLoading(false);
+      setUploadProgress(0);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setFormData(prev => ({ ...prev, image_url: '' }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -224,7 +287,7 @@ function BlogPostModal({ post, onClose, onSave }: BlogPostModalProps) {
             excerpt: formData.excerpt,
             content: formData.content,
             author: formData.author,
-            imageUrl: formData.imageUrl,
+            image_url: formData.image_url,
             category: formData.category,
             date: formData.date
           })
@@ -241,7 +304,7 @@ function BlogPostModal({ post, onClose, onSave }: BlogPostModalProps) {
             excerpt: formData.excerpt,
             content: formData.content,
             author: formData.author,
-            imageUrl: formData.imageUrl,
+            image_url: formData.image_url,
             category: formData.category,
             date: formData.date
           }]);
@@ -270,13 +333,72 @@ function BlogPostModal({ post, onClose, onSave }: BlogPostModalProps) {
             onClick={onClose}
             className="text-gray-400 hover:text-gray-500"
           >
-            &times;
+            <X className="h-5 w-5" />
           </button>
         </div>
 
         <div className="p-6 overflow-y-auto">
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 gap-6">
+              {/* Image Upload Section */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Blog Image
+                </label>
+                <div className="space-y-4">
+                  {formData.image_url ? (
+                    <div className="relative">
+                      <img
+                        src={formData.image_url}
+                        alt="Blog post"
+                        className="w-full h-48 object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleRemoveImage}
+                        className="absolute top-2 right-2 p-1 bg-red-600 text-white rounded-full hover:bg-red-700"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                      <div className="text-center">
+                        <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
+                        <div className="mt-2">
+                          <label
+                            htmlFor="image-upload"
+                            className="cursor-pointer bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 inline-flex items-center gap-2"
+                          >
+                            <Upload className="h-4 w-4" />
+                            Upload Image
+                            <input
+                              id="image-upload"
+                              type="file"
+                              ref={fileInputRef}
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              className="hidden"
+                            />
+                          </label>
+                        </div>
+                        <p className="mt-2 text-sm text-gray-500">
+                          PNG, JPG, GIF up to 5MB
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {uploadProgress > 0 && uploadProgress < 100 && (
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div
+                        className="bg-indigo-600 h-2.5 rounded-full"
+                        style={{ width: `${uploadProgress}%` }}
+                      ></div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Title *
@@ -356,33 +478,17 @@ function BlogPostModal({ post, onClose, onSave }: BlogPostModalProps) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Date
-                  </label>
-                  <input
-                    type="date"
-                    name="date"
-                    value={formData.date}
-                    onChange={handleChange}
-                    className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Image URL
-                  </label>
-                  <input
-                    type="url"
-                    name="imageUrl"
-                    value={formData.imageUrl}
-                    onChange={handleChange}
-                    placeholder="https://example.com/image.jpg"
-                    className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Date
+                </label>
+                <input
+                  type="date"
+                  name="date"
+                  value={formData.date}
+                  onChange={handleChange}
+                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                />
               </div>
             </div>
 

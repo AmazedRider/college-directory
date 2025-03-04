@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { 
-  Search, 
-  X, 
-  Filter, 
-  MapPin, 
-  Star, 
-  DollarSign, 
-  Shield, 
+import {
+  Search,
+  X,
+  Filter,
+  MapPin,
+  Star,
+  DollarSign,
+  Shield,
   Check,
   GraduationCap,
   Globe,
-  Hash
+  Hash,
 } from 'lucide-react';
 
 interface SearchSectionProps {
@@ -32,25 +32,34 @@ export interface FilterOptions {
   location: string;
 }
 
-export function SearchSection({ onSearch, onFilterChange, searchInputRef }: SearchSectionProps) {
+export function SearchSection({
+  onSearch,
+  onFilterChange,
+  searchInputRef,
+}: SearchSectionProps) {
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [filteredSuggestions, setFilteredSuggestions] = useState<SearchSuggestion[]>([]);
+  const [filteredSuggestions, setFilteredSuggestions] = useState<
+    SearchSuggestion[]
+  >([]);
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
 
   const [filters, setFilters] = useState<FilterOptions>({
     minRating: 0,
     maxPrice: '',
     verifiedOnly: false,
-    location: ''
+    location: '',
   });
 
   const searchInputRefLocal = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
   const handleClickOutside = useCallback((e: MouseEvent) => {
-    if (suggestionsRef.current && !suggestionsRef.current.contains(e.target as Node)) {
+    if (
+      suggestionsRef.current &&
+      !suggestionsRef.current.contains(e.target as Node)
+    ) {
       setShowSuggestions(false);
     }
   }, []);
@@ -65,50 +74,142 @@ export function SearchSection({ onSearch, onFilterChange, searchInputRef }: Sear
   // Define searchable items
   const searchSuggestions: SearchSuggestion[] = [
     // Countries
-    { type: 'country', value: 'United States', icon: <Globe className="h-4 w-4" /> },
-    { type: 'country', value: 'United Kingdom', icon: <Globe className="h-4 w-4" /> },
+    {
+      type: 'country',
+      value: 'United States',
+      icon: <Globe className="h-4 w-4" />,
+    },
+    {
+      type: 'country',
+      value: 'United Kingdom',
+      icon: <Globe className="h-4 w-4" />,
+    },
     { type: 'country', value: 'Canada', icon: <Globe className="h-4 w-4" /> },
-    { type: 'country', value: 'Australia', icon: <Globe className="h-4 w-4" /> },
+    {
+      type: 'country',
+      value: 'Australia',
+      icon: <Globe className="h-4 w-4" />,
+    },
     { type: 'country', value: 'Germany', icon: <Globe className="h-4 w-4" /> },
     { type: 'country', value: 'France', icon: <Globe className="h-4 w-4" /> },
     { type: 'country', value: 'Japan', icon: <Globe className="h-4 w-4" /> },
     { type: 'country', value: 'India', icon: <Globe className="h-4 w-4" /> },
-    
+
     // Locations
-    { type: 'location', value: 'New York, USA', icon: <MapPin className="h-4 w-4" /> },
-    { type: 'location', value: 'London, UK', icon: <MapPin className="h-4 w-4" /> },
-    { type: 'location', value: 'Toronto, Canada', icon: <MapPin className="h-4 w-4" /> },
-    { type: 'location', value: 'Sydney, Australia', icon: <MapPin className="h-4 w-4" /> },
-    { type: 'location', value: 'Berlin, Germany', icon: <MapPin className="h-4 w-4" /> },
-    { type: 'location', value: 'Paris, France', icon: <MapPin className="h-4 w-4" /> },
-    { type: 'location', value: 'Tokyo, Japan', icon: <MapPin className="h-4 w-4" /> },
-    { type: 'location', value: 'Bangalore, India', icon: <MapPin className="h-4 w-4" /> },
-    
+    {
+      type: 'location',
+      value: 'New York, USA',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'London, UK',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Toronto, Canada',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Sydney, Australia',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Berlin, Germany',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Paris, France',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Tokyo, Japan',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Bangalore, India',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+
     // Courses
-    { type: 'course', value: 'Computer Science', icon: <Hash className="h-4 w-4" /> },
-    { type: 'course', value: 'Business Administration', icon: <Hash className="h-4 w-4" /> },
-    { type: 'course', value: 'Engineering', icon: <Hash className="h-4 w-4" /> },
+    {
+      type: 'course',
+      value: 'Computer Science',
+      icon: <Hash className="h-4 w-4" />,
+    },
+    {
+      type: 'course',
+      value: 'Business Administration',
+      icon: <Hash className="h-4 w-4" />,
+    },
+    {
+      type: 'course',
+      value: 'Engineering',
+      icon: <Hash className="h-4 w-4" />,
+    },
     { type: 'course', value: 'Medicine', icon: <Hash className="h-4 w-4" /> },
     { type: 'course', value: 'Law', icon: <Hash className="h-4 w-4" /> },
     { type: 'course', value: 'Psychology', icon: <Hash className="h-4 w-4" /> },
-    { type: 'course', value: 'Data Science', icon: <Hash className="h-4 w-4" /> },
-    
+    {
+      type: 'course',
+      value: 'Data Science',
+      icon: <Hash className="h-4 w-4" />,
+    },
+
     // Specializations
-    { type: 'specialization', value: 'Ivy League Admissions', icon: <GraduationCap className="h-4 w-4" /> },
-    { type: 'specialization', value: 'Medical School Admissions', icon: <GraduationCap className="h-4 w-4" /> },
-    { type: 'specialization', value: 'Law School Admissions', icon: <GraduationCap className="h-4 w-4" /> },
-    { type: 'specialization', value: 'MBA Admissions', icon: <GraduationCap className="h-4 w-4" /> },
-    { type: 'specialization', value: 'Undergraduate Admissions', icon: <GraduationCap className="h-4 w-4" /> },
-    { type: 'specialization', value: 'Graduate Program Admissions', icon: <GraduationCap className="h-4 w-4" /> },
-    { type: 'specialization', value: 'International Student Admissions', icon: <GraduationCap className="h-4 w-4" /> },
+    {
+      type: 'specialization',
+      value: 'Ivy League Admissions',
+      icon: <GraduationCap className="h-4 w-4" />,
+    },
+    {
+      type: 'specialization',
+      value: 'Medical School Admissions',
+      icon: <GraduationCap className="h-4 w-4" />,
+    },
+    {
+      type: 'specialization',
+      value: 'Law School Admissions',
+      icon: <GraduationCap className="h-4 w-4" />,
+    },
+    {
+      type: 'specialization',
+      value: 'MBA Admissions',
+      icon: <GraduationCap className="h-4 w-4" />,
+    },
+    {
+      type: 'specialization',
+      value: 'Undergraduate Admissions',
+      icon: <GraduationCap className="h-4 w-4" />,
+    },
+    {
+      type: 'specialization',
+      value: 'Graduate Program Admissions',
+      icon: <GraduationCap className="h-4 w-4" />,
+    },
+    {
+      type: 'specialization',
+      value: 'International Student Admissions',
+      icon: <GraduationCap className="h-4 w-4" />,
+    },
   ];
 
   useEffect(() => {
     if (searchQuery.length > 0) {
-      const filtered = searchSuggestions.filter(suggestion =>
-        suggestion.value.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (suggestion.type === 'location' && 
-         suggestion.value.split(',')[0].toLowerCase().includes(searchQuery.toLowerCase()))
+      const filtered = searchSuggestions.filter(
+        (suggestion) =>
+          suggestion.value.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (suggestion.type === 'location' &&
+            suggestion.value
+              .split(',')[0]
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase()))
       );
       setFilteredSuggestions(filtered);
       setShowSuggestions(true);
@@ -172,9 +273,13 @@ export function SearchSection({ onSearch, onFilterChange, searchInputRef }: Sear
     <div className="relative">
       <div className="bg-gradient-to-r from-blue-800 to-blue-600 py-10 px-6 md:py-16 md:px-12">
         <div className="max-w-5xl mx-auto">
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">Find Your Ideal College Consultant</h1>
-          <p className="text-blue-100 text-lg mb-8">Discover the perfect match for your college admissions journey.</p>
-          
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            Find Your Ideal College Consultant
+          </h1>
+          <p className="text-blue-100 text-lg mb-8">
+            Discover the perfect match for your college admissions journey.
+          </p>
+
           <div className="relative">
             <div className="flex flex-col md:flex-row gap-2">
               <div className="flex-1 relative">
@@ -211,7 +316,7 @@ export function SearchSection({ onSearch, onFilterChange, searchInputRef }: Sear
                   </button>
                 )}
               </div>
-              
+
               <button
                 type="button"
                 onClick={handleSearchSubmit}
@@ -219,44 +324,63 @@ export function SearchSection({ onSearch, onFilterChange, searchInputRef }: Sear
               >
                 Search
               </button>
-              
+
               <button
                 onClick={() => setShowFilters(!showFilters)}
                 className="md:w-auto px-6 py-4 rounded-xl font-medium transition-colors shadow-lg flex items-center justify-center gap-2 border-2 border-white/30 hover:bg-white/10 text-white"
               >
-                {showFilters ? <X className="h-5 w-5" /> : <Filter className="h-5 w-5" />}
+                {showFilters ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Filter className="h-5 w-5" />
+                )}
                 {showFilters ? 'Close' : 'Filter'}
               </button>
             </div>
 
             {/* Suggestions Dropdown */}
-            {showSuggestions && searchQuery && filteredSuggestions.length > 0 && (
-              <div ref={suggestionsRef} className="absolute left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-blue-100 overflow-hidden z-10">
-                <div className="p-2">
-                  <h3 className="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Suggestions</h3>
-                  <div className="divide-y divide-gray-100">
-                    {filteredSuggestions.map((suggestion, index) => (
-                      <button
-                        key={`${suggestion.type}-${suggestion.value}`}
-                        className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-blue-50 ${
-                          index === activeSuggestionIndex ? 'bg-blue-50' : ''
-                        }`}
-                        onClick={() => handleSuggestionClick(suggestion)}
-                        onMouseEnter={() => setActiveSuggestionIndex(index)}
-                      >
-                        <div className={`p-2 rounded-lg ${getSuggestionIconBackground(suggestion.type)}`}>
-                          {suggestion.icon}
-                        </div>
-                        <div>
-                          <span className="block font-medium text-gray-900">{suggestion.value}</span>
-                          <span className="block text-xs text-gray-500 capitalize">{suggestion.type}</span>
-                        </div>
-                      </button>
-                    ))}
+            {showSuggestions &&
+              searchQuery &&
+              filteredSuggestions.length > 0 && (
+                <div
+                  ref={suggestionsRef}
+                  className="absolute left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-blue-100 overflow-hidden z-10"
+                >
+                  <div className="p-2">
+                    <h3 className="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Suggestions
+                    </h3>
+                    <div className="divide-y divide-gray-100">
+                      {filteredSuggestions.map((suggestion, index) => (
+                        <button
+                          key={`${suggestion.type}-${suggestion.value}`}
+                          className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-blue-50 ${
+                            index === activeSuggestionIndex ? 'bg-blue-50' : ''
+                          }`}
+                          onClick={() => handleSuggestionClick(suggestion)}
+                          onMouseEnter={() => setActiveSuggestionIndex(index)}
+                        >
+                          <div
+                            className={`p-2 rounded-lg ${getSuggestionIconBackground(
+                              suggestion.type
+                            )}`}
+                          >
+                            {suggestion.icon}
+                          </div>
+                          <div>
+                            <span className="block font-medium text-gray-900">
+                              {suggestion.value}
+                            </span>
+                            <span className="block text-xs text-gray-500 capitalize">
+                              {suggestion.type}
+                            </span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
 
           {showFilters && (
@@ -271,9 +395,9 @@ export function SearchSection({ onSearch, onFilterChange, searchInputRef }: Sear
                         minRating: 0,
                         maxPrice: '',
                         verifiedOnly: false,
-                        location: ''
+                        location: '',
                       };
-                      
+
                       setFilters(resetFilters);
                       onFilterChange(resetFilters);
                     }}
@@ -282,7 +406,9 @@ export function SearchSection({ onSearch, onFilterChange, searchInputRef }: Sear
                     Reset All
                   </button>
                 </div>
-                <p className="text-blue-100 text-sm mt-1">Refine your consultant search</p>
+                <p className="text-blue-100 text-sm mt-1">
+                  Refine your consultant search
+                </p>
               </div>
 
               {/* Filter Content */}
@@ -301,19 +427,29 @@ export function SearchSection({ onSearch, onFilterChange, searchInputRef }: Sear
                         </span>
                         <select
                           value={filters.location}
-                          onChange={(e) => handleFilterChange({ location: e.target.value })}
+                          onChange={(e) =>
+                            handleFilterChange({ location: e.target.value })
+                          }
                           className="mt-2 block w-full pl-3 pr-10 py-3 text-base border-0 bg-white rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                         >
                           <option value="">Any Location</option>
                           <optgroup label="Cities">
                             <option value="New York, USA">New York, USA</option>
                             <option value="London, UK">London, UK</option>
-                            <option value="Toronto, Canada">Toronto, Canada</option>
-                            <option value="Sydney, Australia">Sydney, Australia</option>
-                            <option value="Berlin, Germany">Berlin, Germany</option>
+                            <option value="Toronto, Canada">
+                              Toronto, Canada
+                            </option>
+                            <option value="Sydney, Australia">
+                              Sydney, Australia
+                            </option>
+                            <option value="Berlin, Germany">
+                              Berlin, Germany
+                            </option>
                             <option value="Paris, France">Paris, France</option>
                             <option value="Tokyo, Japan">Tokyo, Japan</option>
-                            <option value="Bangalore, India">Bangalore, India</option>
+                            <option value="Bangalore, India">
+                              Bangalore, India
+                            </option>
                           </optgroup>
                         </select>
                       </label>
@@ -332,7 +468,9 @@ export function SearchSection({ onSearch, onFilterChange, searchInputRef }: Sear
                           {[0, 3, 4, 5].map((rating) => (
                             <button
                               key={rating}
-                              onClick={() => handleFilterChange({ minRating: rating })}
+                              onClick={() =>
+                                handleFilterChange({ minRating: rating })
+                              }
                               className={`flex-1 py-2 rounded-lg font-medium transition-colors ${
                                 filters.minRating === rating
                                   ? 'bg-blue-600 text-white'
@@ -360,7 +498,9 @@ export function SearchSection({ onSearch, onFilterChange, searchInputRef }: Sear
                         </span>
                         <select
                           value={filters.maxPrice}
-                          onChange={(e) => handleFilterChange({ maxPrice: e.target.value })}
+                          onChange={(e) =>
+                            handleFilterChange({ maxPrice: e.target.value })
+                          }
                           className="mt-2 block w-full pl-3 pr-10 py-3 text-base border-0 bg-white rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                         >
                           <option value="">Any Price</option>
@@ -377,12 +517,18 @@ export function SearchSection({ onSearch, onFilterChange, searchInputRef }: Sear
                       <label className="flex cursor-pointer group">
                         <div className="flex items-start gap-3">
                           <div className="pt-0.5">
-                            <div className={`w-10 h-6 rounded-full p-1 transition-colors duration-300 ${
-                              filters.verifiedOnly ? 'bg-blue-600' : 'bg-gray-300'
-                            }`}>
-                              <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
-                                filters.verifiedOnly ? 'translate-x-4' : ''
-                              }`}></div>
+                            <div
+                              className={`w-10 h-6 rounded-full p-1 transition-colors duration-300 ${
+                                filters.verifiedOnly
+                                  ? 'bg-blue-600'
+                                  : 'bg-gray-300'
+                              }`}
+                            >
+                              <div
+                                className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
+                                  filters.verifiedOnly ? 'translate-x-4' : ''
+                                }`}
+                              ></div>
                             </div>
                           </div>
                           <div>
@@ -393,14 +539,19 @@ export function SearchSection({ onSearch, onFilterChange, searchInputRef }: Sear
                               Verified Consultants Only
                             </span>
                             <p className="text-xs text-gray-500 mt-1 group-hover:text-gray-700 transition-colors">
-                              Show only consultants that have been verified by our team
+                              Show only consultants that have been verified by
+                              our team
                             </p>
                           </div>
                         </div>
                         <input
                           type="checkbox"
                           checked={filters.verifiedOnly}
-                          onChange={(e) => handleFilterChange({ verifiedOnly: e.target.checked })}
+                          onChange={(e) =>
+                            handleFilterChange({
+                              verifiedOnly: e.target.checked,
+                            })
+                          }
                           className="sr-only"
                         />
                       </label>

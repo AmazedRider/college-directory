@@ -1,5 +1,13 @@
 import React from 'react';
-import { Building2, MapPin, Phone, Mail, Globe, Clock, Save } from 'lucide-react';
+import {
+  Building2,
+  MapPin,
+  Phone,
+  Mail,
+  Globe,
+  Clock,
+  Save,
+} from 'lucide-react';
 import { Agency } from '../types';
 
 interface AgencyDetailsProps {
@@ -8,11 +16,17 @@ interface AgencyDetailsProps {
   onSubmit: (e: React.FormEvent) => void;
 }
 
-export function AgencyDetails({ agency, onUpdate, onSubmit }: AgencyDetailsProps) {
+export function AgencyDetails({
+  agency,
+  onUpdate,
+  onSubmit,
+}: AgencyDetailsProps) {
   return (
     <form onSubmit={onSubmit} className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">Edit Agency Details</h2>
-      
+      <h2 className="text-xl font-semibold text-gray-900 mb-6">
+        Edit Agency Details
+      </h2>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -38,7 +52,9 @@ export function AgencyDetails({ agency, onUpdate, onSubmit }: AgencyDetailsProps
             <input
               type="text"
               value={agency.location}
-              onChange={(e) => onUpdate({ ...agency, location: e.target.value })}
+              onChange={(e) =>
+                onUpdate({ ...agency, location: e.target.value })
+              }
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
@@ -50,7 +66,9 @@ export function AgencyDetails({ agency, onUpdate, onSubmit }: AgencyDetailsProps
           </label>
           <textarea
             value={agency.description}
-            onChange={(e) => onUpdate({ ...agency, description: e.target.value })}
+            onChange={(e) =>
+              onUpdate({ ...agency, description: e.target.value })
+            }
             rows={4}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           />
@@ -65,7 +83,9 @@ export function AgencyDetails({ agency, onUpdate, onSubmit }: AgencyDetailsProps
             <input
               type="text"
               value={agency.contact_phone}
-              onChange={(e) => onUpdate({ ...agency, contact_phone: e.target.value })}
+              onChange={(e) =>
+                onUpdate({ ...agency, contact_phone: e.target.value })
+              }
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
@@ -80,7 +100,9 @@ export function AgencyDetails({ agency, onUpdate, onSubmit }: AgencyDetailsProps
             <input
               type="email"
               value={agency.contact_email}
-              onChange={(e) => onUpdate({ ...agency, contact_email: e.target.value })}
+              onChange={(e) =>
+                onUpdate({ ...agency, contact_email: e.target.value })
+              }
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
@@ -110,7 +132,9 @@ export function AgencyDetails({ agency, onUpdate, onSubmit }: AgencyDetailsProps
             <input
               type="text"
               value={agency.business_hours}
-              onChange={(e) => onUpdate({ ...agency, business_hours: e.target.value })}
+              onChange={(e) =>
+                onUpdate({ ...agency, business_hours: e.target.value })
+              }
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="e.g., Mon-Fri: 9AM-6PM"
             />
