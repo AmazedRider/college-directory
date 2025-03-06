@@ -13,6 +13,7 @@ import { AboutPage } from './pages/AboutPage';
 import { BlogPage } from './pages/BlogPage';
 import { Footer } from './components/Footer';
 import toast from 'react-hot-toast';
+import { BlogPost } from './pages/BlogPost';
 
 function App() {
   const { user, loading, error } = useAuth();
@@ -175,6 +176,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/post/:id" element={<BlogPost />} />
           <Route path="/agency/:slug" element={<AgencyPage />} />
         </Routes>
       )}

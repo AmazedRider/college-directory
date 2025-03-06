@@ -459,23 +459,16 @@ function BlogPostModal({ post, onClose, onSave }: BlogPostModalProps) {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Category *
                   </label>
-                  <select
+                  <input
+                    type="text"
                     name="category"
                     value={formData.category}
                     onChange={handleChange}
                     className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
                     required
-                  >
-                    <option value="">Select a category</option>
-                    <option value="College Selection">College Selection</option>
-                    <option value="Financial Aid">Financial Aid</option>
-                    <option value="Admissions">Admissions</option>
-                    <option value="Campus Life">Campus Life</option>
-                    <option value="Education Trends">Education Trends</option>
-                    <option value="Test Preparation">Test Preparation</option>
-                    <option value="Career Planning">Career Planning</option>
-                  </select>
+                  />
                 </div>
+
               </div>
 
               <div>

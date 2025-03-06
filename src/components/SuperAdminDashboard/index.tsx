@@ -41,7 +41,6 @@ export function SuperAdminDashboard() {
 
   const loadAdmins = async () => {
     try {
-      // Get all admin profiles (excluding super admins)
       const { data: profilesData, error: profilesError } = await retryableQuery(() =>
         supabase
           .from('profiles')
@@ -53,13 +52,12 @@ export function SuperAdminDashboard() {
           `)
           .eq('is_admin', true)
           .eq('is_super_admin', false)
-      );
+      ) as Promise<{ data: any[] | null; error: any; }>;
 
       if (profilesError) throw profilesError;
 
-      // Then get agency counts for each admin
       const adminsWithCounts = await Promise.all(
-        (profilesData || []).map(async (profile) => {
+        (profilesData || []).map(async (profile: any) => {
           const { count, error: countError } = await supabase
             .from('agencies')
             .select('*', { count: 'exact', head: true })
@@ -84,7 +82,7 @@ export function SuperAdminDashboard() {
   const loadAgencies = async () => {
     try {
       let query = supabase
-        .from('agencies')
+        .from<Agency>('agencies')
         .select(`
           *,
           owner:profiles!agencies_owner_id_fkey (
@@ -98,7 +96,7 @@ export function SuperAdminDashboard() {
         query = query.eq('status', filter);
       }
 
-      const { data, error } = await retryableQuery(() => query);
+      const { data, error } = await retryableQuery(() => query) as Promise<{ data: Agency[] | null; error: any; }>;
 
       if (error) throw error;
       setAgencies(data || []);
@@ -127,7 +125,6 @@ export function SuperAdminDashboard() {
 
   const handleApproveAdminRequest = async (requestId: string) => {
     try {
-      // Get request details
       const { data: request, error: requestError } = await supabase
         .from('admin_requests')
         .select('*')
@@ -136,7 +133,6 @@ export function SuperAdminDashboard() {
 
       if (requestError) throw requestError;
 
-      // Update request status
       const { error: updateError } = await supabase
         .from('admin_requests')
         .update({ status: 'approved' })
@@ -144,7 +140,6 @@ export function SuperAdminDashboard() {
 
       if (updateError) throw updateError;
 
-      // Update user profile to make them an admin
       const { error: profileError } = await supabase
         .from('profiles')
         .update({ is_admin: true })
@@ -154,7 +149,7 @@ export function SuperAdminDashboard() {
 
       toast.success('Admin request approved');
       loadAdminRequests();
-      loadAdmins(); // Reload admins list
+      loadAdmins();
     } catch (error) {
       console.error('Failed to approve admin request:', error);
       toast.error('Failed to approve admin request');
@@ -219,6 +214,50 @@ export function SuperAdminDashboard() {
       toast.success('Trust score updated');
     } catch (error) {
       toast.error('Failed to update trust score');
+    }
+  };
+
+  const handleDeleteAgency = async (agencyId: string) => {
+    try {
+      // First, delete all associated photos from storage
+      const { data: photos, error: photosError } = await supabase
+        .from('agency_photos')
+        .select('url')
+        .eq('agency_id', agencyId);
+
+      if (photosError) throw photosError;
+
+      // Delete photos from storage
+      if (photos && photos.length > 0) {
+        const photoUrls = photos.map(photo => {
+          const url = new URL(photo.url);
+          return url.pathname.split('/').pop() || '';
+        }).filter(Boolean);
+
+        if (photoUrls.length > 0) {
+          const { error: storageError } = await supabase.storage
+            .from('agency-photos')
+            .remove(photoUrls);
+
+          if (storageError) throw storageError;
+        }
+      }
+
+      // Delete the agency and all related data (cascade will handle related records)
+      const { error: deleteError } = await supabase
+        .from('agencies')
+        .delete()
+        .eq('id', agencyId);
+
+      if (deleteError) throw deleteError;
+
+      // Update the state to remove the deleted agency
+      setAgencies((prevAgencies) => prevAgencies.filter((agency: Agency) => agency.id !== agencyId));
+
+      toast.success('Agency deleted successfully');
+    } catch (error) {
+      console.error('Failed to delete agency:', error);
+      toast.error('Failed to delete agency');
     }
   };
 
@@ -357,6 +396,7 @@ export function SuperAdminDashboard() {
               onStatusChange={handleStatusChange}
               onVerificationChange={handleVerificationChange}
               onTrustScoreChange={handleTrustScoreChange}
+              onDelete={handleDeleteAgency}
             />
           </>
         ) : (

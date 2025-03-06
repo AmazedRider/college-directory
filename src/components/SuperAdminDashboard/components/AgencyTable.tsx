@@ -8,13 +8,15 @@ interface AgencyTableProps {
   onStatusChange: (agencyId: string, status: 'approved' | 'rejected') => Promise<void>;
   onVerificationChange: (agencyId: string, is_verified: boolean) => Promise<void>;
   onTrustScoreChange: (agencyId: string, trust_score: number) => Promise<void>;
+  onDelete: (agencyId: string) => Promise<void>;
 }
 
 export function AgencyTable({
   agencies,
   onStatusChange,
   onVerificationChange,
-  onTrustScoreChange
+  onTrustScoreChange,
+  onDelete
 }: AgencyTableProps) {
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -50,6 +52,7 @@ export function AgencyTable({
                 onStatusChange={onStatusChange}
                 onVerificationChange={onVerificationChange}
                 onTrustScoreChange={onTrustScoreChange}
+                onDelete={onDelete}
               />
             ))}
           </tbody>

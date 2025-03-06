@@ -1,5 +1,5 @@
-import React from 'react';
-import { Building2, ThumbsUp, ThumbsDown, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { Building2, ThumbsUp, ThumbsDown, AlertCircle, CheckCircle, XCircle, Trash2 } from 'lucide-react';
 import { Agency } from '../types';
 
 interface AgencyRowProps {
@@ -7,14 +7,24 @@ interface AgencyRowProps {
   onStatusChange: (agencyId: string, status: 'approved' | 'rejected') => Promise<void>;
   onVerificationChange: (agencyId: string, is_verified: boolean) => Promise<void>;
   onTrustScoreChange: (agencyId: string, trust_score: number) => Promise<void>;
+  onDelete: (agencyId: string) => Promise<void>;
 }
 
 export function AgencyRow({
   agency,
   onStatusChange,
   onVerificationChange,
-  onTrustScoreChange
+  onTrustScoreChange,
+  onDelete
 }: AgencyRowProps) {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const handleDelete = async () => {
+    if (window.confirm(`Are you sure you want to delete ${agency.name}? This action cannot be undone.`)) {
+      await onDelete(agency.id);
+    }
+  };
+
   return (
     <tr>
       <td className="px-6 py-4">
@@ -93,6 +103,13 @@ export function AgencyRow({
               </button>
             </>
           )}
+          <button
+            onClick={handleDelete}
+            className="text-red-600 hover:text-red-800 ml-2"
+            title="Delete Agency"
+          >
+            <Trash2 className="h-5 w-5" />
+          </button>
         </div>
       </td>
     </tr>
