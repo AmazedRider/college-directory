@@ -3,13 +3,14 @@ import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { AgencyDetails } from '../components/AgencyDetails';
 import { useAgency } from '../hooks/useAgency';
-import { Shield, MapPin, Star, Phone, Mail, Globe, Clock, Download, MessageSquare } from 'lucide-react';
+import { Shield, MapPin, Star, Phone, Mail, Globe, Clock, Download, MessageSquare, X } from 'lucide-react';
 import { ReviewForm } from '../components/ReviewForm';
 import { ReviewsList } from '../components/ReviewsList';
 import { PhotoGalleryModal } from '../components/PhotoGalleryModal';
 import { useAuth } from '../../components/AuthContext';
 import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
+import Cal, { getCalApi } from "@calcom/embed-react";
 
 interface Review {
   id: string;
@@ -35,12 +36,26 @@ export function AgencyPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [isAddingReview, setIsAddingReview] = useState(false);
+  const [showBooking, setShowBooking] = useState(false);
 
   useEffect(() => {
     if (agency) {
       loadReviews();
     }
   }, [agency]);
+
+  useEffect(() => {
+    (async function () {
+      const cal = await getCalApi();
+      cal("ui", {
+        styles: {
+          branding: { brandColor: "#1e40af" }
+        },
+        hideEventTypeDetails: false,
+        layout: "month_view"
+      });
+    })();
+  }, []);
 
   const loadReviews = async () => {
     if (!agency) return;
@@ -282,7 +297,10 @@ export function AgencyPage() {
                 </div>
 
                 <div className="space-y-4 pt-2">
-                  <button className="w-full bg-gradient-to-r from-blue-800 to-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-all transform hover:scale-[1.02] shadow-sm hover:shadow-md font-medium">
+                  <button
+                    onClick={() => setShowBooking(true)}
+                    className="w-full bg-gradient-to-r from-blue-800 to-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-all transform hover:scale-[1.02] shadow-sm hover:shadow-md font-medium"
+                  >
                     Schedule Consultation
                   </button>
                   <a
@@ -409,7 +427,10 @@ export function AgencyPage() {
                   </div>
 
                   <div className="space-y-4 pt-2">
-                    <button className="w-full bg-gradient-to-r from-blue-800 to-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-all transform hover:scale-[1.02] shadow-sm hover:shadow-md font-medium">
+                    <button
+                      onClick={() => setShowBooking(true)}
+                      className="w-full bg-gradient-to-r from-blue-800 to-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-all transform hover:scale-[1.02] shadow-sm hover:shadow-md font-medium"
+                    >
                       Schedule Consultation
                     </button>
                     <a
@@ -433,6 +454,40 @@ export function AgencyPage() {
           </div>
         </div>
       </div>
+
+      {/* Booking Modal */}
+      {showBooking && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-hidden">
+          <div className="h-full w-full flex flex-col">
+            <div className="bg-white w-full flex-1 flex flex-col">
+              <div className="flex-shrink-0 border-b border-gray-100 flex items-center justify-between p-4">
+                <h3 className="text-lg font-semibold text-gray-900">Schedule a Consultation</h3>
+                <button
+                  onClick={() => setShowBooking(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  aria-label="Close booking modal"
+                >
+                  <X className="h-6 w-6 text-gray-500" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto -webkit-overflow-scrolling-touch">
+                <Cal
+                  calLink="forge/consultation"
+                  style={{
+                    width: "100%",
+                    height: "100vh",
+                    overflow: "auto"
+                  }}
+                  config={{
+                    layout: "month_view",
+                    hideEventTypeDetails: "false"
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Photo Gallery Modal */}
       {showGallery && agency.photos && (

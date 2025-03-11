@@ -136,11 +136,132 @@ export function SearchSection({
       value: 'Bangalore, India',
       icon: <MapPin className="h-4 w-4" />,
     },
+    {
+      type: 'location',
+      value: 'Hyderabad, India',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    // Hyderabad Areas
+    {
+      type: 'location',
+      value: 'Malakpet',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Mehdipatnam',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Tolichowki',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Banjara Hills',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Jubilee Hills',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'HITEC City',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Gachibowli',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Secunderabad',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Kukatpally',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Ameerpet',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Dilsukhnagar',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Begumpet',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Madhapur',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Kondapur',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Santosh Nagar',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Masab Tank',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Uppal',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'LB Nagar',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Miyapur',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Manikonda',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Attapur',
+      icon: <MapPin className="h-4 w-4" />,
+    },
 
     // Courses
     {
       type: 'course',
       value: 'Computer Science',
+      icon: <Hash className="h-4 w-4" />,
+    },
+    {
+      type: 'course',
+      value: 'Machine Learning',
+      icon: <Hash className="h-4 w-4" />,
+    },
+    {
+      type: 'course',
+      value: 'Medical',
       icon: <Hash className="h-4 w-4" />,
     },
     {
@@ -298,7 +419,13 @@ export function SearchSection({
                   }}
                   className="w-full pl-12 pr-4 py-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-white/50 border-0 bg-white/10 backdrop-blur-sm text-white placeholder-blue-200 shadow-lg"
                   onFocus={() => setShowSuggestions(true)}
-                  onBlur={handleClickOutside}
+                  onBlur={() => {
+                    setTimeout(() => {
+                      if (!suggestionsRef.current?.contains(document.activeElement)) {
+                        setShowSuggestions(false);
+                      }
+                    }, 200);
+                  }}
                   onKeyDown={handleKeyDown}
                 />
                 {searchQuery && (

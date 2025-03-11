@@ -1,5 +1,6 @@
-import React from 'react';
-import { GraduationCap, Users, BookOpen, Target, Star, Mail, Phone, MapPin, Globe, Clock, MessageSquare } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { GraduationCap, Users, BookOpen, Target, Star, Mail, Phone, MapPin, Globe, Clock, MessageSquare, X } from 'lucide-react';
+import Cal, { getCalApi } from "@calcom/embed-react";
 
 interface FeatureCardProps {
   icon: React.ReactNode;
@@ -38,6 +39,21 @@ function ContactCard({ icon, title, content, link }: { icon: React.ReactNode; ti
 }
 
 export function AboutPage() {
+  const [showBooking, setShowBooking] = useState(false);
+
+  useEffect(() => {
+    (async function () {
+      const cal = await getCalApi({ "namespace": "30min" });
+      cal("ui", {
+        hideEventTypeDetails: false,
+        layout: "month_view",
+        styles: {
+          branding: { brandColor: "#1e40af" }, // blue-800
+        }
+      });
+    })();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       {/* Hero Section */}
@@ -165,12 +181,49 @@ export function AboutPage() {
             <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
               Want to discuss your college admissions journey? Schedule a free consultation with one of our expert advisors.
             </p>
-            <button className="bg-gradient-to-r from-blue-800 to-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+            <button
+              onClick={() => setShowBooking(true)}
+              className="bg-gradient-to-r from-blue-800 to-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+            >
               Book a Call
             </button>
           </div>
         </div>
       </div>
+
+      {/* Booking Modal */}
+      {showBooking && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-hidden">
+          <div className="h-full w-full flex flex-col">
+            <div className="bg-white w-full flex-1 flex flex-col">
+              <div className="flex-shrink-0 border-b border-gray-100 flex items-center justify-between p-4">
+                <h3 className="text-lg font-semibold text-gray-900">Schedule a Meeting</h3>
+                <button
+                  onClick={() => setShowBooking(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  aria-label="Close booking modal"
+                >
+                  <X className="h-6 w-6 text-gray-500" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto -webkit-overflow-scrolling-touch">
+                <Cal
+                  namespace="30min"
+                  calLink="forge/30min"
+                  style={{
+                    width: "100%",
+                    height: "100vh",
+                    overflow: "auto"
+                  }}
+                  config={{
+                    layout: "week_view"
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
