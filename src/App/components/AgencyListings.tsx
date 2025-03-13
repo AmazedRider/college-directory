@@ -100,18 +100,28 @@ export function AgencyListings({ searchQuery, filters }: AgencyListingsProps) {
       if (!matchesSearch) return false;
     }
 
+    // Location filter
+    if (filters.location && filters.location !== '') {
+      if (!agency.location.toLowerCase().includes(filters.location.toLowerCase())) {
+        return false;
+      }
+    }
+
     // Rating filter
     if (filters.minRating > 0 && agency.rating < filters.minRating) {
       return false;
     }
 
     // Price filter
-    if (filters.maxPrice && agency.price > parseInt(filters.maxPrice)) {
-      return false;
+    if (filters.maxPrice && filters.maxPrice !== '') {
+      const maxPrice = parseInt(filters.maxPrice);
+      if (!isNaN(maxPrice) && agency.price > maxPrice) {
+        return false;
+      }
     }
 
     // Specializations filter
-    if (filters.specializations.length > 0) {
+    if (filters.specializations && filters.specializations.length > 0) {
       const hasSpecialization = filters.specializations.some(s => 
         agency.specializations.includes(s)
       );
