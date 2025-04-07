@@ -30,6 +30,7 @@ export interface FilterOptions {
   maxPrice: string;
   verifiedOnly: boolean;
   location: string;
+  specializations: string[];
 }
 
 export function SearchSection({
@@ -50,6 +51,7 @@ export function SearchSection({
     maxPrice: '',
     verifiedOnly: false,
     location: '',
+    specializations: [],
   });
 
   const searchInputRefLocal = useRef<HTMLInputElement>(null);
@@ -523,6 +525,7 @@ export function SearchSection({
                         maxPrice: '',
                         verifiedOnly: false,
                         location: '',
+                        specializations: [],
                       };
 
                       setFilters(resetFilters);

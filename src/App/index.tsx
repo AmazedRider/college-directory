@@ -14,6 +14,7 @@ import { BlogPage } from './pages/BlogPage';
 import { Footer } from './components/Footer';
 import toast from 'react-hot-toast';
 import { BlogPost } from './pages/BlogPost';
+import { useGoogleAnalytics } from '../lib/hooks/useGoogleAnalytics';
 
 function App() {
   const { user, loading, error } = useAuth();
@@ -23,6 +24,9 @@ function App() {
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
+
+  // Initialize Google Analytics
+  useGoogleAnalytics();
 
   useEffect(() => {
     if (user) {

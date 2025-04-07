@@ -100,18 +100,28 @@ export function AgencyListings({ searchQuery, filters }: AgencyListingsProps) {
       if (!matchesSearch) return false;
     }
 
+    // Location filter
+    if (filters.location && filters.location !== '') {
+      if (!agency.location.toLowerCase().includes(filters.location.toLowerCase())) {
+        return false;
+      }
+    }
+
     // Rating filter
     if (filters.minRating > 0 && agency.rating < filters.minRating) {
       return false;
     }
 
     // Price filter
-    if (filters.maxPrice && agency.price > parseInt(filters.maxPrice)) {
-      return false;
+    if (filters.maxPrice && filters.maxPrice !== '') {
+      const maxPrice = parseInt(filters.maxPrice);
+      if (!isNaN(maxPrice) && agency.price > maxPrice) {
+        return false;
+      }
     }
 
     // Specializations filter
-    if (filters.specializations.length > 0) {
+    if (filters.specializations && filters.specializations.length > 0) {
       const hasSpecialization = filters.specializations.some(s => 
         agency.specializations.includes(s)
       );
@@ -171,6 +181,21 @@ export function AgencyListings({ searchQuery, filters }: AgencyListingsProps) {
     return agency.image_url || 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80';
   };
 
+  // Add this helper function before the return statement
+  const getVisiblePageNumbers = (currentPage: number, totalPages: number) => {
+    if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    
+    if (currentPage <= 3) {
+      return [1, 2, 3, 4, '...', totalPages];
+    }
+    
+    if (currentPage >= totalPages - 2) {
+      return [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    }
+    
+    return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-12">
@@ -205,43 +230,54 @@ export function AgencyListings({ searchQuery, filters }: AgencyListingsProps) {
             ))}
           </div>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-2">
+          {/* Replace the existing pagination section with this updated version */}
+          <div className="flex flex-col items-center space-y-4 mt-8">
+            <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2 max-w-full px-2">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Previous page"
               >
-                <ChevronLeft className="h-5 w-5" />
+                <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
               
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
-                <button
-                  key={pageNumber}
-                  onClick={() => handlePageChange(pageNumber)}
-                  className={`px-4 py-2 rounded-lg ${
-                    currentPage === pageNumber
-                      ? 'bg-indigo-600 text-white'
-                      : 'hover:bg-gray-100'
-                  }`}
-                >
-                  {pageNumber}
-                </button>
+              {getVisiblePageNumbers(currentPage, totalPages).map((pageNumber, index) => (
+                <React.Fragment key={index}>
+                  {pageNumber === '...' ? (
+                    <span className="px-2 py-1 text-gray-500">...</span>
+                  ) : (
+                    <button
+                      onClick={() => handlePageChange(Number(pageNumber))}
+                      className={`min-w-[2rem] sm:min-w-[2.5rem] px-2 sm:px-4 py-1 sm:py-2 rounded-lg text-sm sm:text-base ${
+                        currentPage === pageNumber
+                          ? 'bg-indigo-600 text-white'
+                          : 'hover:bg-gray-100'
+                      }`}
+                    >
+                      {pageNumber}
+                    </button>
+                  )}
+                </React.Fragment>
               ))}
 
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Next page"
               >
-                <ChevronRight className="h-5 w-5" />
+                <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
             </div>
-          )}
 
-          <div className="text-center text-gray-500">
-            Showing {startIndex + 1} to {Math.min(endIndex, filteredAgencies.length)} of {filteredAgencies.length} consultants
+            <div className="text-center text-sm text-gray-500 px-4">
+              Showing <span className="font-medium">{startIndex + 1}</span> to{' '}
+              <span className="font-medium">
+                {Math.min(endIndex, filteredAgencies.length)}
+              </span>{' '}
+              of <span className="font-medium">{filteredAgencies.length}</span> consultants
+            </div>
           </div>
         </>
       )}
