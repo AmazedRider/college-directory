@@ -1,0 +1,18 @@
+# Admissions.app robots.txt
+User-agent: *
+Allow: /
+
+# Allow all bots to access the content
+Sitemap: https://admissions.app/sitemap.xml
+
+# Disallow admin and auth routes
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /api/
+
+# Crawl delay directive for heavy crawlers
+User-agent: AhrefsBot
+Crawl-delay: 5
+
+User-agent: SemrushBot
+Crawl-delay: 10 

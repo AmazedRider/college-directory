@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
-import { AgencyDetails } from '../components/AgencyDetails';
 import { useAgency } from '../hooks/useAgency';
 import { Shield, MapPin, Star, Phone, Mail, Globe, Clock, Download, MessageSquare, X } from 'lucide-react';
 import { ReviewForm } from '../components/ReviewForm';
@@ -11,6 +9,7 @@ import { useAuth } from '../../components/AuthContext';
 import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
 import Cal, { getCalApi } from "@calcom/embed-react";
+import { SEO } from '../components/SEO';
 
 interface Review {
   id: string;
@@ -76,13 +75,91 @@ export function AgencyPage() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setReviews(data || []);
+      
+      // Process the data to match the Review interface
+      const formattedReviews: Review[] = (data || []).map((review: any) => ({
+        id: review.id,
+        rating: review.rating,
+        content: review.content,
+        created_at: review.created_at,
+        user: review.user?.[0] || null,
+        response: review.response?.[0] || null
+      }));
+      
+      setReviews(formattedReviews);
     } catch (error) {
       console.error('Error loading reviews:', error);
       toast.error('Failed to load reviews');
     } finally {
       setReviewsLoading(false);
     }
+  };
+
+  // Get the main image URL for the agency
+  const getMainImageUrl = (agency: any): string => {
+    const coverPhoto = agency.photos?.find((photo: any) => photo.is_cover);
+    if (coverPhoto) return coverPhoto.url;
+    if (agency.photos?.[0]) return agency.photos[0].url;
+    return agency.image_url || 'https://via.placeholder.com/800x400?text=No+Image';
+  };
+
+  // Generate schema for the agency page
+  const generateAgencySchema = (agency: any) => {
+    const imageUrl = getMainImageUrl(agency);
+    
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'LocalBusiness',
+      '@id': `https://admissions.app/agency/${agency.slug}`,
+      name: agency.name,
+      image: imageUrl,
+      description: agency.description,
+      url: `https://admissions.app/agency/${agency.slug}`,
+      telephone: agency.contact_phone,
+      email: agency.contact_email,
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: agency.location
+      },
+      geo: {
+        '@type': 'GeoCoordinates',
+        latitude: agency.latitude || undefined,
+        longitude: agency.longitude || undefined
+      },
+      priceRange: agency.price ? `₹${agency.price}` : undefined,
+      openingHours: agency.business_hours || undefined,
+      isVerified: agency.is_verified || false,
+      aggregateRating: agency.rating ? {
+        '@type': 'AggregateRating',
+        ratingValue: agency.rating,
+        reviewCount: reviews.length,
+        bestRating: '5',
+        worstRating: '1'
+      } : undefined,
+      review: reviews.map((review: any) => ({
+        '@type': 'Review',
+        reviewRating: {
+          '@type': 'Rating',
+          ratingValue: review.rating,
+          bestRating: '5',
+          worstRating: '1'
+        },
+        author: {
+          '@type': 'Person',
+          name: review.user?.full_name || 'Anonymous'
+        },
+        reviewBody: review.content,
+        datePublished: review.created_at
+      })),
+      makesOffer: agency.services ? agency.services.map((service: any) => ({
+        '@type': 'Offer',
+        itemOffered: {
+          '@type': 'Service',
+          name: service.name,
+          description: service.description || undefined
+        }
+      })) : undefined
+    };
   };
 
   if (loading) {
@@ -104,11 +181,26 @@ export function AgencyPage() {
     );
   }
 
-  const coverPhoto = agency.photos?.find(photo => photo.is_cover);
-  const imageUrl = coverPhoto?.url || agency.image_url || 'https://via.placeholder.com/800x400?text=No+Image';
+  const imageUrl = getMainImageUrl(agency);
 
   return (
     <div className="min-h-screen bg-gray-50 py-6 sm:py-12">
+      <SEO
+        title={`${agency.name} | College Admissions Consultant`}
+        description={agency.description.substring(0, 160)}
+        canonicalUrl={`/agency/${agency.slug}`}
+        ogImage={imageUrl}
+        ogType="profile"
+        keywords={[
+          'college consultant', 
+          'admissions consultant', 
+          'education services', 
+          agency.location, 
+          ...agency.specializations || []
+        ]}
+        schema={generateAgencySchema(agency)}
+      />
+      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           {/* Hero Section with improved gradient */}

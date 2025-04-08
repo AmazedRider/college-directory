@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
+import { SEO } from '../components/SEO';
 
 interface BlogPost {
   id: string;
@@ -101,12 +101,37 @@ export function BlogPage() {
     }
   ];
 
+  // Generate schema for blog page
+  const blogSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    headline: 'Admissions Blog',
+    description: 'Expert insights, tips, and advice to help you navigate the college admissions process',
+    url: 'https://admissions.app/blog',
+    blogPost: displayPosts.map(post => ({
+      '@type': 'BlogPosting',
+      headline: post.title,
+      description: post.excerpt,
+      datePublished: post.date,
+      author: {
+        '@type': 'Person',
+        name: post.author
+      },
+      image: post.image_url || 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'
+    }))
+  };
+
   return (
     <div className="bg-gray-50 min-h-screen">
-      <Helmet>
-        <title>Blog | Admissions.app</title>
-        <meta name="description" content="Latest insights, tips and advice for college admissions" />
-      </Helmet>
+      <SEO 
+        title="Blog | College Admissions Insights & Tips | Admissions.app"
+        description="Expert insights, tips, and advice to help you navigate the college admissions process. Read our latest articles on college applications, essays, and more."
+        canonicalUrl="/blog"
+        ogType="website"
+        ogImage={displayPosts[0]?.image_url}
+        keywords={['college admissions blog', 'college application tips', 'admissions advice', 'college essay tips']}
+        schema={blogSchema}
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
