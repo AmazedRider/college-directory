@@ -195,7 +195,7 @@ export function AboutPage() {
               <ContactCard
                 icon={<Mail className="h-8 w-8" />}
                 title="Email"
-                content="support@admissions.app"
+                content="connect@admissions.app"
                 link="mailto:connect@admissions.app"
               />
               <ContactCard
