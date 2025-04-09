@@ -196,7 +196,7 @@ export function AboutPage() {
                 icon={<Mail className="h-8 w-8" />}
                 title="Email"
                 content="support@admissions.app"
-                link="mailto:support@admissions.app"
+                link="mailto:connect@admissions.app"
               />
               <ContactCard
                 icon={<MapPin className="h-8 w-8" />}
