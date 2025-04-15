@@ -27,7 +27,7 @@ export function SEO({
   twitterCard = 'summary_large_image',
   twitterSite = '@admissionsapp',
   keywords = [],
-  author = 'Admissions.app',
+  author = 'Admissions.app - Study Abroad Platform',
   schema,
   noindex = false,
   children
@@ -66,7 +66,7 @@ export function SEO({
       <meta property="og:type" content={ogType} />
       <meta property="og:url" content={fullOgUrl} />
       <meta property="og:image" content={fullOgImage} />
-      <meta property="og:site_name" content="Admissions.app" />
+      <meta property="og:site_name" content="Admissions.app - Study Abroad Platform" />
       
       {/* Twitter Card */}
       <meta name="twitter:card" content={twitterCard} />

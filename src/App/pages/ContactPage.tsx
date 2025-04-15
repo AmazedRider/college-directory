@@ -43,11 +43,7 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
   );
 }
 
-<<<<<<< HEAD
 export const ContactPage: React.FC = () => {
-=======
-const ContactPage: React.FC = () => {
->>>>>>> 2cbbbcc3f6218742f87610aa62698dcd30ed09d0
   const [showBooking, setShowBooking] = useState(false);
   const [calLoaded, setCalLoaded] = useState(false);
   const [formData, setFormData] = useState({
@@ -318,10 +314,4 @@ const ContactPage: React.FC = () => {
       </div>
     </>
   );
-<<<<<<< HEAD
-}; 
-=======
 };
-
-export default ContactPage; 
->>>>>>> 2cbbbcc3f6218742f87610aa62698dcd30ed09d0
