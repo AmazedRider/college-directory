@@ -17,7 +17,7 @@ export function Footer() {
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-gray-400">
                 <Mail className="h-5 w-5" />
-                <span>support@admissions.app</span>
+                <span>connect@admissions.app</span>
               </div>
               <div className="flex items-center gap-2 text-gray-400">
                 <Phone className="h-5 w-5" />
@@ -31,7 +31,7 @@ export function Footer() {
               <a href="https://www.admissions.app" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
                 <Globe className="h-6 w-6" />
               </a>
-              <a href="mailto:support@admissions.app" className="text-gray-400 hover:text-white transition-colors">
+              <a href="mailto:connect@admissions.app" className="text-gray-400 hover:text-white transition-colors">
                 <Mail className="h-6 w-6" />
               </a>
             </div>

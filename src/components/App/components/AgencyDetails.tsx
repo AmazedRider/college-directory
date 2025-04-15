@@ -32,9 +32,9 @@ export function AgencyDetails({ agency }: AgencyDetailsProps) {
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
         <div className="relative h-96">
           {/* Show first photo as main image if available, otherwise fallback to image_url */}
-          <img 
-            src={agency.photos?.[0]?.url || agency.image_url} 
-            alt={agency.name} 
+          <img
+            src={agency.photos?.[0]?.url || agency.image_url}
+            alt={agency.name}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -84,7 +84,9 @@ export function AgencyDetails({ agency }: AgencyDetailsProps) {
                 </div>
               )}
 
-              <h3 className="text-xl font-semibold mb-3">Our Specializations</h3>
+              <h3 className="text-xl font-semibold mb-3">
+                Our Specializations
+              </h3>
               <div className="flex flex-wrap gap-2 mb-6">
                 {agency.specializations.map((specialization) => (
                   <span
@@ -96,7 +98,9 @@ export function AgencyDetails({ agency }: AgencyDetailsProps) {
                 ))}
               </div>
 
-              <h3 className="text-xl font-semibold mb-3">Contact Information</h3>
+              <h3 className="text-xl font-semibold mb-3">
+                Contact Information
+              </h3>
               <div className="space-y-3 mb-6">
                 {agency.contact_phone && (
                   <div className="flex items-center gap-2 text-gray-600">
@@ -107,7 +111,7 @@ export function AgencyDetails({ agency }: AgencyDetailsProps) {
                 {agency.contact_email && (
                   <div className="flex items-center gap-2 text-gray-600">
                     <Mail className="h-5 w-5" />
-                    <a 
+                    <a
                       href={`mailto:${agency.contact_email}`}
                       className="text-indigo-600 hover:text-indigo-800"
                     >
@@ -118,7 +122,7 @@ export function AgencyDetails({ agency }: AgencyDetailsProps) {
                 {agency.website && (
                   <div className="flex items-center gap-2 text-gray-600">
                     <Globe className="h-5 w-5" />
-                    <a 
+                    <a
                       href={agency.website}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -142,7 +146,9 @@ export function AgencyDetails({ agency }: AgencyDetailsProps) {
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star
                       key={i}
-                      className={`h-6 w-6 ${i < agency.rating ? 'fill-current' : ''}`}
+                      className={`h-6 w-6 ${
+                        i < agency.rating ? 'fill-current' : ''
+                      }`}
                     />
                   ))}
                 </div>
@@ -155,14 +161,16 @@ export function AgencyDetails({ agency }: AgencyDetailsProps) {
                 <h3 className="text-lg font-semibold mb-2">Trust Score</h3>
                 <div className="flex items-center gap-2">
                   <Shield className="h-5 w-5 text-indigo-600" />
-                  <span className="text-2xl font-bold">{agency.trust_score}%</span>
+                  <span className="text-2xl font-bold">
+                    {agency.trust_score}%
+                  </span>
                 </div>
               </div>
 
               <div className="mb-6">
                 <h3 className="text-lg font-semibold mb-2">Starting Price</h3>
                 <p className="text-2xl font-bold text-indigo-600">
-                  ${agency.price.toLocaleString()}
+                  ₹{agency.price.toLocaleString()}
                 </p>
               </div>
 

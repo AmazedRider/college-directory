@@ -54,8 +54,8 @@ export function UserProfile({ onClose }: { onClose: () => void }) {
         .eq('id', user.id);
 
       if (error) throw error;
-      
-      setProfile(prev => ({ ...prev!, ...formData }));
+
+      setProfile((prev) => ({ ...prev!, ...formData }));
       setEditing(false);
       toast.success('Profile updated successfully');
     } catch (error) {
@@ -90,7 +90,9 @@ export function UserProfile({ onClose }: { onClose: () => void }) {
               <input
                 type="text"
                 value={formData.full_name || ''}
-                onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, full_name: e.target.value })
+                }
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="Your full name"
               />
@@ -121,7 +123,9 @@ export function UserProfile({ onClose }: { onClose: () => void }) {
               <input
                 type="tel"
                 value={formData.phone || ''}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="Your phone number"
               />
@@ -137,7 +141,9 @@ export function UserProfile({ onClose }: { onClose: () => void }) {
               <input
                 type="url"
                 value={formData.avatar_url || ''}
-                onChange={(e) => setFormData({ ...formData, avatar_url: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, avatar_url: e.target.value })
+                }
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="https://example.com/avatar.jpg"
               />

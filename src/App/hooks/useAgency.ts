@@ -24,6 +24,10 @@ interface Agency {
     caption: string;
     is_cover: boolean;
   }>;
+  services?: Array<{
+    name: string;
+    description: string;
+  }>;
 }
 
 export function useAgency(slug: string | undefined) {
@@ -85,14 +89,15 @@ export function useAgency(slug: string | undefined) {
             rating: agencyData.rating || 0,
             trust_score: agencyData.trust_score || 0,
             price: agencyData.price || 0,
-            specializations: agencyData.agency_services?.map((s: any) => s.name) || [],
+            specializations: agencyData.specializations || [],
             is_verified: agencyData.is_verified || false,
             contact_phone: agencyData.contact_phone || '',
             contact_email: agencyData.contact_email || '',
             website: agencyData.website || '',
             business_hours: agencyData.business_hours || '',
             brochure_url: agencyData.brochure_url || undefined,
-            photos: photosData || []
+            photos: photosData || [],
+            services: agencyData.agency_services || []
           });
           setError(null);
         }

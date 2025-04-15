@@ -1,5 +1,17 @@
-import React, { useState, forwardRef, useEffect } from 'react';
-import { Search, Filter, X, Globe, BookOpen, GraduationCap, MapPin, Star, DollarSign, Shield, Check } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import {
+  Search,
+  X,
+  Filter,
+  MapPin,
+  Star,
+  DollarSign,
+  Shield,
+  Check,
+  GraduationCap,
+  Globe,
+  Hash,
+} from 'lucide-react';
 
 interface SearchSectionProps {
   onSearch: (query: string) => void;
@@ -7,96 +19,320 @@ interface SearchSectionProps {
   searchInputRef?: React.RefObject<HTMLInputElement>;
 }
 
-export interface FilterOptions {
-  minRating: number;
-  maxPrice: string;
-  specializations: string[];
-  verifiedOnly: boolean;
-  location: string;
-}
-
 interface SearchSuggestion {
-  type: 'country' | 'course' | 'specialization' | 'location';
+  type: string;
   value: string;
   icon: React.ReactNode;
 }
 
-export function SearchSection({ onSearch, onFilterChange, searchInputRef }: SearchSectionProps) {
+export interface FilterOptions {
+  minRating: number;
+  maxPrice: string;
+  verifiedOnly: boolean;
+  location: string;
+  specializations: string[];
+}
+
+export function SearchSection({
+  onSearch,
+  onFilterChange,
+  searchInputRef,
+}: SearchSectionProps) {
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [filteredSuggestions, setFilteredSuggestions] = useState<SearchSuggestion[]>([]);
+  const [filteredSuggestions, setFilteredSuggestions] = useState<
+    SearchSuggestion[]
+  >([]);
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
 
   const [filters, setFilters] = useState<FilterOptions>({
     minRating: 0,
     maxPrice: '',
-    specializations: [],
     verifiedOnly: false,
-    location: ''
+    location: '',
+    specializations: [],
   });
+
+  const searchInputRefLocal = useRef<HTMLInputElement>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+
+  const handleClickOutside = useCallback((e: MouseEvent) => {
+    if (
+      suggestionsRef.current &&
+      !suggestionsRef.current.contains(e.target as Node)
+    ) {
+      setShowSuggestions(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [handleClickOutside]);
 
   // Define searchable items
   const searchSuggestions: SearchSuggestion[] = [
     // Countries
-    { type: 'country', value: 'United States', icon: <Globe className="h-4 w-4" /> },
-    { type: 'country', value: 'United Kingdom', icon: <Globe className="h-4 w-4" /> },
+    {
+      type: 'country',
+      value: 'United States',
+      icon: <Globe className="h-4 w-4" />,
+    },
+    {
+      type: 'country',
+      value: 'United Kingdom',
+      icon: <Globe className="h-4 w-4" />,
+    },
     { type: 'country', value: 'Canada', icon: <Globe className="h-4 w-4" /> },
-    { type: 'country', value: 'Australia', icon: <Globe className="h-4 w-4" /> },
+    {
+      type: 'country',
+      value: 'Australia',
+      icon: <Globe className="h-4 w-4" />,
+    },
     { type: 'country', value: 'Germany', icon: <Globe className="h-4 w-4" /> },
     { type: 'country', value: 'France', icon: <Globe className="h-4 w-4" /> },
+    { type: 'country', value: 'Japan', icon: <Globe className="h-4 w-4" /> },
     { type: 'country', value: 'India', icon: <Globe className="h-4 w-4" /> },
-    
-    // Cities/Locations
-    { type: 'location', value: 'Hyderabad, India', icon: <MapPin className="h-4 w-4" /> },
+
+    // Locations
+    {
+      type: 'location',
+      value: 'New York, USA',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'London, UK',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Toronto, Canada',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Sydney, Australia',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Berlin, Germany',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Paris, France',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Tokyo, Japan',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Bangalore, India',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Hyderabad, India',
+      icon: <MapPin className="h-4 w-4" />,
+    },
     // Hyderabad Areas
-    { type: 'location', value: 'Mehdipatnam, Hyderabad', icon: <MapPin className="h-4 w-4" /> },
-    { type: 'location', value: 'Malakpet, Hyderabad', icon: <MapPin className="h-4 w-4" /> },
-    { type: 'location', value: 'Santosh Nagar, Hyderabad', icon: <MapPin className="h-4 w-4" /> },
-    { type: 'location', value: 'Banjara Hills, Hyderabad', icon: <MapPin className="h-4 w-4" /> },
-    { type: 'location', value: 'Jubilee Hills, Hyderabad', icon: <MapPin className="h-4 w-4" /> },
-    { type: 'location', value: 'HITEC City, Hyderabad', icon: <MapPin className="h-4 w-4" /> },
-    { type: 'location', value: 'Gachibowli, Hyderabad', icon: <MapPin className="h-4 w-4" /> },
-    { type: 'location', value: 'Secunderabad, Hyderabad', icon: <MapPin className="h-4 w-4" /> },
-    { type: 'location', value: 'Kukatpally, Hyderabad', icon: <MapPin className="h-4 w-4" /> },
-    { type: 'location', value: 'Ameerpet, Hyderabad', icon: <MapPin className="h-4 w-4" /> },
-    { type: 'location', value: 'Dilsukhnagar, Hyderabad', icon: <MapPin className="h-4 w-4" /> },
-    { type: 'location', value: 'LB Nagar, Hyderabad', icon: <MapPin className="h-4 w-4" /> },
-    { type: 'location', value: 'Madhapur, Hyderabad', icon: <MapPin className="h-4 w-4" /> },
-    { type: 'location', value: 'Begumpet, Hyderabad', icon: <MapPin className="h-4 w-4" /> },
-    { type: 'location', value: 'Charminar, Hyderabad', icon: <MapPin className="h-4 w-4" /> },
-    { type: 'location', value: 'Abids, Hyderabad', icon: <MapPin className="h-4 w-4" /> },
-    { type: 'location', value: 'Koti, Hyderabad', icon: <MapPin className="h-4 w-4" /> },
-    { type: 'location', value: 'Uppal, Hyderabad', icon: <MapPin className="h-4 w-4" /> },
-    { type: 'location', value: 'ECIL, Hyderabad', icon: <MapPin className="h-4 w-4" /> },
-    // Other Cities
-    { type: 'location', value: 'Bangalore, India', icon: <MapPin className="h-4 w-4" /> },
-    
+    {
+      type: 'location',
+      value: 'Malakpet',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Mehdipatnam',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Tolichowki',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Banjara Hills',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Jubilee Hills',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'HITEC City',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Gachibowli',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Secunderabad',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Kukatpally',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Ameerpet',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Dilsukhnagar',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Begumpet',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Madhapur',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Kondapur',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Santosh Nagar',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Masab Tank',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Uppal',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'LB Nagar',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Miyapur',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Manikonda',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+    {
+      type: 'location',
+      value: 'Attapur',
+      icon: <MapPin className="h-4 w-4" />,
+    },
+
     // Courses
-    { type: 'course', value: 'Computer Science', icon: <BookOpen className="h-4 w-4" /> },
-    { type: 'course', value: 'Business Administration', icon: <BookOpen className="h-4 w-4" /> },
-    { type: 'course', value: 'Engineering', icon: <BookOpen className="h-4 w-4" /> },
-    { type: 'course', value: 'Medicine', icon: <BookOpen className="h-4 w-4" /> },
-    { type: 'course', value: 'Law', icon: <BookOpen className="h-4 w-4" /> },
-    { type: 'course', value: 'Psychology', icon: <BookOpen className="h-4 w-4" /> },
-    { type: 'course', value: 'Data Science', icon: <BookOpen className="h-4 w-4" /> },
-    
+    {
+      type: 'course',
+      value: 'Computer Science',
+      icon: <Hash className="h-4 w-4" />,
+    },
+    {
+      type: 'course',
+      value: 'Machine Learning',
+      icon: <Hash className="h-4 w-4" />,
+    },
+    {
+      type: 'course',
+      value: 'Medical',
+      icon: <Hash className="h-4 w-4" />,
+    },
+    {
+      type: 'course',
+      value: 'Business Administration',
+      icon: <Hash className="h-4 w-4" />,
+    },
+    {
+      type: 'course',
+      value: 'Engineering',
+      icon: <Hash className="h-4 w-4" />,
+    },
+    { type: 'course', value: 'Medicine', icon: <Hash className="h-4 w-4" /> },
+    { type: 'course', value: 'Law', icon: <Hash className="h-4 w-4" /> },
+    { type: 'course', value: 'Psychology', icon: <Hash className="h-4 w-4" /> },
+    {
+      type: 'course',
+      value: 'Data Science',
+      icon: <Hash className="h-4 w-4" />,
+    },
+
     // Specializations
-    { type: 'specialization', value: 'Ivy League Admissions', icon: <GraduationCap className="h-4 w-4" /> },
-    { type: 'specialization', value: 'International Students', icon: <GraduationCap className="h-4 w-4" /> },
-    { type: 'specialization', value: 'STEM Programs', icon: <GraduationCap className="h-4 w-4" /> },
-    { type: 'specialization', value: 'Liberal Arts', icon: <GraduationCap className="h-4 w-4" /> },
-    { type: 'specialization', value: 'Scholarship Applications', icon: <GraduationCap className="h-4 w-4" /> },
-    { type: 'specialization', value: 'Test Preparation', icon: <GraduationCap className="h-4 w-4" /> },
-    { type: 'specialization', value: 'Essay Writing', icon: <GraduationCap className="h-4 w-4" /> },
-    { type: 'specialization', value: 'Career Counseling', icon: <GraduationCap className="h-4 w-4" /> }
+    {
+      type: 'specialization',
+      value: 'Ivy League Admissions',
+      icon: <GraduationCap className="h-4 w-4" />,
+    },
+    {
+      type: 'specialization',
+      value: 'Medical School Admissions',
+      icon: <GraduationCap className="h-4 w-4" />,
+    },
+    {
+      type: 'specialization',
+      value: 'Law School Admissions',
+      icon: <GraduationCap className="h-4 w-4" />,
+    },
+    {
+      type: 'specialization',
+      value: 'MBA Admissions',
+      icon: <GraduationCap className="h-4 w-4" />,
+    },
+    {
+      type: 'specialization',
+      value: 'Undergraduate Admissions',
+      icon: <GraduationCap className="h-4 w-4" />,
+    },
+    {
+      type: 'specialization',
+      value: 'Graduate Program Admissions',
+      icon: <GraduationCap className="h-4 w-4" />,
+    },
+    {
+      type: 'specialization',
+      value: 'International Student Admissions',
+      icon: <GraduationCap className="h-4 w-4" />,
+    },
   ];
 
   useEffect(() => {
     if (searchQuery.length > 0) {
-      const filtered = searchSuggestions.filter(suggestion =>
-        suggestion.value.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (suggestion.type === 'location' && 
-         suggestion.value.split(',')[0].toLowerCase().includes(searchQuery.toLowerCase()))
+      const filtered = searchSuggestions.filter(
+        (suggestion) =>
+          suggestion.value.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (suggestion.type === 'location' &&
+            suggestion.value
+              .split(',')[0]
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase()))
       );
       setFilteredSuggestions(filtered);
       setShowSuggestions(true);
@@ -112,12 +348,6 @@ export function SearchSection({ onSearch, onFilterChange, searchInputRef }: Sear
     acc[suggestion.type].push(suggestion);
     return acc;
   }, {} as Record<string, SearchSuggestion[]>);
-
-  const handleClickOutside = () => {
-    setTimeout(() => {
-      setShowSuggestions(false);
-    }, 200);
-  };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,14 +370,6 @@ export function SearchSection({ onSearch, onFilterChange, searchInputRef }: Sear
     onFilterChange(updatedFilters);
   };
 
-  const handleSpecializationToggle = (specialization: string) => {
-    const updatedSpecializations = filters.specializations.includes(specialization)
-      ? filters.specializations.filter(s => s !== specialization)
-      : [...filters.specializations, specialization];
-    
-    handleFilterChange({ specializations: updatedSpecializations });
-  };
-
   // Handle keyboard navigation for suggestions
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -155,244 +377,323 @@ export function SearchSection({ onSearch, onFilterChange, searchInputRef }: Sear
     }
   };
 
+  const getSuggestionIconBackground = (type: string) => {
+    switch (type) {
+      case 'country':
+        return 'bg-blue-100';
+      case 'location':
+        return 'bg-red-100';
+      case 'course':
+        return 'bg-green-100';
+      case 'specialization':
+        return 'bg-yellow-100';
+      default:
+        return 'bg-gray-100';
+    }
+  };
+
   return (
-    <div className="bg-gradient-to-r from-indigo-600 to-indigo-800 py-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-bold text-white text-center mb-8">
-          Find Your Perfect College Consultant
-        </h2>
-        <div className="max-w-3xl mx-auto">
-          <form onSubmit={handleSearchSubmit} className="relative">
-            <div className="flex gap-4 bg-white p-2 rounded-lg shadow-lg">
+    <div className="relative">
+      <div className="bg-gradient-to-r from-blue-800 to-blue-600 py-10 px-6 md:py-16 md:px-12">
+        <div className="max-w-5xl mx-auto">
+          <h1 className="text-2xl md:text-3xl font-bold text-white mb-4 whitespace-nowrap">
+            Admissions.app: Your Trusted Study Abroad Platform
+          </h1>
+          <p className="text-blue-100/90 text-base md:text-lg mb-8 leading-relaxed max-w-3xl">
+            Welcome to Hyderabad's premier study abroad platform, connecting ambitious students with top-rated overseas education consultants. Our network of 250+ verified international education advisors specializes in USA university admissions, UK university applications, Canada study visas, and Australian education pathways. Expert guidance available for engineering, MBA, medical, and other courses worldwide. Get personalized assistance with university selection, visa processing, scholarship applications, and admission essay editing. From HITEC City to Banjara Hills, find local study abroad consultants who understand your goals. Start your international education journey today with Admissions.app - your gateway to academic success abroad!
+          </p>
+
+          <div className="relative">
+            <div className="flex flex-col md:flex-row gap-2">
               <div className="flex-1 relative">
-                <div className="flex items-center">
-                  <Search className="h-5 w-5 text-gray-400 absolute left-3" />
-                  <input
-                    ref={searchInputRef}
-                    type="text"
-                    placeholder="Search by country, course, or specialization..."
-                    value={searchQuery}
-                    onChange={(e) => {
-                      setSearchQuery(e.target.value);
-                      setShowSuggestions(true);
-                    }}
-                    className="w-full pl-10 pr-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 border border-gray-200"
-                    onFocus={() => setShowSuggestions(true)}
-                    onBlur={handleClickOutside}
-                    onKeyDown={handleKeyDown}
-                  />
-                  {searchQuery && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSearchQuery('');
-                        setShowSuggestions(false);
-                        onSearch('');
-                      }}
-                      className="absolute right-3 text-gray-400 hover:text-gray-600"
-                    >
-                      <X className="h-5 w-5" />
-                    </button>
-                  )}
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Search className="h-5 w-5 text-gray-400" />
                 </div>
+                <input
+                  ref={searchInputRef || searchInputRefLocal}
+                  type="text"
+                  placeholder="Search by country, course, or specialization..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setShowSuggestions(true);
+                    onSearch(e.target.value);
+                  }}
+                  className="w-full pl-12 pr-4 py-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-white/50 border-0 bg-white/10 backdrop-blur-sm text-white placeholder-blue-200 shadow-lg"
+                  onFocus={() => setShowSuggestions(true)}
+                  onBlur={() => {
+                    setTimeout(() => {
+                      if (!suggestionsRef.current?.contains(document.activeElement)) {
+                        setShowSuggestions(false);
+                      }
+                    }, 200);
+                  }}
+                  onKeyDown={handleKeyDown}
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setShowSuggestions(false);
+                      onSearch('');
+                    }}
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-blue-200 hover:text-white"
+                    aria-label="Clear search"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                )}
               </div>
+
               <button
-                type="submit"
-                className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors flex items-center gap-2 shadow-md hover:shadow-lg"
+                type="button"
+                onClick={handleSearchSubmit}
+                className="md:w-auto px-6 py-4 bg-white rounded-xl text-blue-800 font-medium hover:bg-blue-50 transition-colors shadow-lg"
               >
-                <Search className="h-5 w-5" />
                 Search
+              </button>
+
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="md:w-auto px-6 py-4 rounded-xl font-medium transition-colors shadow-lg flex items-center justify-center gap-2 border-2 border-white/30 hover:bg-white/10 text-white"
+              >
+                {showFilters ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Filter className="h-5 w-5" />
+                )}
+                {showFilters ? 'Close' : 'Filter'}
               </button>
             </div>
 
-            {/* Enhanced Search Suggestions */}
-            {showSuggestions && Object.keys(groupedSuggestions).length > 0 && (
-              <div className="absolute z-50 w-full mt-2 bg-white rounded-lg shadow-lg max-h-[70vh] overflow-y-auto divide-y divide-gray-100">
-                {Object.entries(groupedSuggestions).map(([type, suggestions]) => (
-                  <div key={type} className="p-2">
-                    <div className="px-3 py-2 text-sm font-semibold text-gray-500 capitalize">
-                      {type}s
-                    </div>
-                    <div className="divide-y divide-gray-50">
-                      {suggestions.map((suggestion, index) => (
+            {/* Suggestions Dropdown */}
+            {showSuggestions &&
+              searchQuery &&
+              filteredSuggestions.length > 0 && (
+                <div
+                  ref={suggestionsRef}
+                  className="absolute left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-blue-100 overflow-hidden z-10"
+                >
+                  <div className="p-2">
+                    <h3 className="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Suggestions
+                    </h3>
+                    <div className="divide-y divide-gray-100">
+                      {filteredSuggestions.map((suggestion, index) => (
                         <button
-                          key={`${suggestion.type}-${index}`}
-                          type="button"
-                          onMouseDown={(e) => {
-                            e.preventDefault();
-                            handleSuggestionClick(suggestion);
-                          }}
-                          className="w-full px-4 py-3 text-left hover:bg-indigo-50 flex items-center gap-3 rounded-md transition-colors duration-150 focus:outline-none focus:bg-indigo-50"
+                          key={`${suggestion.type}-${suggestion.value}`}
+                          className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-blue-50 ${
+                            index === activeSuggestionIndex ? 'bg-blue-50' : ''
+                          }`}
+                          onClick={() => handleSuggestionClick(suggestion)}
+                          onMouseEnter={() => setActiveSuggestionIndex(index)}
                         >
-                          <span className="text-indigo-600 flex-shrink-0">{suggestion.icon}</span>
-                          <div className="flex-1 truncate">
-                            <span className="text-gray-900">{suggestion.value}</span>
+                          <div
+                            className={`p-2 rounded-lg ${getSuggestionIconBackground(
+                              suggestion.type
+                            )}`}
+                          >
+                            {suggestion.icon}
                           </div>
-                          <span className="text-xs text-gray-400 flex-shrink-0 bg-gray-50 px-2 py-1 rounded">
-                            Click to search
-                          </span>
+                          <div>
+                            <span className="block font-medium text-gray-900">
+                              {suggestion.value}
+                            </span>
+                            <span className="block text-xs text-gray-500 capitalize">
+                              {suggestion.type}
+                            </span>
+                          </div>
                         </button>
                       ))}
                     </div>
                   </div>
-                ))}
-
-                {searchQuery.length >= 2 && filteredSuggestions.length === 0 && (
-                  <div className="p-4 text-center text-gray-500">
-                    No matches found for "{searchQuery}"
-                  </div>
-                )}
-              </div>
-            )}
-          </form>
-
-          <div className="flex items-center justify-center gap-4 mt-6">
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 text-white hover:text-indigo-200 transition-colors bg-indigo-700 hover:bg-indigo-800 px-4 py-2 rounded-lg shadow-md"
-            >
-              {showFilters ? <X className="h-5 w-5" /> : <Filter className="h-5 w-5" />}
-              {showFilters ? 'Close Filters' : 'Filter'}
-            </button>
+                </div>
+              )}
           </div>
 
           {showFilters && (
-            <div className="mt-6 bg-white rounded-xl p-8 shadow-xl border border-indigo-50">
-              <div className="space-y-8">
-                <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-                  <h3 className="text-lg font-semibold text-indigo-900">Filter Options</h3>
+            <div className="mt-6 bg-white rounded-xl p-0 shadow-xl border border-blue-50 overflow-hidden transition-all duration-300 transform">
+              {/* Filter Header with Gradient */}
+              <div className="bg-gradient-to-r from-blue-800 to-blue-600 p-6 text-white">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold">Filter Options</h3>
                   <button
                     onClick={() => {
-                      setFilters({
+                      const resetFilters = {
                         minRating: 0,
                         maxPrice: '',
-                        specializations: [],
                         verifiedOnly: false,
-                        location: ''
-                      });
+                        location: '',
+                        specializations: [],
+                      };
+
+                      setFilters(resetFilters);
+                      onFilterChange(resetFilters);
                     }}
-                    className="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
+                    className="px-4 py-1 bg-white/20 hover:bg-white/30 text-white text-sm font-medium rounded-full transition-colors"
                   >
-                    Reset Filters
+                    Reset All
                   </button>
                 </div>
+                <p className="text-blue-100 text-sm mt-1">
+                  Refine your consultant search
+                </p>
+              </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-4">
-                    <label className="block">
-                      <span className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-red-500" />
-                        Location
-                      </span>
-                      <select
-                        value={filters.location}
-                        onChange={(e) => handleFilterChange({ location: e.target.value })}
-                        className="mt-1 block w-full pl-3 pr-10 py-3 text-base border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 rounded-lg shadow-sm transition-shadow hover:shadow-md"
-                      >
-                        <option value="">Any Location</option>
-                        <optgroup label="Cities">
-                          <option value="Hyderabad, India">Hyderabad, India</option>
-                          <option value="Bangalore, India">Bangalore, India</option>
-                        </optgroup>
-                        <optgroup label="Hyderabad Areas">
-                          <option value="Mehdipatnam, Hyderabad">Mehdipatnam</option>
-                          <option value="Malakpet, Hyderabad">Malakpet</option>
-                          <option value="Banjara Hills, Hyderabad">Banjara Hills</option>
-                          <option value="Jubilee Hills, Hyderabad">Jubilee Hills</option>
-                          <option value="HITEC City, Hyderabad">HITEC City</option>
-                          <option value="Gachibowli, Hyderabad">Gachibowli</option>
-                          <option value="Secunderabad, Hyderabad">Secunderabad</option>
-                          <option value="Kukatpally, Hyderabad">Kukatpally</option>
-                          <option value="Ameerpet, Hyderabad">Ameerpet</option>
-                          <option value="Dilsukhnagar, Hyderabad">Dilsukhnagar</option>
-                        </optgroup>
-                      </select>
-                    </label>
-
-                    <label className="block">
-                      <span className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                        <Star className="h-4 w-4 text-yellow-400" />
-                        Minimum Rating
-                      </span>
-                      <select
-                        value={filters.minRating}
-                        onChange={(e) => handleFilterChange({ minRating: Number(e.target.value) })}
-                        className="mt-1 block w-full pl-3 pr-10 py-3 text-base border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 rounded-lg shadow-sm transition-shadow hover:shadow-md"
-                      >
-                        <option value="0">Any Rating</option>
-                        <option value="3">3+ Stars</option>
-                        <option value="4">4+ Stars</option>
-                        <option value="5">5 Stars Only</option>
-                      </select>
-                    </label>
-
-                    <label className="block">
-                      <span className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                        <DollarSign className="h-4 w-4 text-green-500" />
-                        Price Range
-                      </span>
-                      <select
-                        value={filters.maxPrice}
-                        onChange={(e) => handleFilterChange({ maxPrice: e.target.value })}
-                        className="mt-1 block w-full pl-3 pr-10 py-3 text-base border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 rounded-lg shadow-sm transition-shadow hover:shadow-md"
-                      >
-                        <option value="">Any Price</option>
-                        <option value="1000">Under $1,000</option>
-                        <option value="2500">Under $2,500</option>
-                        <option value="5000">Under $5,000</option>
-                        <option value="10000">Under $10,000</option>
-                      </select>
-                    </label>
-
-                    <label className="flex items-center gap-3 p-4 bg-indigo-50 rounded-lg cursor-pointer hover:bg-indigo-100 transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={filters.verifiedOnly}
-                        onChange={(e) => handleFilterChange({ verifiedOnly: e.target.checked })}
-                        className="rounded text-indigo-600 focus:ring-indigo-500 h-5 w-5"
-                      />
-                      <div>
-                        <span className="text-sm font-medium text-gray-900 flex items-center gap-2">
-                          <Shield className="h-4 w-4 text-indigo-600" />
-                          Verified Consultants Only
+              {/* Filter Content */}
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Left Column */}
+                  <div className="space-y-6">
+                    {/* Location Filter */}
+                    <div className="bg-gray-50 p-5 rounded-xl shadow-sm hover:shadow transition-shadow duration-300">
+                      <label className="block">
+                        <span className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+                          <div className="bg-red-100 p-2 rounded-lg">
+                            <MapPin className="h-4 w-4 text-red-500" />
+                          </div>
+                          Location
                         </span>
-                        <p className="text-xs text-gray-500 mt-1">
-                          Show only consultants that have been verified by our team
-                        </p>
-                      </div>
-                    </label>
+                        <select
+                          value={filters.location}
+                          onChange={(e) =>
+                            handleFilterChange({ location: e.target.value })
+                          }
+                          className="mt-2 block w-full pl-3 pr-10 py-3 text-base border-0 bg-white rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                        >
+                          <option value="">Any Location</option>
+                          <optgroup label="Cities">
+                            <option value="New York, USA">New York, USA</option>
+                            <option value="London, UK">London, UK</option>
+                            <option value="Toronto, Canada">
+                              Toronto, Canada
+                            </option>
+                            <option value="Sydney, Australia">
+                              Sydney, Australia
+                            </option>
+                            <option value="Berlin, Germany">
+                              Berlin, Germany
+                            </option>
+                            <option value="Paris, France">Paris, France</option>
+                            <option value="Tokyo, Japan">Tokyo, Japan</option>
+                            <option value="Bangalore, India">
+                              Bangalore, India
+                            </option>
+                          </optgroup>
+                        </select>
+                      </label>
+                    </div>
+
+                    {/* Rating Filter */}
+                    <div className="bg-gray-50 p-5 rounded-xl shadow-sm hover:shadow transition-shadow duration-300">
+                      <label className="block">
+                        <span className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+                          <div className="bg-yellow-100 p-2 rounded-lg">
+                            <Star className="h-4 w-4 text-yellow-500" />
+                          </div>
+                          Minimum Rating
+                        </span>
+                        <div className="mt-2 flex items-center space-x-2">
+                          {[0, 3, 4, 5].map((rating) => (
+                            <button
+                              key={rating}
+                              onClick={() =>
+                                handleFilterChange({ minRating: rating })
+                              }
+                              className={`flex-1 py-2 rounded-lg font-medium transition-colors ${
+                                filters.minRating === rating
+                                  ? 'bg-blue-600 text-white'
+                                  : 'bg-white text-gray-700 border border-gray-200 hover:border-blue-400'
+                              }`}
+                            >
+                              {rating === 0 ? 'Any' : `${rating}+`}
+                            </button>
+                          ))}
+                        </div>
+                      </label>
+                    </div>
                   </div>
 
-                  <div className="space-y-4">
-                    <span className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                      <BookOpen className="h-4 w-4 text-blue-500" />
-                      Specializations
-                    </span>
-                    <div className="grid grid-cols-1 gap-3 mt-2">
-                      {searchSuggestions
-                        .filter(suggestion => suggestion.type === 'specialization')
-                        .map((suggestion) => (
-                          <label
-                            key={suggestion.value}
-                            className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={filters.specializations.includes(suggestion.value)}
-                              onChange={() => handleSpecializationToggle(suggestion.value)}
-                              className="rounded text-indigo-600 focus:ring-indigo-500 h-5 w-5"
-                            />
-                            <span className="text-sm text-gray-900">{suggestion.value}</span>
-                          </label>
-                        ))}
+                  {/* Right Column */}
+                  <div className="space-y-6">
+                    {/* Price Range Filter */}
+                    <div className="bg-gray-50 p-5 rounded-xl shadow-sm hover:shadow transition-shadow duration-300">
+                      <label className="block">
+                        <span className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+                          <div className="bg-green-100 p-2 rounded-lg">
+                            <DollarSign className="h-4 w-4 text-green-500" />
+                          </div>
+                          Price Range
+                        </span>
+                        <select
+                          value={filters.maxPrice}
+                          onChange={(e) =>
+                            handleFilterChange({ maxPrice: e.target.value })
+                          }
+                          className="mt-2 block w-full pl-3 pr-10 py-3 text-base border-0 bg-white rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                        >
+                          <option value="">Any Price</option>
+                          <option value="1000">Under ₹1,000</option>
+                          <option value="2500">Under ₹2,500</option>
+                          <option value="5000">Under ₹5,000</option>
+                          <option value="10000">Under ₹10,000</option>
+                        </select>
+                      </label>
+                    </div>
+
+                    {/* Verified Only Filter */}
+                    <div className="bg-gray-50 p-5 rounded-xl shadow-sm hover:shadow transition-shadow duration-300">
+                      <label className="flex cursor-pointer group">
+                        <div className="flex items-start gap-3">
+                          <div className="pt-0.5">
+                            <div
+                              className={`w-10 h-6 rounded-full p-1 transition-colors duration-300 ${
+                                filters.verifiedOnly
+                                  ? 'bg-blue-600'
+                                  : 'bg-gray-300'
+                              }`}
+                            >
+                              <div
+                                className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
+                                  filters.verifiedOnly ? 'translate-x-4' : ''
+                                }`}
+                              ></div>
+                            </div>
+                          </div>
+                          <div>
+                            <span className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                              <div className="bg-blue-100 p-2 rounded-lg">
+                                <Shield className="h-4 w-4 text-blue-600" />
+                              </div>
+                              Verified Consultants Only
+                            </span>
+                            <p className="text-xs text-gray-500 mt-1 group-hover:text-gray-700 transition-colors">
+                              Show only consultants that have been verified by
+                              our team
+                            </p>
+                          </div>
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={filters.verifiedOnly}
+                          onChange={(e) =>
+                            handleFilterChange({
+                              verifiedOnly: e.target.checked,
+                            })
+                          }
+                          className="sr-only"
+                        />
+                      </label>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex justify-end pt-4 border-t border-gray-100">
+                {/* Apply Button */}
+                <div className="mt-8 flex justify-end">
                   <button
                     onClick={() => setShowFilters(false)}
-                    className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2 shadow-md hover:shadow-lg"
+                    className="bg-gradient-to-r from-blue-700 to-blue-500 text-white px-8 py-3 rounded-lg font-medium hover:from-blue-800 hover:to-blue-600 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
                   >
                     <Check className="h-5 w-5" />
                     Apply Filters

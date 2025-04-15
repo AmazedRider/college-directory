@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { GraduationCap, Home, Info, LayoutDashboard, Shield, User, MessageSquare, Menu, X } from 'lucide-react';
+import { GraduationCap, Home, Info, LayoutDashboard, Shield, User, MessageSquare, Menu, X, BookOpen } from 'lucide-react';
 import { NavLink } from './NavLink';
 import { useAuth } from '../../components/AuthContext';
 import { supabase } from '../../lib/supabase';
@@ -32,24 +32,7 @@ export function Navigation({
   const handleContactClick = async () => {
     setShowDashboard(false);
     setShowProfile(false);
-    
-    // If already on about page, just scroll
-    if (location.pathname === '/about') {
-      const contactSection = document.getElementById('connect-with-us');
-      if (contactSection) {
-        contactSection.scrollIntoView({ block: 'start' });
-      }
-    } else {
-      // Navigate to about page and then scroll
-      await navigate('/about');
-      // Wait for navigation to complete
-      setTimeout(() => {
-        const contactSection = document.getElementById('connect-with-us');
-        if (contactSection) {
-          contactSection.scrollIntoView({ block: 'start' });
-        }
-      }, 100); // Reduced timeout since we don't need to wait for smooth scrolling
-    }
+    navigate('/contact');
   };
 
   const handleNavClick = (action: () => void) => {
@@ -74,6 +57,15 @@ export function Navigation({
         setShowDashboard(false);
         setShowProfile(false);
         navigate('/about');
+      }
+    },
+    {
+      icon: <BookOpen className="h-5 w-5" />,
+      text: "Blog",
+      onClick: () => {
+        setShowDashboard(false);
+        setShowProfile(false);
+        navigate('/blog');
       }
     },
     {
@@ -115,7 +107,7 @@ export function Navigation({
   }
 
   return (
-    <nav className="bg-indigo-600 text-white sticky top-0 z-50">
+    <nav className="bg-gradient-to-r from-blue-800 to-blue-600 text-white sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
@@ -136,14 +128,14 @@ export function Navigation({
             {user ? (
               <button
                 onClick={() => supabase.auth.signOut()}
-                className="text-white hover:text-indigo-200 transition-colors duration-200"
+                className="text-white hover:text-blue-200 transition-colors duration-200"
               >
                 Sign Out
               </button>
             ) : (
               <button
                 onClick={() => setShowAuth(true)}
-                className="text-white hover:text-indigo-200 transition-colors duration-200"
+                className="text-white hover:text-blue-200 transition-colors duration-200"
               >
                 Sign In
               </button>
@@ -154,7 +146,7 @@ export function Navigation({
           <div className="md:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-white"
+              className="p-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-white"
             >
               {isMobileMenuOpen ? (
                 <X className="h-6 w-6" />
@@ -167,12 +159,12 @@ export function Navigation({
 
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
-          <div className="md:hidden py-4 space-y-2 border-t border-indigo-500">
+          <div className="md:hidden py-4 space-y-2 border-t border-blue-500">
             {navItems.map((item, index) => (
               <button
                 key={index}
                 onClick={() => handleNavClick(item.onClick)}
-                className="w-full flex items-center gap-3 px-4 py-2 text-left hover:bg-indigo-700 rounded-md transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-2 text-left hover:bg-blue-700 rounded-md transition-colors"
               >
                 {item.icon}
                 <span>{item.text}</span>
@@ -184,7 +176,7 @@ export function Navigation({
                   supabase.auth.signOut();
                   setIsMobileMenuOpen(false);
                 }}
-                className="w-full flex items-center gap-3 px-4 py-2 text-left hover:bg-indigo-700 rounded-md transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-2 text-left hover:bg-blue-700 rounded-md transition-colors"
               >
                 Sign Out
               </button>
@@ -194,7 +186,7 @@ export function Navigation({
                   setShowAuth(true);
                   setIsMobileMenuOpen(false);
                 }}
-                className="w-full flex items-center gap-3 px-4 py-2 text-left hover:bg-indigo-700 rounded-md transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-2 text-left hover:bg-blue-700 rounded-md transition-colors"
               >
                 Sign In
               </button>

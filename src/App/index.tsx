@@ -10,8 +10,12 @@ import { Navigation } from './components/Navigation';
 import { HomePage } from './pages/HomePage';
 import { AgencyPage } from './pages/AgencyPage';
 import { AboutPage } from './pages/AboutPage';
+import { BlogPage } from './pages/BlogPage';
+import { ContactPage } from './pages/ContactPage';
 import { Footer } from './components/Footer';
 import toast from 'react-hot-toast';
+import { BlogPost } from './pages/BlogPost';
+import { useGoogleAnalytics } from '../lib/hooks/useGoogleAnalytics';
 
 function App() {
   const { user, loading, error } = useAuth();
@@ -21,6 +25,9 @@ function App() {
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
+
+  // Initialize Google Analytics
+  useGoogleAnalytics();
 
   useEffect(() => {
     if (user) {
@@ -96,7 +103,9 @@ function App() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <p className="text-red-600 mb-4">Access Denied</p>
-          <p className="text-gray-600 mb-4">Please sign in to access the dashboard.</p>
+          <p className="text-gray-600 mb-4">
+            Please sign in to access the dashboard.
+          </p>
           <button
             onClick={() => {
               setShowDashboard(false);
@@ -112,12 +121,18 @@ function App() {
   }
 
   // If trying to access super admin dashboard but not a super admin
-  if (showDashboard && !isSuperAdmin && user?.email === 'superadmin@superadmin.com') {
+  if (
+    showDashboard &&
+    !isSuperAdmin &&
+    user?.email === 'superadmin@superadmin.com'
+  ) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <p className="text-red-600 mb-4">Access Denied</p>
-          <p className="text-gray-600 mb-4">You do not have permission to access the Super Admin Dashboard.</p>
+          <p className="text-gray-600 mb-4">
+            You do not have permission to access the Super Admin Dashboard.
+          </p>
           <button
             onClick={() => setShowDashboard(false)}
             className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
@@ -154,12 +169,21 @@ function App() {
       )}
 
       {showDashboard ? (
-        isSuperAdmin ? <SuperAdminDashboard /> : isAdmin ? <AdminDashboard /> : <HomePage />
+        isSuperAdmin ? (
+          <SuperAdminDashboard />
+        ) : isAdmin ? (
+          <AdminDashboard />
+        ) : (
+          <HomePage />
+        )
       ) : (
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/post/:id" element={<BlogPost />} />
           <Route path="/agency/:slug" element={<AgencyPage />} />
+          <Route path="/contact" element={<ContactPage />} />
         </Routes>
       )}
 

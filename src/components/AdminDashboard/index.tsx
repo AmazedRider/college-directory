@@ -11,6 +11,12 @@ import { TrustScoreMetrics } from './components/TrustScoreMetrics';
 import { ReviewsList } from './components/ReviewsList';
 import { CreateAgencyModal } from './components/CreateAgencyModal';
 import { retryableQuery, handleSupabaseError } from '../../lib/supabase';
+import { LayoutGrid, Users, BookOpen, Filter, Plus, Shield, Settings, Search, Building2, Star, Image, MessageSquare } from 'lucide-react';
+
+type SupabaseQueryResult<T> = Promise<{
+  data: T[] | null;
+  error: any;
+}>;
 
 export function AdminDashboard() {
   const { user } = useAuth();
@@ -48,15 +54,15 @@ export function AdminDashboard() {
 
   const loadAgencies = async () => {
     try {
-      const { data, error } = await retryableQuery(() => 
+      const result = await retryableQuery(() => 
         supabase
           .from('agencies')
           .select('*')
           .eq('owner_id', user?.id)
-      );
+      ) as { data: Agency[] | null; error: any };
       
-      if (error) throw error;
-      setAgencies(data || []);
+      if (result.error) throw result.error;
+      setAgencies(result.data || []);
     } catch (error) {
       console.error('Failed to load agencies:', error);
       const errorMessage = handleSupabaseError(error);
@@ -70,15 +76,15 @@ export function AdminDashboard() {
     if (!selectedAgency) return;
     
     try {
-      const { data, error } = await retryableQuery(() =>
+      const result = await retryableQuery(() =>
         supabase
           .from('agency_services')
           .select('*')
           .eq('agency_id', selectedAgency.id)
-      );
+      ) as { data: Service[] | null; error: any };
       
-      if (error) throw error;
-      setServices(data || []);
+      if (result.error) throw result.error;
+      setServices(result.data || []);
     } catch (error) {
       console.error('Failed to load services:', error);
       const errorMessage = handleSupabaseError(error);
@@ -90,15 +96,15 @@ export function AdminDashboard() {
     if (!selectedAgency) return;
     
     try {
-      const { data, error } = await retryableQuery(() =>
+      const result = await retryableQuery(() =>
         supabase
           .from('agency_photos')
           .select('*')
           .eq('agency_id', selectedAgency.id)
-      );
+      ) as { data: Photo[] | null; error: any };
       
-      if (error) throw error;
-      setPhotos(data || []);
+      if (result.error) throw result.error;
+      setPhotos(result.data || []);
     } catch (error) {
       console.error('Failed to load photos:', error);
       const errorMessage = handleSupabaseError(error);
@@ -110,17 +116,17 @@ export function AdminDashboard() {
     if (!selectedAgency) return;
     
     try {
-      const { data, error } = await retryableQuery(() =>
+      const result = await retryableQuery(() =>
         supabase
           .from('reviews')
           .select('*, profiles(email)')
           .eq('agency_id', selectedAgency.id)
           .order('created_at', { ascending: false })
-      );
+      ) as { data: (Review & { profiles?: { email: string } })[] | null; error: any };
       
-      if (error) throw error;
+      if (result.error) throw result.error;
       
-      setReviews(data.map(review => ({
+      setReviews((result.data || []).map(review => ({
         ...review,
         user_email: review.profiles?.email
       })));
@@ -137,19 +143,19 @@ export function AdminDashboard() {
     if (!selectedAgency) return;
     
     try {
-      const { data, error } = await retryableQuery(() =>
+      const result = await retryableQuery(() =>
         supabase
           .from('review_responses')
           .select('*')
           .in('review_id', reviews.map(r => r.id))
-      );
+      ) as { data: ReviewResponse[] | null; error: any };
       
-      if (error) throw error;
+      if (result.error) throw result.error;
       
-      const responseMap = data.reduce((acc, response) => {
+      const responseMap = (result.data || []).reduce<Record<string, ReviewResponse>>((acc, response) => {
         acc[response.review_id] = response;
         return acc;
-      }, {} as Record<string, ReviewResponse>);
+      }, {});
       
       setResponses(responseMap);
     } catch (error) {
@@ -428,124 +434,184 @@ export function AdminDashboard() {
   };
 
   if (loading) {
-    return <div className="p-8">Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-50 to-white">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
   }
 
   if (!user) {
-    return <div className="p-8">Please log in to access the admin dashboard.</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-50 to-white">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Access Denied</p>
+          <p className="text-gray-600 mb-4">Please sign in to access the admin dashboard.</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Agency Dashboard</h1>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-        >
-          Create New Agency
-        </button>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-blue-800 to-blue-600 shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 sm:py-6 space-y-4 sm:space-y-0">
+            <div className="flex items-center gap-3">
+              <Building2 className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+              <h1 className="text-2xl sm:text-3xl font-bold text-white">Admin Dashboard</h1>
+            </div>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 bg-white rounded-lg shadow-sm text-sm font-medium text-blue-800 hover:bg-blue-50 transition-colors"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Create New Agency
+            </button>
+          </div>
+        </div>
       </div>
 
-      {agencies.length === 0 ? (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <p className="text-gray-600 mb-4">You haven't created any agencies yet.</p>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
-          >
-            Create Agency
-          </button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          <div className="lg:col-span-1">
-            <AgencyList
-              agencies={agencies}
-              selectedAgency={selectedAgency}
-              onSelectAgency={setSelectedAgency}
-            />
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {agencies.length === 0 ? (
+          <div className="bg-white rounded-xl shadow-md p-8 text-center border border-gray-100">
+            <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">No Agencies Yet</h2>
+            <p className="text-gray-600 mb-6">Get started by creating your first agency.</p>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-800 to-blue-600 text-white rounded-lg hover:from-blue-700 hover:to-blue-500 transition-colors shadow-sm"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Create Agency
+            </button>
           </div>
-
-          {selectedAgency && (
-            <div className="lg:col-span-3 space-y-6">
-              <AgencyDetails
-                agency={selectedAgency}
-                onUpdate={setSelectedAgency}
-                onSubmit={handleAgencyUpdate}
-              />
-
-              <TrustScoreMetrics
-                metrics={trustScoreMetrics}
-                trustScore={selectedAgency.trust_score || 0}
-              />
-
-              <PhotosList
-                photos={photos}
-                onAddPhoto={handleAddPhoto}
-                onDeletePhoto={handleDeletePhoto}
-                onSetCover={handleSetCoverPhoto}
-              />
-
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Brochure</h2>
-                <div className="space-y-4">
-                  {selectedAgency.brochure_url ? (
-                    <div className="flex items-center justify-between">
-                      <a
-                        href={selectedAgency.brochure_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-indigo-600 hover:text-indigo-700"
-                      >
-                        View Current Brochure
-                      </a>
-                      <button
-                        onClick={handleDeleteBrochure}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        Delete Brochure
-                      </button>
-                    </div>
-                  ) : (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Upload Brochure (PDF, Max 10MB)
-                      </label>
-                      <input
-                        type="file"
-                        accept=".pdf"
-                        onChange={handleBrochureUpload}
-                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-                      />
-                    </div>
-                  )}
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-8">
+            {/* Sidebar */}
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                <div className="p-4 sm:p-6">
+                  <AgencyList
+                    agencies={agencies}
+                    selectedAgency={selectedAgency}
+                    onSelectAgency={setSelectedAgency}
+                  />
                 </div>
               </div>
-
-              <ServicesList
-                services={services}
-                onAddService={handleAddService}
-                onDeleteService={handleDeleteService}
-              />
-
-              <ReviewsList
-                reviews={reviews}
-                responses={responses}
-                loading={reviewsLoading}
-                onReviewAction={handleReviewAction}
-                onResponseSubmit={handleResponseSubmit}
-              />
             </div>
-          )}
-        </div>
-      )}
 
+            {/* Main Content Area */}
+            {selectedAgency && (
+              <div className="lg:col-span-3 space-y-6">
+                {/* Agency Details Card */}
+                <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                  <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                    <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                      <Building2 className="h-5 w-5 text-blue-600" />
+                      Agency Details
+                    </h2>
+                  </div>
+                  <div className="p-6">
+                    <AgencyDetails
+                      agency={selectedAgency}
+                      onUpdate={setSelectedAgency}
+                      onSubmit={handleAgencyUpdate}
+                    />
+                  </div>
+                </div>
+
+                {/* Trust Score Card */}
+                <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                  <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                    <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                      <Star className="h-5 w-5 text-blue-600" />
+                      Trust Score & Metrics
+                    </h2>
+                  </div>
+                  <div className="p-6">
+                    <TrustScoreMetrics
+                      metrics={trustScoreMetrics}
+                      trustScore={selectedAgency.trust_score || 0}
+                    />
+                  </div>
+                </div>
+
+                {/* Photos Section */}
+                <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                  <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                    <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                      <Image className="h-5 w-5 text-blue-600" />
+                      Photos
+                    </h2>
+                  </div>
+                  <div className="p-6">
+                    <PhotosList
+                      photos={photos}
+                      onAddPhoto={handleAddPhoto}
+                      onDeletePhoto={handleDeletePhoto}
+                      onSetCover={handleSetCoverPhoto}
+                    />
+                  </div>
+                </div>
+
+                {/* Services Section */}
+                <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                  <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                    <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                      <Settings className="h-5 w-5 text-blue-600" />
+                      Services
+                    </h2>
+                  </div>
+                  <div className="p-6">
+                    <ServicesList
+                      services={services}
+                      onAddService={handleAddService}
+                      onDeleteService={handleDeleteService}
+                    />
+                  </div>
+                </div>
+
+                {/* Reviews Section */}
+                <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                  <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                    <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                      <MessageSquare className="h-5 w-5 text-blue-600" />
+                      Reviews
+                    </h2>
+                  </div>
+                  <div className="p-6">
+                    <ReviewsList
+                      reviews={reviews}
+                      responses={responses}
+                      loading={reviewsLoading}
+                      onReviewAction={handleReviewAction}
+                      onResponseSubmit={handleResponseSubmit}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Modals */}
       {showCreateModal && (
-        <CreateAgencyModal
-          onClose={() => setShowCreateModal(false)}
-          onCreate={handleCreateAgency}
-        />
+        <div className="fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black bg-opacity-50" />
+          <div className="relative min-h-screen flex items-center justify-center p-4">
+            <CreateAgencyModal
+              onClose={() => setShowCreateModal(false)}
+              onCreate={handleCreateAgency}
+            />
+          </div>
+        </div>
       )}
     </div>
   );
