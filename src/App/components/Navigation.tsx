@@ -32,24 +32,7 @@ export function Navigation({
   const handleContactClick = async () => {
     setShowDashboard(false);
     setShowProfile(false);
-    
-    // If already on about page, just scroll
-    if (location.pathname === '/about') {
-      const contactSection = document.getElementById('connect-with-us');
-      if (contactSection) {
-        contactSection.scrollIntoView({ block: 'start' });
-      }
-    } else {
-      // Navigate to about page and then scroll
-      await navigate('/about');
-      // Wait for navigation to complete
-      setTimeout(() => {
-        const contactSection = document.getElementById('connect-with-us');
-        if (contactSection) {
-          contactSection.scrollIntoView({ block: 'start' });
-        }
-      }, 100); // Reduced timeout since we don't need to wait for smooth scrolling
-    }
+    navigate('/contact');
   };
 
   const handleNavClick = (action: () => void) => {

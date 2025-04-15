@@ -396,11 +396,11 @@ export function SearchSection({
     <div className="relative">
       <div className="bg-gradient-to-r from-blue-800 to-blue-600 py-10 px-6 md:py-16 md:px-12">
         <div className="max-w-5xl mx-auto">
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Find Your Ideal College Consultant
+          <h1 className="text-2xl md:text-3xl font-bold text-white mb-4 whitespace-nowrap">
+            Admissions.app: Your Trusted Study Abroad Platform
           </h1>
-          <p className="text-blue-100 text-lg mb-8">
-            Discover the perfect match for your college admissions journey.
+          <p className="text-blue-100/90 text-base md:text-lg mb-8 leading-relaxed max-w-3xl">
+            Welcome to Hyderabad's premier study abroad platform, connecting ambitious students with top-rated overseas education consultants. Our network of 250+ verified international education advisors specializes in USA university admissions, UK university applications, Canada study visas, and Australian education pathways. Expert guidance available for engineering, MBA, medical, and other courses worldwide. Get personalized assistance with university selection, visa processing, scholarship applications, and admission essay editing. From HITEC City to Banjara Hills, find local study abroad consultants who understand your goals. Start your international education journey today with Admissions.app - your gateway to academic success abroad!
           </p>
 
           <div className="relative">

@@ -11,6 +11,7 @@ import { HomePage } from './pages/HomePage';
 import { AgencyPage } from './pages/AgencyPage';
 import { AboutPage } from './pages/AboutPage';
 import { BlogPage } from './pages/BlogPage';
+import { ContactPage } from './pages/ContactPage';
 import { Footer } from './components/Footer';
 import toast from 'react-hot-toast';
 import { BlogPost } from './pages/BlogPost';
@@ -182,6 +183,7 @@ function App() {
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/blog/post/:id" element={<BlogPost />} />
           <Route path="/agency/:slug" element={<AgencyPage />} />
+          <Route path="/contact" element={<ContactPage />} />
         </Routes>
       )}
 
