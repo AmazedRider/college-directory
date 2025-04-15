@@ -166,8 +166,7 @@ export function AboutPage() {
               </div>
             </div>
           </div>
-<<<<<<< HEAD
-=======
+
 
           {/* Connect With Us Section */}
           <div id="connect-with-us" className="scroll-mt-20 mt-20 mb-16">
