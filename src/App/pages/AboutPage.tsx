@@ -166,6 +166,54 @@ export function AboutPage() {
               </div>
             </div>
           </div>
+<<<<<<< HEAD
+=======
+
+          {/* Connect With Us Section */}
+          <div id="connect-with-us" className="scroll-mt-20 mt-20 mb-16">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4">Connect With Us</h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                Have questions or need assistance? We're here to help! Reach out to us through any of the following channels.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <ContactCard
+                icon={<Phone className="h-8 w-8" />}
+                title="Phone"
+                content="+91 6304 666 504"
+                link="tel:+916304666504"
+              />
+              <ContactCard
+                icon={<Mail className="h-8 w-8" />}
+                title="Email"
+                content="connect@admissions.app"
+                link="mailto:connect@admissions.app"
+              />
+              <ContactCard
+                icon={<MapPin className="h-8 w-8" />}
+                title="Office"
+                content="Admissions.app, Code For India 3rd Floor, Serene Heights, Humayunnagar, Masab Tank, Hyderabad 500028"
+                link="https://goo.gl/maps/mdCqMAUEF8pbYgLC7"
+              />
+            </div>
+
+            <div className="mt-12 bg-blue-50 rounded-lg p-8 text-center">
+              <MessageSquare className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+              <h3 className="text-2xl font-semibold mb-4">Schedule a Consultation</h3>
+              <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+                Want to discuss your college admissions journey? Schedule a free consultation with one of our expert advisors.
+              </p>
+              <button
+                onClick={() => setShowBooking(true)}
+                className="bg-gradient-to-r from-blue-800 to-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Book a Call
+              </button>
+            </div>
+          </div>
+>>>>>>> 977a0e990bad0a094b0fccccef9bfcea2b7b340b
         </div>
       </div>
     </div>
