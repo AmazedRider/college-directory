@@ -5,6 +5,7 @@
 [[redirects]]
   from = "/*"
   to = "/index.html"
+<<<<<<< HEAD
   status = 200
 
 [[headers]]
@@ -19,3 +20,6 @@
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable" 
+=======
+  status = 200 
+>>>>>>> 2cbbbcc3f6218742f87610aa62698dcd30ed09d0
