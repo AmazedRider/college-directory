@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { PostgrestResponse, PostgrestSingleResponse } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -38,7 +39,7 @@ let consecutiveFailures = 0;
 let circuitBreakerTimeout: NodeJS.Timeout | null = null;
 
 // Enhanced retry logic with exponential backoff
-export async function retryableQuery<T>(
+export async function retryableQuery<T extends PostgrestResponse<any> | PostgrestSingleResponse<any>>(
   queryFn: () => Promise<T>,
   maxRetries = 3,
   initialDelay = 1000

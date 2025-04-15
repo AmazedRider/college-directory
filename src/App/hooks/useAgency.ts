@@ -103,13 +103,13 @@ export function useAgency(slug: string | undefined) {
         if (photosResponse.error) throw photosResponse.error;
 
         if (mounted && agencyResponse.data) {
-          const photos = photosResponse.data || [];
-          const mappedPhotos = Array.isArray(photos) ? photos.map(photo => ({
+          const photos = Array.isArray(photosResponse.data) ? photosResponse.data : [];
+          const mappedPhotos = photos.map((photo: AgencyPhoto) => ({
             id: photo.id,
             url: photo.url,
             caption: photo.caption,
             is_cover: photo.is_cover
-          })) : [];
+          }));
 
           setAgency({
             id: agencyResponse.data.id,
