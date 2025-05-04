@@ -3,10 +3,6 @@ import { SEO } from '../components/SEO';
 import { Link } from 'react-router-dom';
 import { Search, Award, FileText, Users, Map, Book } from 'lucide-react';
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> 88f10b76e8007c00ccacb927a5cf688aad4569fb
 interface HomePageProps {
   setShowAuth?: (show: boolean, isSignUp?: boolean) => void;
 }
@@ -25,7 +21,6 @@ export function HomePage({ setShowAuth }: HomePageProps = {}) {
       title: 'Course Finder',
       description: 'Search through thousands of courses worldwide with intuitive filters for program type, location, and tuition fees.',
       link: '/course-finder',
-<<<<<<< HEAD
     },
     {
       icon: <Award className="w-8 h-8 text-orange-500" aria-hidden="true" />,
@@ -93,147 +88,6 @@ export function HomePage({ setShowAuth }: HomePageProps = {}) {
       "@type": "SearchAction",
       "target": "https://admissions.app/search?q={search_term_string}",
       "query-input": "required name=search_term_string"
-=======
-    },
-    {
-      icon: <Award className="w-8 h-8 text-orange-500" aria-hidden="true" />,
-      title: 'Scholarship Finder',
-      description: 'Discover international scholarships with detailed eligibility indicators and comprehensive application guidance.',
-      link: '/scholarship-finder',
-    },
-    {
-      icon: <FileText className="w-8 h-8 text-emerald-500" aria-hidden="true" />,
-      title: 'Application Tracker',
-      description: 'Track all your university applications with visual timelines, deadline reminders, and document management.',
-      link: '/application-tracker',
-    },
-    {
-      icon: <Users className="w-8 h-8 text-primary" aria-hidden="true" />,
-      title: 'Find a Buddy',
-      description: 'Connect with international students already studying at your dream university for insights and guidance.',
-      link: '/find-buddy',
-    },
-    {
-      icon: <Map className="w-8 h-8 text-orange-500" aria-hidden="true" />,
-      title: 'Consultancy Directory',
-      description: 'Find verified education consultants with trust scores, reviews, and expertise in your target country and field.',
-      link: '/agencies',
-    },
-    {
-      icon: <Book className="w-8 h-8 text-emerald-500" aria-hidden="true" />,
-      title: 'Knowledge Hub',
-      description: 'Access expert guides, visa information, and application resources to help with your study abroad journey.',
-      link: '/knowledge-hub',
-    },
-  ];
-
-  const testimonials = [
-    {
-      initials: 'SA',
-      name: 'Sarah A.',
-      university: 'Now at University of Toronto',
-      quote: "Admissions.app helped me find the perfect program and track all my applications in one place. I wouldn't have gotten into my dream university without it!",
-      bgColor: 'bg-primary',
-    },
-    {
-      initials: 'MK',
-      name: 'Michael K.',
-      university: 'Now at LSE',
-      quote: "The scholarship finder feature saved me thousands of dollars! I found funding opportunities I never would have discovered otherwise.",
-      bgColor: 'bg-emerald-500',
-    },
-    {
-      initials: 'JL',
-      name: 'Jessica L.',
-      university: 'Now at TU Munich',
-      quote: "Finding a buddy who was already studying at my university made the transition so much easier. We're still friends to this day!",
-      bgColor: 'bg-orange-500',
-    },
-  ];
-
-  // Structured data for SEO
-  const websiteSchema = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "Admissions.app",
-    "url": "https://admissions.app",
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "https://admissions.app/search?q={search_term_string}",
-      "query-input": "required name=search_term_string"
-=======
-export function HomePage() {
-  // Enhanced Schema for the homepage with more structured data
-  const homepageSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: 'Admissions.app - Study Abroad Consultants in Hyderabad',
-    url: 'https://admissions.app',
-    description: 'Connect with verified study abroad consultants in Hyderabad. Expert guidance for USA, UK, Canada & Australia university admissions, visas, and scholarships.',
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: 'https://admissions.app/search?q={search_term_string}',
-      'query-input': 'required name=search_term_string'
-    },
-    about: {
-      '@type': 'Organization',
-      name: 'Admissions.app',
-      description: 'Premier study abroad consultancy platform in Hyderabad connecting students with verified education consultants',
-      areaServed: [
-        {
-          '@type': 'City',
-          name: 'Hyderabad',
-          containedIn: 'India'
-        }
-      ],
-      address: {
-        '@type': 'PostalAddress',
-        addressCountry: 'India',
-        addressRegion: 'Telangana',
-        addressLocality: 'Hyderabad'
-      },
-      knowsAbout: [
-        'Study Abroad Consulting',
-        'University Admissions',
-        'Student Visa Services',
-        'Scholarship Guidance',
-        'International Education',
-        'USA University Applications',
-        'UK University Admissions',
-        'Canada Study Permits',
-        'Australia Student Visas'
-      ],
-      serviceArea: [
-        'HITEC City',
-        'Banjara Hills',
-        'Jubilee Hills',
-        'Gachibowli',
-        'Madhapur',
-        'Ameerpet',
-        'Kukatpally'
-      ],
-      offers: {
-        '@type': 'Offer',
-        itemOffered: [
-          {
-            '@type': 'Service',
-            name: 'Study Abroad Consultation',
-            description: 'Expert guidance for international university admissions'
-          },
-          {
-            '@type': 'Service',
-            name: 'Visa Assistance',
-            description: 'Professional support for student visa applications'
-          },
-          {
-            '@type': 'Service',
-            name: 'Scholarship Guidance',
-            description: 'Help with international scholarship applications'
-          }
-        ]
-      }
->>>>>>> 73056b2bee1fb462aedd795d002a04c2f148942e
->>>>>>> 88f10b76e8007c00ccacb927a5cf688aad4569fb
     }
   };
 
@@ -252,16 +106,10 @@ export function HomePage() {
   };
 
   return (
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> 88f10b76e8007c00ccacb927a5cf688aad4569fb
     <>
       <SEO 
         title="Admissions.app | Your Complete Study Abroad Platform"
         description="Find courses, scholarships, and connect with students worldwide. The #1 platform for international students planning to study abroad with 15,000+ courses and 1,200+ scholarships."
-<<<<<<< HEAD
-=======
         keywords={[
           "study abroad", 
           "international education", 
@@ -275,32 +123,6 @@ export function HomePage() {
         ogType="website"
         ogImage="/images/home-page-banner.jpg"
         schema={[websiteSchema, organizationSchema]}
-=======
-    <div>
-      <SEO
-        title="Admissions.app | Your Trusted Study Abroad Platform in Hyderabad"
-        description="Welcome to Hyderabad's premier study abroad platform. Expert guidance for USA, UK, Canada & Australia university admissions, visas, scholarships, and admission essays. 250+ verified consultants ready to help."
->>>>>>> 88f10b76e8007c00ccacb927a5cf688aad4569fb
-        keywords={[
-          "study abroad", 
-          "international education", 
-          "course finder", 
-          "scholarship finder", 
-          "university applications", 
-          "international students", 
-          "education consultants", 
-          "study buddy"
-        ]}
-        ogType="website"
-<<<<<<< HEAD
-        ogImage="/images/home-page-banner.jpg"
-        schema={[websiteSchema, organizationSchema]}
-=======
-        ogImage="/images/admissions-app-og.jpg"
-        twitterCard="summary_large_image"
-        canonicalUrl="https://admissions.app"
->>>>>>> 73056b2bee1fb462aedd795d002a04c2f148942e
->>>>>>> 88f10b76e8007c00ccacb927a5cf688aad4569fb
       />
       
       <div className="min-h-screen">
