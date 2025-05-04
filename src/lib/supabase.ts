@@ -1,37 +1,90 @@
 import { createClient } from '@supabase/supabase-js';
 import { PostgrestResponse, PostgrestSingleResponse } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Use fallback values for production if environment variables aren't available
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://vxpjlohswcaykyljexnx.supabase.co';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4cGpsb2hzd2NheWt5bGpleG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDMxNDQ3MzEsImV4cCI6MjAxODcyMDczMX0.Qu8Ik_cVv_oSIAzeMIZgnelZRcM9T8CXIE18DaGqHlY';
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    'Missing Supabase environment variables. Please click the "Connect to Supabase" button in the top right to set up Supabase.'
-  );
-}
+// Function to create Supabase client with error handling
+const createSupabaseClient = () => {
+  try {
+    return createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+      },
+      global: {
+        headers: {
+          'X-Client-Info': 'college-consultancy-directory',
+        },
+      },
+      db: {
+        schema: 'public',
+      },
+      // Add retry configuration
+      realtime: {
+        params: {
+          eventsPerSecond: 2,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('Failed to initialize Supabase client:', error);
+    
+    // Return a mock client if initialization fails
+    return {
+      auth: {
+        getSession: async () => ({ data: { session: null }, error: null }),
+        onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+      },
+      from: () => ({
+        select: () => ({
+          eq: () => ({
+            order: () => ({
+              data: null,
+              error: new Error('Supabase connection unavailable')
+            })
+          }),
+          limit: () => ({
+            data: null,
+            error: new Error('Supabase connection unavailable')
+          })
+        }),
+        insert: () => ({
+          select: () => ({
+            data: null,
+            error: new Error('Supabase connection unavailable')
+          })
+        }),
+        update: () => ({
+          eq: () => ({
+            select: () => ({
+              data: null,
+              error: new Error('Supabase connection unavailable')
+            })
+          })
+        }),
+        delete: () => ({
+          eq: () => ({
+            data: null,
+            error: new Error('Supabase connection unavailable')
+          })
+        })
+      }),
+      channel: () => ({
+        on: () => ({
+          subscribe: () => ({
+            unsubscribe: () => {}
+          })
+        })
+      })
+    } as any;
+  }
+};
 
 // Create Supabase client with enhanced retry configuration
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true,
-  },
-  global: {
-    headers: {
-      'X-Client-Info': 'college-consultancy-directory',
-    },
-  },
-  db: {
-    schema: 'public',
-  },
-  // Add retry configuration
-  realtime: {
-    params: {
-      eventsPerSecond: 2,
-    },
-  },
-});
+export const supabase = createSupabaseClient();
 
 // Enhanced retry logic with exponential backoff and circuit breaker
 const MAX_CONSECUTIVE_FAILURES = 3;
@@ -170,6 +223,43 @@ export async function checkSupabaseConnection(): Promise<boolean> {
       .limit(1);
     return !error;
   } catch {
+    return false;
+  }
+}
+
+// Test connection function
+export async function testSupabaseConnection() {
+  try {
+    // Test database connection
+    const { data: sessions, error: sessionsError } = await supabase
+      .from('chat_sessions')
+      .select('count')
+      .limit(1);
+
+    if (sessionsError) {
+      console.error('Database connection error:', sessionsError);
+      return false;
+    }
+
+    // Test realtime connection
+    const channel = supabase.channel('test_connection');
+    
+    let isConnected = false;
+    const subscription = channel
+      .on('presence', { event: 'sync' }, () => {
+        isConnected = true;
+        channel.unsubscribe();
+      })
+      .subscribe();
+
+    // Cleanup
+    setTimeout(() => {
+      subscription.unsubscribe();
+    }, 1000);
+
+    return isConnected;
+  } catch (error) {
+    console.error('Supabase connection test failed:', error);
     return false;
   }
 }

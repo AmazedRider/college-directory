@@ -1,7 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../../lib/supabase';
-import { PencilIcon, TrashIcon, PlusIcon, Upload, X, Image as ImageIcon } from 'lucide-react';
+import { PencilIcon, TrashIcon, PlusIcon, Upload, X, Image as ImageIcon, MoveHorizontal, LayoutIcon, PlusCircleIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { getBlogTabs, updateBlogPostTab, createBlogTab, deleteBlogTab } from '../../../lib/api';
+
+interface BlogTab {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  display_order: number;
+}
 
 interface BlogPost {
   id: string;
@@ -13,61 +22,57 @@ interface BlogPost {
   image_url: string;
   category: string;
   created_at: string;
+  tab_id: string | null;
+  blog_tabs: {
+    name: string;
+  } | null;
 }
 
 export function BlogManagement() {
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [tabs, setTabs] = useState<BlogTab[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddEditModal, setShowAddEditModal] = useState(false);
+  const [showMoveModal, setShowMoveModal] = useState(false);
+  const [showTabModal, setShowTabModal] = useState(false);
   const [currentPost, setCurrentPost] = useState<Partial<BlogPost> | null>(null);
+  const [currentTab, setCurrentTab] = useState<Partial<BlogTab> | null>(null);
+  const [activeTabFilter, setActiveTabFilter] = useState<string | null>(null);
 
   useEffect(() => {
     loadBlogPosts();
+    loadTabs();
   }, []);
+
+  const loadTabs = async () => {
+    try {
+      const tabsData = await getBlogTabs();
+      setTabs(tabsData);
+    } catch (error) {
+      console.error('Error loading tabs:', error);
+      toast.error('Failed to load tabs');
+    }
+  };
 
   const loadBlogPosts = async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
         .from('blog_posts')
-        .select('*')
+        .select('*, blog_tabs(name)')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
       setBlogPosts(data || []);
     } catch (error) {
-      console.error('Failed to load blog posts:', error);
+      console.error('Error loading blog posts:', error);
       toast.error('Failed to load blog posts');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this blog post?')) return;
-
-    try {
-      const { error } = await supabase
-        .from('blog_posts')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-      
-      toast.success('Blog post deleted successfully');
-      loadBlogPosts();
-    } catch (error) {
-      console.error('Failed to delete blog post:', error);
-      toast.error('Failed to delete blog post');
-    }
-  };
-
-  const handleEdit = (post: BlogPost) => {
-    setCurrentPost(post);
-    setShowAddEditModal(true);
-  };
-
-  const handleAdd = () => {
+  const handleAddPost = () => {
     setCurrentPost({
       title: '',
       excerpt: '',
@@ -80,430 +85,582 @@ export function BlogManagement() {
     setShowAddEditModal(true);
   };
 
+  const handleEditPost = (post: BlogPost) => {
+    setCurrentPost(post);
+    setShowAddEditModal(true);
+  };
+
+  const handleMovePost = (post: BlogPost) => {
+    setCurrentPost(post);
+    setShowMoveModal(true);
+  };
+
+  const handleDeletePost = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this blog post?')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('blog_posts')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      toast.success('Blog post deleted successfully');
+      loadBlogPosts();
+    } catch (error) {
+      console.error('Error deleting blog post:', error);
+      toast.error('Failed to delete blog post');
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentPost) return;
+
+    try {
+      const isEditing = !!currentPost.id;
+      
+      const postData = {
+        title: currentPost.title || '',
+        content: currentPost.content || '',
+        excerpt: currentPost.excerpt || '',
+        author: currentPost.author || '',
+        image_url: currentPost.image_url || '',
+        category: currentPost.category || '',
+        tab_id: currentPost.tab_id || null
+      };
+
+      if (isEditing) {
+        const { error } = await supabase
+          .from('blog_posts')
+          .update(postData)
+          .eq('id', currentPost.id);
+
+        if (error) throw error;
+        toast.success('Blog post updated successfully');
+      } else {
+        const { error } = await supabase
+          .from('blog_posts')
+          .insert([postData]);
+
+        if (error) throw error;
+        toast.success('Blog post added successfully');
+      }
+
+      setShowAddEditModal(false);
+      loadBlogPosts();
+    } catch (error) {
+      console.error('Error saving blog post:', error);
+      toast.error('Failed to save blog post');
+    }
+  };
+
+  const handleMoveSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentPost || !currentPost.id) return;
+
+    try {
+      await updateBlogPostTab(currentPost.id, currentPost.tab_id);
+      toast.success('Blog post moved successfully');
+      setShowMoveModal(false);
+      loadBlogPosts();
+    } catch (error) {
+      console.error('Error moving blog post:', error);
+      toast.error('Failed to move blog post');
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random()}.${fileExt}`;
+    const filePath = `blog/${fileName}`;
+
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from('public')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage.from('public').getPublicUrl(filePath);
+      
+      if (currentPost) {
+        setCurrentPost({
+          ...currentPost,
+          image_url: data.publicUrl
+        });
+      }
+      
+      toast.success('Image uploaded successfully');
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast.error('Failed to upload image');
+    }
+  };
+
+  const generateSlug = (name: string) => {
+    return name.toLowerCase()
+      .replace(/\s+/g, '-')        // Replace spaces with dashes
+      .replace(/[^\w\-]+/g, '')    // Remove non-word chars
+      .replace(/\-\-+/g, '-')      // Replace multiple dashes with single dash
+      .replace(/^-+/, '')          // Trim dashes from start
+      .replace(/-+$/, '');         // Trim dashes from end
+  };
+
+  const handleAddTab = () => {
+    setCurrentTab({ 
+      name: '', 
+      slug: '', 
+      description: '', 
+      display_order: tabs.length + 1 
+    });
+    setShowTabModal(true);
+  };
+
+  const handleDeleteTab = async (tabId: string, tabName: string) => {
+    if (!window.confirm(`Are you sure you want to delete the tab "${tabName}"? Posts in this tab will be moved to "Uncategorized".`)) {
+      return;
+    }
+
+    try {
+      await deleteBlogTab(tabId);
+      toast.success('Tab deleted successfully');
+      loadTabs();
+      // Refresh posts as their tab association may have changed
+      loadBlogPosts();
+      
+      // Reset active tab filter if the deleted tab was selected
+      if (activeTabFilter === tabId) {
+        setActiveTabFilter(null);
+      }
+    } catch (error) {
+      console.error('Error deleting tab:', error);
+      toast.error('Failed to delete tab');
+    }
+  };
+
+  const handleTabSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentTab || !currentTab.name) return;
+
+    try {
+      const tabData = {
+        name: currentTab.name,
+        slug: currentTab.slug || generateSlug(currentTab.name),
+        description: currentTab.description || '',
+        display_order: currentTab.display_order || tabs.length + 1
+      };
+
+      await createBlogTab(tabData);
+      toast.success('Tab created successfully');
+      setShowTabModal(false);
+      loadTabs();
+    } catch (error) {
+      console.error('Error creating tab:', error);
+      toast.error('Failed to create tab');
+    }
+  };
+
+  const filteredPosts = activeTabFilter 
+    ? blogPosts.filter(post => post.tab_id === activeTabFilter)
+    : blogPosts;
+
+  const switchToTabsManagement = () => {
+    // Direct DOM manipulation as a more reliable alternative to custom events
+    const tabButton = document.querySelector('button[data-tab-id="blogTabs"]');
+    if (tabButton) {
+      (tabButton as HTMLButtonElement).click();
+    } else {
+      toast.error("Couldn't find the Blog Tabs navigation. Please use the sidebar to navigate.");
+    }
+  };
+
   return (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden">
-      <div className="px-6 py-5 border-b border-gray-200">
-        <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold text-gray-900">Blog Management</h3>
-          <button
-            onClick={handleAdd}
-            className="inline-flex items-center px-3 py-1.5 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700"
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Blog Management</h1>
+        <div className="flex gap-2">
+          <button 
+            onClick={switchToTabsManagement}
+            className="bg-blue-100 text-blue-700 px-4 py-2 rounded-md flex items-center gap-2"
+            title="Advanced Tab Management"
           >
-            <PlusIcon className="h-4 w-4 mr-1" />
+            <LayoutIcon size={16} />
+            Advanced Tab Management
+          </button>
+          <button 
+            onClick={handleAddPost}
+            className="bg-primary text-white px-4 py-2 rounded-md flex items-center gap-2"
+          >
+            <PlusIcon size={16} />
             Add New Post
           </button>
         </div>
       </div>
 
-      <div className="px-6 py-5">
-        {loading ? (
-          <div className="flex justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-          </div>
-        ) : blogPosts.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            No blog posts found. Create your first post!
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Title
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Category
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Author
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {blogPosts.map(post => (
-                  <tr key={post.id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="font-medium text-gray-900 truncate max-w-xs">{post.title}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
-                        {post.category}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {post.author}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(post.date).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => handleEdit(post)}
-                          className="text-indigo-600 hover:text-indigo-900"
-                        >
-                          <PencilIcon className="h-5 w-5" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(post.id)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          <TrashIcon className="h-5 w-5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {showAddEditModal && (
-        <BlogPostModal
-          post={currentPost}
-          onClose={() => setShowAddEditModal(false)}
-          onSave={() => {
-            loadBlogPosts();
-            setShowAddEditModal(false);
-          }}
-        />
-      )}
-    </div>
-  );
-}
-
-interface BlogPostModalProps {
-  post: Partial<BlogPost> | null;
-  onClose: () => void;
-  onSave: () => void;
-}
-
-function BlogPostModal({ post, onClose, onSave }: BlogPostModalProps) {
-  const [formData, setFormData] = useState({
-    title: post?.title || '',
-    excerpt: post?.excerpt || '',
-    content: post?.content || '',
-    author: post?.author || '',
-    image_url: post?.image_url || '',
-    category: post?.category || '',
-    date: post?.date || new Date().toISOString().split('T')[0]
-  });
-  const [loading, setLoading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please upload an image file');
-      return;
-    }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('File size must be less than 5MB');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setUploadProgress(0);
-
-      // Create a unique file name
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `blog-images/${fileName}`;
-
-      // Upload file to Supabase Storage
-      const { data, error: uploadError } = await supabase.storage
-        .from('blog-images')
-        .upload(filePath, file, {
-          onUploadProgress: (progress) => {
-            const percent = (progress.loaded / progress.total) * 100;
-            setUploadProgress(Math.round(percent));
-          }
-        });
-
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('blog-images')
-        .getPublicUrl(filePath);
-
-      // Update form data with new image URL
-      setFormData(prev => ({ ...prev, image_url: publicUrl }));
-      toast.success('Image uploaded successfully');
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      toast.error('Failed to upload image');
-    } finally {
-      setLoading(false);
-      setUploadProgress(0);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
-  };
-
-  const handleRemoveImage = () => {
-    setFormData(prev => ({ ...prev, image_url: '' }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      setLoading(true);
-
-      // Validate required fields
-      if (!formData.title || !formData.content || !formData.author || !formData.category) {
-        toast.error('Please fill in all required fields');
-        return;
-      }
-
-      if (post?.id) {
-        // Update existing post
-        const { error } = await supabase
-          .from('blog_posts')
-          .update({
-            title: formData.title,
-            excerpt: formData.excerpt,
-            content: formData.content,
-            author: formData.author,
-            image_url: formData.image_url,
-            category: formData.category,
-            date: formData.date
-          })
-          .eq('id', post.id);
-
-        if (error) throw error;
-        toast.success('Blog post updated successfully');
-      } else {
-        // Create new post
-        const { error } = await supabase
-          .from('blog_posts')
-          .insert([{
-            title: formData.title,
-            excerpt: formData.excerpt,
-            content: formData.content,
-            author: formData.author,
-            image_url: formData.image_url,
-            category: formData.category,
-            date: formData.date
-          }]);
-
-        if (error) throw error;
-        toast.success('Blog post created successfully');
-      }
-
-      onSave();
-    } catch (error) {
-      console.error('Failed to save blog post:', error);
-      toast.error('Failed to save blog post');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl overflow-hidden max-w-4xl w-full max-h-[90vh] flex flex-col">
-        <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-          <h3 className="text-lg font-semibold text-gray-900">
-            {post?.id ? 'Edit Blog Post' : 'Add New Blog Post'}
-          </h3>
+      <div className="mb-6">
+        <div className="flex justify-between items-center mb-2">
+          <h2 className="text-lg font-semibold">Filter by Tab</h2>
           <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-500"
+            onClick={handleAddTab}
+            className="text-primary flex items-center gap-1 text-sm"
           >
-            <X className="h-5 w-5" />
+            <PlusCircleIcon size={16} />
+            Create New Tab
           </button>
         </div>
+        <div className="flex gap-2 flex-wrap">
+          <button
+            className={`px-3 py-1 rounded-full ${activeTabFilter === null ? 'bg-primary text-white' : 'bg-gray-200'}`}
+            onClick={() => setActiveTabFilter(null)}
+          >
+            All Posts
+          </button>
+          {tabs.map(tab => (
+            <div key={tab.id} className="flex items-center gap-1">
+              <button
+                className={`px-3 py-1 rounded-full ${activeTabFilter === tab.id ? 'bg-primary text-white' : 'bg-gray-200'}`}
+                onClick={() => setActiveTabFilter(tab.id)}
+              >
+                {tab.name}
+              </button>
+              <button
+                onClick={() => handleDeleteTab(tab.id, tab.name)}
+                className="text-red-500 hover:text-red-700"
+                title={`Delete "${tab.name}" tab`}
+              >
+                <TrashIcon size={14} />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
 
-        <div className="p-6 overflow-y-auto">
-          <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 gap-6">
-              {/* Image Upload Section */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Blog Image
-                </label>
-                <div className="space-y-4">
-                  {formData.image_url ? (
-                    <div className="relative">
-                      <img
-                        src={formData.image_url}
-                        alt="Blog post"
-                        className="w-full h-48 object-cover rounded-lg"
-                      />
+      {loading ? (
+        <div className="text-center py-10">Loading...</div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white rounded-lg overflow-hidden">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="py-3 px-4 text-left">Title</th>
+                <th className="py-3 px-4 text-left">Tab</th>
+                <th className="py-3 px-4 text-left">Author</th>
+                <th className="py-3 px-4 text-left">Created At</th>
+                <th className="py-3 px-4 text-left">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredPosts.map((post) => (
+                <tr key={post.id} className="border-b border-gray-200">
+                  <td className="py-3 px-4">{post.title}</td>
+                  <td className="py-3 px-4">{post.blog_tabs?.name || 'Uncategorized'}</td>
+                  <td className="py-3 px-4">{post.author}</td>
+                  <td className="py-3 px-4">{new Date(post.created_at).toLocaleDateString()}</td>
+                  <td className="py-3 px-4 flex gap-2">
+                    <button
+                      onClick={() => handleEditPost(post)}
+                      className="p-1 bg-blue-100 text-blue-600 rounded"
+                    >
+                      <PencilIcon size={16} />
+                    </button>
                       <button
-                        type="button"
-                        onClick={handleRemoveImage}
-                        className="absolute top-2 right-2 p-1 bg-red-600 text-white rounded-full hover:bg-red-700"
+                      onClick={() => handleMovePost(post)}
+                      className="p-1 bg-green-100 text-green-600 rounded"
                       >
-                        <X className="h-4 w-4" />
+                      <MoveHorizontal size={16} />
                       </button>
-                    </div>
-                  ) : (
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
-                      <div className="text-center">
-                        <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
-                        <div className="mt-2">
-                          <label
-                            htmlFor="image-upload"
-                            className="cursor-pointer bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 inline-flex items-center gap-2"
-                          >
-                            <Upload className="h-4 w-4" />
-                            Upload Image
-                            <input
-                              id="image-upload"
-                              type="file"
-                              ref={fileInputRef}
-                              accept="image/*"
-                              onChange={handleImageUpload}
-                              className="hidden"
-                            />
-                          </label>
-                        </div>
-                        <p className="mt-2 text-sm text-gray-500">
-                          PNG, JPG, GIF up to 5MB
-                        </p>
-                      </div>
+                    <button
+                      onClick={() => handleDeletePost(post.id)}
+                      className="p-1 bg-red-100 text-red-600 rounded"
+                    >
+                      <TrashIcon size={16} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
                     </div>
                   )}
-                  {uploadProgress > 0 && uploadProgress < 100 && (
-                    <div className="w-full bg-gray-200 rounded-full h-2.5">
-                      <div
-                        className="bg-indigo-600 h-2.5 rounded-full"
-                        style={{ width: `${uploadProgress}%` }}
-                      ></div>
-                    </div>
-                  )}
-                </div>
-              </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Title *
-                </label>
+      {/* Add/Edit Post Modal */}
+      {showAddEditModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">
+                {currentPost?.id ? 'Edit Blog Post' : 'Add New Blog Post'}
+              </h2>
+              <button onClick={() => setShowAddEditModal(false)}>
+                <X size={24} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="col-span-1 md:col-span-2">
+                <label className="block text-sm font-medium mb-1">Title</label>
                 <input
                   type="text"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                  value={currentPost?.title || ''}
+                  onChange={(e) => setCurrentPost({ ...currentPost, title: e.target.value })}
+                  className="w-full p-2 border rounded"
                   required
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Excerpt
-                </label>
-                <textarea
-                  name="excerpt"
-                  rows={2}
-                  value={formData.excerpt}
-                  onChange={handleChange}
-                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                />
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium mb-1">Tab</label>
+                <select
+                  value={currentPost?.tab_id || ''}
+                  onChange={(e) => setCurrentPost({ ...currentPost, tab_id: e.target.value || null })}
+                  className="w-full p-2 border rounded"
+                >
+                  <option value="">-- No Tab (Display in All) --</option>
+                  {tabs.map(tab => (
+                    <option key={tab.id} value={tab.id}>
+                      {tab.name}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-sm text-gray-500 mt-1">
+                  Assign this post to a specific tab. 
+                  <button 
+                    type="button" 
+                    className="text-blue-500 underline ml-1"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setShowAddEditModal(false);
+                      switchToTabsManagement();
+                    }}
+                  >
+                    Manage tabs
+                  </button>
+                </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Content *
-                </label>
-                <textarea
-                  name="content"
-                  rows={10}
-                  value={formData.content}
-                  onChange={handleChange}
-                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                  required
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Author *
-                  </label>
-                  <input
-                    type="text"
-                    name="author"
-                    value={formData.author}
-                    onChange={handleChange}
-                    className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Category *
-                  </label>
-                  <input
-                    type="text"
-                    name="category"
-                    value={formData.category}
-                    onChange={handleChange}
-                    className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                    required
-                  />
-                </div>
-
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date
-                </label>
+                <label className="block text-sm font-medium mb-1">Date</label>
                 <input
                   type="date"
-                  name="date"
-                  value={formData.date}
-                  onChange={handleChange}
-                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                  value={currentPost?.date || ''}
+                  onChange={(e) => setCurrentPost({ ...currentPost, date: e.target.value })}
+                  className="w-full p-2 border rounded"
+                  required
                 />
               </div>
-            </div>
 
-            <div className="mt-6 flex justify-end">
+              <div>
+                <label className="block text-sm font-medium mb-1">Author</label>
+                <input
+                  type="text"
+                  value={currentPost?.author || ''}
+                  onChange={(e) => setCurrentPost({ ...currentPost, author: e.target.value })}
+                  className="w-full p-2 border rounded"
+                  required
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium mb-1">Category</label>
+                <input
+                  type="text"
+                  value={currentPost?.category || ''}
+                  onChange={(e) => setCurrentPost({ ...currentPost, category: e.target.value })}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium mb-1">Excerpt</label>
+                <textarea
+                  value={currentPost?.excerpt || ''}
+                  onChange={(e) => setCurrentPost({ ...currentPost, excerpt: e.target.value })}
+                  className="w-full p-2 border rounded h-20"
+                  required
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium mb-1">Content</label>
+                <textarea
+                  value={currentPost?.content || ''}
+                  onChange={(e) => setCurrentPost({ ...currentPost, content: e.target.value })}
+                  className="w-full p-2 border rounded h-40"
+                  required
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium mb-1">Featured Image</label>
+                {currentPost?.image_url && (
+                  <div className="mb-2 relative">
+                    <img
+                      src={currentPost.image_url}
+                      alt="Featured"
+                      className="w-full max-h-40 object-cover rounded mb-2"
+                    />
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <label className="cursor-pointer bg-gray-100 px-4 py-2 rounded-md flex items-center gap-2">
+                    <ImageIcon size={16} />
+                    <span>Upload Image</span>
+                <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+                  </label>
+                  {currentPost?.image_url && (
+                    <button
+                      type="button"
+                      onClick={() => setCurrentPost({...currentPost, image_url: ''})}
+                      className="text-red-500 bg-red-50 p-2 rounded-md"
+                    >
+                      <TrashIcon size={16} />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2">
               <button
                 type="button"
-                onClick={onClose}
-                className="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 mr-3"
+                  onClick={() => setShowAddEditModal(false)}
+                  className="px-4 py-2 border rounded-md"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                disabled={loading}
-                className="px-4 py-2 bg-indigo-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                {loading ? 'Saving...' : post?.id ? 'Update Post' : 'Create Post'}
+                  className="px-4 py-2 bg-primary text-white rounded-md"
+                >
+                  {currentPost?.id ? 'Update' : 'Create'} Post
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Move Post Modal */}
+      {showMoveModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Move Post to Different Tab</h2>
+              <button onClick={() => setShowMoveModal(false)}>
+                <X size={24} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleMoveSubmit}>
+              <div className="mb-4">
+                <p className="text-sm mb-1">Moving: <strong>{currentPost?.title}</strong></p>
+                <p className="text-sm text-gray-500 mb-4">
+                  Current Tab: <strong>{currentPost?.blog_tabs?.name || 'Uncategorized'}</strong>
+                </p>
+                
+                <label className="block text-sm font-medium mb-1">Select New Tab</label>
+                <select
+                  value={currentPost?.tab_id || ''}
+                  onChange={(e) => setCurrentPost({...currentPost, tab_id: e.target.value || null})}
+                  className="w-full p-2 border rounded"
+                  required
+                >
+                  <option value="">Uncategorized</option>
+                  {tabs.map(tab => (
+                    <option key={tab.id} value={tab.id}>
+                      {tab.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowMoveModal(false)}
+                  className="px-4 py-2 border rounded-md"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-primary text-white rounded-md"
+                >
+                  Move Post
               </button>
             </div>
           </form>
         </div>
       </div>
+      )}
+
+      {/* Add Tab Modal */}
+      {showTabModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Create New Tab</h2>
+              <button onClick={() => setShowTabModal(false)}>
+                <X size={24} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleTabSubmit}>
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1">Tab Name</label>
+                <input
+                  type="text"
+                  value={currentTab?.name || ''}
+                  onChange={(e) => setCurrentTab({
+                    ...currentTab,
+                    name: e.target.value,
+                    slug: generateSlug(e.target.value)
+                  })}
+                  className="w-full p-2 border rounded"
+                  placeholder="e.g., Study Abroad, Scholarships"
+                  required
+                />
+              </div>
+              
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1">Tab Description (Optional)</label>
+                <textarea
+                  value={currentTab?.description || ''}
+                  onChange={(e) => setCurrentTab({...currentTab, description: e.target.value})}
+                  className="w-full p-2 border rounded h-20"
+                  placeholder="Brief description of what content goes in this tab"
+                />
+              </div>
+              
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowTabModal(false)}
+                  className="px-4 py-2 border rounded-md"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-primary text-white rounded-md"
+                >
+                  Create Tab
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

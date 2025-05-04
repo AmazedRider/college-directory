@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@calcom/embed-react": "^1.5.2",
+    "@google/generative-ai": "^0.24.0",
     "@supabase/supabase-js": "^2.39.7",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.344.0",

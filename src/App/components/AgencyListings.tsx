@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 interface AgencyListingsProps {
   searchQuery: string;
   filters: FilterOptions;
+  itemsPerPage?: number;
 }
 
 interface Agency {
@@ -30,11 +31,10 @@ interface Agency {
   }>;
 }
 
-export function AgencyListings({ searchQuery, filters }: AgencyListingsProps) {
+export function AgencyListings({ searchQuery, filters, itemsPerPage = 12 }: AgencyListingsProps) {
   const [agencies, setAgencies] = useState<Agency[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 12;
 
   useEffect(() => {
     loadAgencies();
@@ -141,17 +141,38 @@ export function AgencyListings({ searchQuery, filters }: AgencyListingsProps) {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   
-  // Sort agencies alphabetically, with numeric names at the end
-  const sortedAgencies = [...filteredAgencies].sort((a, b) => {
-    // Check if name starts with a number
-    const aStartsWithNumber = /^\d/.test(a.name);
-    const bStartsWithNumber = /^\d/.test(b.name);
+  // Sort agencies based on the selected criterion
+  const sortedAgencies = [...filteredAgencies].sort((a: Agency, b: Agency) => {
+    // Default sorting by name if no sort option is selected
+    if (!filters.sortBy || filters.sortBy === 'name') {
+      // Check if name starts with a number
+      const aStartsWithNumber = /^\d/.test(a.name);
+      const bStartsWithNumber = /^\d/.test(b.name);
+      
+      // If one starts with a number and the other doesn't, prioritize alphabetic names
+      if (aStartsWithNumber && !bStartsWithNumber) return 1;
+      if (!aStartsWithNumber && bStartsWithNumber) return -1;
+      
+      // Otherwise, sort alphabetically
+      return a.name.localeCompare(b.name);
+    }
     
-    // If one starts with a number and the other doesn't, prioritize alphabetic names
-    if (aStartsWithNumber && !bStartsWithNumber) return 1;
-    if (!aStartsWithNumber && bStartsWithNumber) return -1;
+    // Sort by rating (reviews) - highest first
+    if (filters.sortBy === 'rating') {
+      return b.rating - a.rating;
+    }
     
-    // Otherwise, sort alphabetically
+    // Sort by price - lowest first
+    if (filters.sortBy === 'price') {
+      return a.price - b.price;
+    }
+    
+    // Sort by trust score - highest first
+    if (filters.sortBy === 'trustScore') {
+      return b.trust_score - a.trust_score;
+    }
+    
+    // Fallback to name sorting
     return a.name.localeCompare(b.name);
   });
   
@@ -230,55 +251,57 @@ export function AgencyListings({ searchQuery, filters }: AgencyListingsProps) {
             ))}
           </div>
 
-          {/* Replace the existing pagination section with this updated version */}
-          <div className="flex flex-col items-center space-y-4 mt-8">
-            <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2 max-w-full px-2">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Previous page"
-              >
-                <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-              </button>
-              
-              {getVisiblePageNumbers(currentPage, totalPages).map((pageNumber, index) => (
-                <React.Fragment key={index}>
-                  {pageNumber === '...' ? (
-                    <span className="px-2 py-1 text-gray-500">...</span>
-                  ) : (
-                    <button
-                      onClick={() => handlePageChange(Number(pageNumber))}
-                      className={`min-w-[2rem] sm:min-w-[2.5rem] px-2 sm:px-4 py-1 sm:py-2 rounded-lg text-sm sm:text-base ${
-                        currentPage === pageNumber
-                          ? 'bg-indigo-600 text-white'
-                          : 'hover:bg-gray-100'
-                      }`}
-                    >
-                      {pageNumber}
-                    </button>
-                  )}
-                </React.Fragment>
-              ))}
+          {/* Only show pagination if itemsPerPage is not 3 */}
+          {itemsPerPage !== 3 && (
+            <div className="flex flex-col items-center space-y-4 mt-8">
+              <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2 max-w-full px-2">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label="Previous page"
+                >
+                  <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+                </button>
+                
+                {getVisiblePageNumbers(currentPage, totalPages).map((pageNumber, index) => (
+                  <React.Fragment key={index}>
+                    {pageNumber === '...' ? (
+                      <span className="px-2 py-1 text-gray-500">...</span>
+                    ) : (
+                      <button
+                        onClick={() => handlePageChange(Number(pageNumber))}
+                        className={`min-w-[2rem] sm:min-w-[2.5rem] px-2 sm:px-4 py-1 sm:py-2 rounded-lg text-sm sm:text-base ${
+                          currentPage === pageNumber
+                            ? 'bg-indigo-600 text-white'
+                            : 'hover:bg-gray-100'
+                        }`}
+                      >
+                        {pageNumber}
+                      </button>
+                    )}
+                  </React.Fragment>
+                ))}
 
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Next page"
-              >
-                <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
-              </button>
-            </div>
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label="Next page"
+                >
+                  <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
+                </button>
+              </div>
 
-            <div className="text-center text-sm text-gray-500 px-4">
-              Showing <span className="font-medium">{startIndex + 1}</span> to{' '}
-              <span className="font-medium">
-                {Math.min(endIndex, filteredAgencies.length)}
-              </span>{' '}
-              of <span className="font-medium">{filteredAgencies.length}</span> consultants
+              <div className="text-center text-sm text-gray-500 px-4">
+                Showing <span className="font-medium">{startIndex + 1}</span> to{' '}
+                <span className="font-medium">
+                  {Math.min(endIndex, filteredAgencies.length)}
+                </span>{' '}
+                of <span className="font-medium">{filteredAgencies.length}</span> consultants
+              </div>
             </div>
-          </div>
+          )}
         </>
       )}
     </div>

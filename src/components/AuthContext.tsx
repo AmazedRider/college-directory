@@ -22,7 +22,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Get initial session
     const initializeAuth = async () => {
       try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        // Add timeout protection to prevent hanging requests
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('Authentication request timed out')), 5000);
+        });
+
+        const authPromise = supabase.auth.getSession();
+        
+        // Race the auth request against a timeout
+        const result = await Promise.race([authPromise, timeoutPromise]) as any;
+        const { data: { session } = {}, error: sessionError } = result || {};
         
         if (sessionError) throw sessionError;
         
@@ -34,7 +43,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error('Auth initialization error:', err);
         if (mounted) {
           setError(err instanceof Error ? err : new Error('Failed to initialize authentication'));
-          toast.error('Unable to connect to authentication service. Please try again later.');
+          // Don't show toast on production to avoid distracting users
+          if (import.meta.env.DEV) {
+            toast.error('Unable to connect to authentication service. Using anonymous mode.');
+          }
         }
       } finally {
         if (mounted) {
@@ -45,19 +57,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     initializeAuth();
 
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (mounted) {
-        setUser(session?.user ?? null);
-        setError(null);
-      }
-    });
+    // Listen for auth changes with error handling
+    let subscription: { unsubscribe: () => void } | null = null;
+    
+    try {
+      const { data } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        if (mounted) {
+          setUser(session?.user ?? null);
+          setError(null);
+        }
+      });
+      
+      subscription = data.subscription;
+    } catch (err) {
+      console.error('Error setting up auth listener:', err);
+    }
 
     return () => {
       mounted = false;
-      subscription.unsubscribe();
+      subscription?.unsubscribe();
     };
   }, []);
 

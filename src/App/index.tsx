@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../components/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Auth } from '../components/Auth';
@@ -13,13 +13,39 @@ import { AboutPage } from './pages/AboutPage';
 import { BlogPage } from './pages/BlogPage';
 import { ContactPage } from './pages/ContactPage';
 import { Footer } from './components/Footer';
+import { Chatbot } from '../components/Chatbot/Chatbot';
+import { ChatbotProvider } from '../components/Chatbot/ChatbotContext';
 import toast from 'react-hot-toast';
 import { BlogPost } from './pages/BlogPost';
 import { useGoogleAnalytics } from '../lib/hooks/useGoogleAnalytics';
+import ConsultanciesPage from './pages/ConsultanciesPage';
+import { ChatbotButton } from '../components/Chatbot/ChatbotButton';
+import { CourseFinderPage } from './pages/CourseFinderPage';
+import { KnowledgeHubPage } from './pages/KnowledgeHubPage';
+import { GuidePage } from './pages/GuidePage';
+import { ScholarshipFinderPage } from './pages/ScholarshipFinderPage';
+import { VisaInfoPage } from './pages/VisaInfoPage';
+import { FindBuddyPage } from './pages/FindBuddyPage';
+
+// Define page components directly to avoid import errors
+// Commented out as we now have the proper component
+// const FindBuddyPage = () => (
+//   <div className="min-h-screen bg-gray-50">
+//     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+//       <div className="text-center mb-8">
+//         <h1 className="text-3xl font-bold text-gray-900">Find a Buddy</h1>
+//         <p className="mt-4 text-lg text-gray-600">
+//           Connect with students heading to the same destination
+//         </p>
+//       </div>
+//     </div>
+//   </div>
+// );
 
 function App() {
   const { user, loading, error } = useAuth();
   const [showAuth, setShowAuth] = useState(false);
+  const [authIsSignUp, setAuthIsSignUp] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
@@ -28,6 +54,14 @@ function App() {
 
   // Initialize Google Analytics
   useGoogleAnalytics();
+  
+  // Set showAuth and handle signup state
+  const handleSetShowAuth = (show: boolean, isSignUp?: boolean) => {
+    setShowAuth(show);
+    if (isSignUp !== undefined) {
+      setAuthIsSignUp(isSignUp);
+    }
+  };
 
   useEffect(() => {
     if (user) {
@@ -145,50 +179,62 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Navigation
-        isSuperAdmin={isSuperAdmin}
-        isAdmin={isAdmin}
-        showDashboard={showDashboard}
-        showProfile={showProfile}
-        setShowDashboard={setShowDashboard}
-        setShowProfile={setShowProfile}
-        setShowAuth={setShowAuth}
-      />
+    <ChatbotProvider>
+      <div className="min-h-screen flex flex-col bg-gray-50">
+        <Navigation
+          isSuperAdmin={isSuperAdmin}
+          isAdmin={isAdmin}
+          showDashboard={showDashboard}
+          showProfile={showProfile}
+          setShowDashboard={setShowDashboard}
+          setShowProfile={setShowProfile}
+          setShowAuth={handleSetShowAuth}
+        />
 
-      {showAuth && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <Auth onClose={() => setShowAuth(false)} />
-        </div>
-      )}
+        {showAuth && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <Auth onClose={() => setShowAuth(false)} initialIsSignUp={authIsSignUp} />
+          </div>
+        )}
 
-      {showProfile && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <UserProfile onClose={() => setShowProfile(false)} />
-        </div>
-      )}
+        {showProfile && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <UserProfile onClose={() => setShowProfile(false)} />
+          </div>
+        )}
 
-      {showDashboard ? (
-        isSuperAdmin ? (
-          <SuperAdminDashboard />
-        ) : isAdmin ? (
-          <AdminDashboard />
+        {showDashboard ? (
+          isSuperAdmin ? (
+            <SuperAdminDashboard />
+          ) : isAdmin ? (
+            <AdminDashboard />
+          ) : (
+            <HomePage setShowAuth={handleSetShowAuth} />
+          )
         ) : (
-          <HomePage />
-        )
-      ) : (
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/blog" element={<BlogPage />} />
-          <Route path="/blog/post/:id" element={<BlogPost />} />
-          <Route path="/agency/:slug" element={<AgencyPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-        </Routes>
-      )}
+          <Routes>
+            <Route path="/" element={<HomePage setShowAuth={handleSetShowAuth} />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/blog" element={<BlogPage />} />
+            <Route path="/blog/post/:id" element={<BlogPost />} />
+            <Route path="/agency/:slug" element={<AgencyPage />} />
+            <Route path="/agencies" element={<ConsultanciesPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/course-finder" element={<CourseFinderPage />} />
+            <Route path="/knowledge-hub" element={<KnowledgeHubPage />} />
+            <Route path="/language-prep" element={<Navigate to="/knowledge-hub?tab=exam" replace />} />
+            <Route path="/knowledge-hub/:slug" element={<GuidePage />} />
+            <Route path="/scholarship-finder" element={<ScholarshipFinderPage />} />
+            <Route path="/find-buddy" element={<FindBuddyPage />} />
+            <Route path="/visa-info" element={<VisaInfoPage />} />
+          </Routes>
+        )}
 
-      <Footer />
-    </div>
+        <Footer />
+        <ChatbotButton />
+        <Chatbot />
+      </div>
+    </ChatbotProvider>
   );
 }
 

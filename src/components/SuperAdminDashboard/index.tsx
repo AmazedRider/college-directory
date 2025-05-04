@@ -8,11 +8,14 @@ import { AdminAssignments } from './components/AdminAssignments';
 import { AdminManagement } from './components/AdminManagement';
 import { UserAdminManagement } from './components/UserAdminManagement';
 import { BlogManagement } from './components/BlogManagement';
+import { CourseManagement } from './components/CourseManagement';
+import { ScholarshipManagement } from './components/ScholarshipManagement';
+import { BuddyManagement } from './components/BuddyManagement';
 import { Header } from './components/Header';
 import { AddAdminModal } from './components/AddAdminModal';
 import { Agency, CSVAgency } from './types';
 import toast from 'react-hot-toast';
-import { LayoutGrid, Users, BookOpen, Filter, Plus, Shield, Settings, Search } from 'lucide-react';
+import { LayoutGrid, Users, BookOpen, Filter, Plus, Shield, Settings, Search, GraduationCap, Award, UserPlus } from 'lucide-react';
 
 export function SuperAdminDashboard() {
   const { user } = useAuth();
@@ -24,7 +27,7 @@ export function SuperAdminDashboard() {
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showAddAdminModal, setShowAddAdminModal] = useState(false);
-  const [activeTab, setActiveTab] = useState<'agencies' | 'admins' | 'blog'>('agencies');
+  const [activeTab, setActiveTab] = useState<'agencies' | 'courses' | 'scholarships' | 'blog' | 'buddies'>('agencies');
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 12;
   const [uploadStatus, setUploadStatus] = useState({
@@ -51,7 +54,7 @@ export function SuperAdminDashboard() {
     const filtered = agencies.filter(agency => 
       agency.name.toLowerCase().includes(query) ||
       agency.location?.toLowerCase().includes(query) ||
-      agency.contact_email?.toLowerCase().includes(query)
+      (agency as any).contact_email?.toLowerCase().includes(query)
     );
     setFilteredAgencies(filtered);
   }, [searchQuery, agencies]);
@@ -69,7 +72,7 @@ export function SuperAdminDashboard() {
           `)
           .eq('is_admin', true)
           .eq('is_super_admin', false)
-      ) as Promise<{ data: any[] | null; error: any; }>;
+      );
 
       if (profilesError) throw profilesError;
 
@@ -99,7 +102,7 @@ export function SuperAdminDashboard() {
   const loadAgencies = async () => {
     try {
       let query = supabase
-        .from<Agency>('agencies')
+        .from('agencies')
         .select(`
           *,
           owner:profiles!agencies_owner_id_fkey (
@@ -113,12 +116,15 @@ export function SuperAdminDashboard() {
         query = query.eq('status', filter);
       }
 
-      const { data, error } = await retryableQuery(() => query) as Promise<{ data: Agency[] | null; error: any; }>;
-
-      if (error) throw error;
+      const response = await retryableQuery(() => query);
+      
+      if (response.error) throw response.error;
+      
+      // Cast the response data to the Agency type
+      const agencyData = response.data as Agency[] || [];
       
       // Custom sorting function to put numbers and special characters at the end
-      const sortedAgencies = (data || []).sort((a, b) => {
+      const sortedAgencies = agencyData.sort((a: Agency, b: Agency) => {
         // Function to check if a string starts with a letter
         const startsWithLetter = (str: string) => /^[A-Za-z]/.test(str);
         
@@ -366,6 +372,39 @@ export function SuperAdminDashboard() {
                 Agencies & Admins
               </button>
               <button
+                onClick={() => setActiveTab('courses')}
+                className={`${
+                  activeTab === 'courses'
+                    ? 'border-white text-white'
+                    : 'border-transparent text-blue-100 hover:text-white hover:border-white/50'
+                } flex items-center whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
+              >
+                <GraduationCap className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                Course Management
+              </button>
+              <button
+                onClick={() => setActiveTab('buddies')}
+                className={`${
+                  activeTab === 'buddies'
+                    ? 'border-white text-white'
+                    : 'border-transparent text-blue-100 hover:text-white hover:border-white/50'
+                } flex items-center whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
+              >
+                <UserPlus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                Buddy Management
+              </button>
+              <button
+                onClick={() => setActiveTab('scholarships')}
+                className={`${
+                  activeTab === 'scholarships'
+                    ? 'border-white text-white'
+                    : 'border-transparent text-blue-100 hover:text-white hover:border-white/50'
+                } flex items-center whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
+              >
+                <Award className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                Scholarship Management
+              </button>
+              <button
                 onClick={() => setActiveTab('blog')}
                 className={`${
                   activeTab === 'blog'
@@ -530,6 +569,42 @@ export function SuperAdminDashboard() {
                 </div>
               </div>
             </>
+          ) : activeTab === 'courses' ? (
+            <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow duration-300">
+              <div className="px-4 sm:px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <GraduationCap className="h-5 w-5 text-blue-600" />
+                  Course Management
+                </h2>
+              </div>
+              <div className="overflow-x-auto">
+                <CourseManagement />
+              </div>
+            </div>
+          ) : activeTab === 'buddies' ? (
+            <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow duration-300">
+              <div className="px-4 sm:px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <UserPlus className="h-5 w-5 text-blue-600" />
+                  Buddy Management
+                </h2>
+              </div>
+              <div className="overflow-x-auto">
+                <BuddyManagement />
+              </div>
+            </div>
+          ) : activeTab === 'scholarships' ? (
+            <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow duration-300">
+              <div className="px-4 sm:px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <Award className="h-5 w-5 text-blue-600" />
+                  Scholarship Management
+                </h2>
+              </div>
+              <div className="overflow-x-auto">
+                <ScholarshipManagement />
+              </div>
+            </div>
           ) : (
             <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow duration-300">
               <div className="px-4 sm:px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">

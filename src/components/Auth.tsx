@@ -1,17 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Mail, Lock, X } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useLocation } from 'react-router-dom';
 
 interface AuthProps {
   onClose: () => void;
+  initialIsSignUp?: boolean;
 }
 
-export function Auth({ onClose }: AuthProps) {
+export function Auth({ onClose, initialIsSignUp }: AuthProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(initialIsSignUp || false);
+  
+  // Update isSignUp when initialIsSignUp prop changes
+  useEffect(() => {
+    if (initialIsSignUp !== undefined) {
+      setIsSignUp(initialIsSignUp);
+    }
+  }, [initialIsSignUp]);
+  
+  const location = useLocation();
+
+  useEffect(() => {
+    // Check if we're coming from a redirect with a state
+    if (location.state && 'isSignUp' in location.state) {
+      setIsSignUp(!!location.state.isSignUp);
+    }
+    
+    // Also check window.history.state for direct updates
+    if (window.history.state && 'isSignUp' in window.history.state) {
+      setIsSignUp(!!window.history.state.isSignUp);
+    }
+  }, [location]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

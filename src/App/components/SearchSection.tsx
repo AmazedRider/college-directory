@@ -17,6 +17,7 @@ interface SearchSectionProps {
   onSearch: (query: string) => void;
   onFilterChange: (filters: FilterOptions) => void;
   searchInputRef?: React.RefObject<HTMLInputElement>;
+  filters: FilterOptions;
 }
 
 interface SearchSuggestion {
@@ -26,17 +27,19 @@ interface SearchSuggestion {
 }
 
 export interface FilterOptions {
+  location: string;
   minRating: number;
   maxPrice: string;
-  verifiedOnly: boolean;
-  location: string;
   specializations: string[];
+  verifiedOnly: boolean;
+  sortBy?: 'name' | 'rating' | 'price' | 'trustScore';
 }
 
 export function SearchSection({
   onSearch,
   onFilterChange,
   searchInputRef,
+  filters,
 }: SearchSectionProps) {
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -45,14 +48,6 @@ export function SearchSection({
     SearchSuggestion[]
   >([]);
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
-
-  const [filters, setFilters] = useState<FilterOptions>({
-    minRating: 0,
-    maxPrice: '',
-    verifiedOnly: false,
-    location: '',
-    specializations: [],
-  });
 
   const searchInputRefLocal = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
@@ -366,7 +361,6 @@ export function SearchSection({
 
   const handleFilterChange = (newFilters: Partial<FilterOptions>) => {
     const updatedFilters = { ...filters, ...newFilters };
-    setFilters(updatedFilters);
     onFilterChange(updatedFilters);
   };
 
@@ -521,14 +515,14 @@ export function SearchSection({
                   <button
                     onClick={() => {
                       const resetFilters = {
+                        location: '',
                         minRating: 0,
                         maxPrice: '',
                         verifiedOnly: false,
-                        location: '',
                         specializations: [],
+                        sortBy: undefined
                       };
 
-                      setFilters(resetFilters);
                       onFilterChange(resetFilters);
                     }}
                     className="px-4 py-1 bg-white/20 hover:bg-white/30 text-white text-sm font-medium rounded-full transition-colors"
@@ -555,33 +549,14 @@ export function SearchSection({
                           </div>
                           Location
                         </span>
-                        <select
+                        <input
+                          type="text"
                           value={filters.location}
                           onChange={(e) =>
                             handleFilterChange({ location: e.target.value })
                           }
                           className="mt-2 block w-full pl-3 pr-10 py-3 text-base border-0 bg-white rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                        >
-                          <option value="">Any Location</option>
-                          <optgroup label="Cities">
-                            <option value="New York, USA">New York, USA</option>
-                            <option value="London, UK">London, UK</option>
-                            <option value="Toronto, Canada">
-                              Toronto, Canada
-                            </option>
-                            <option value="Sydney, Australia">
-                              Sydney, Australia
-                            </option>
-                            <option value="Berlin, Germany">
-                              Berlin, Germany
-                            </option>
-                            <option value="Paris, France">Paris, France</option>
-                            <option value="Tokyo, Japan">Tokyo, Japan</option>
-                            <option value="Bangalore, India">
-                              Bangalore, India
-                            </option>
-                          </optgroup>
-                        </select>
+                        />
                       </label>
                     </div>
 
@@ -626,19 +601,14 @@ export function SearchSection({
                           </div>
                           Price Range
                         </span>
-                        <select
+                        <input
+                          type="text"
                           value={filters.maxPrice}
                           onChange={(e) =>
                             handleFilterChange({ maxPrice: e.target.value })
                           }
                           className="mt-2 block w-full pl-3 pr-10 py-3 text-base border-0 bg-white rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                        >
-                          <option value="">Any Price</option>
-                          <option value="1000">Under ₹1,000</option>
-                          <option value="2500">Under ₹2,500</option>
-                          <option value="5000">Under ₹5,000</option>
-                          <option value="10000">Under ₹10,000</option>
-                        </select>
+                        />
                       </label>
                     </div>
 
@@ -690,14 +660,70 @@ export function SearchSection({
                 </div>
 
                 {/* Apply Button */}
-                <div className="mt-8 flex justify-end">
-                  <button
-                    onClick={() => setShowFilters(false)}
-                    className="bg-gradient-to-r from-blue-700 to-blue-500 text-white px-8 py-3 rounded-lg font-medium hover:from-blue-800 hover:to-blue-600 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
-                  >
-                    <Check className="h-5 w-5" />
-                    Apply Filters
-                  </button>
+                <div className="mt-8">
+                  {/* Sort Options */}
+                  <div className="bg-gray-50 p-5 rounded-xl shadow-sm hover:shadow transition-shadow duration-300 mb-8">
+                    <div className="mb-3">
+                      <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                        <div className="bg-purple-100 p-2 rounded-lg">
+                          <Hash className="h-4 w-4 text-purple-500" />
+                        </div>
+                        Sort Results By
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        onClick={() => handleFilterChange({ sortBy: 'name' })}
+                        className={`p-3 rounded-lg font-medium transition-colors flex items-center justify-center ${
+                          filters.sortBy === 'name'
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-white text-gray-700 border border-gray-200 hover:border-blue-400'
+                        }`}
+                      >
+                        Alphabetical
+                      </button>
+                      <button
+                        onClick={() => handleFilterChange({ sortBy: 'rating' })}
+                        className={`p-3 rounded-lg font-medium transition-colors flex items-center justify-center ${
+                          filters.sortBy === 'rating'
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-white text-gray-700 border border-gray-200 hover:border-blue-400'
+                        }`}
+                      >
+                        Highest Reviews
+                      </button>
+                      <button
+                        onClick={() => handleFilterChange({ sortBy: 'price' })}
+                        className={`p-3 rounded-lg font-medium transition-colors flex items-center justify-center ${
+                          filters.sortBy === 'price'
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-white text-gray-700 border border-gray-200 hover:border-blue-400'
+                        }`}
+                      >
+                        Price (Low to High)
+                      </button>
+                      <button
+                        onClick={() => handleFilterChange({ sortBy: 'trustScore' })}
+                        className={`p-3 rounded-lg font-medium transition-colors flex items-center justify-center ${
+                          filters.sortBy === 'trustScore'
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-white text-gray-700 border border-gray-200 hover:border-blue-400'
+                        }`}
+                      >
+                        Trust Score
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-end">
+                    <button
+                      onClick={() => setShowFilters(false)}
+                      className="bg-gradient-to-r from-blue-700 to-blue-500 text-white px-8 py-3 rounded-lg font-medium hover:from-blue-800 hover:to-blue-600 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+                    >
+                      <Check className="h-5 w-5" />
+                      Apply Filters
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

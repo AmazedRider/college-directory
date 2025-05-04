@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Phone, MapPin, MessageSquare, X, Facebook, Twitter, Instagram, Linkedin, ChevronDown, User, Briefcase } from 'lucide-react';
-import Cal, { getCalApi } from "@calcom/embed-react";
+import { MapPin, Phone, Mail, Clock, Globe, Facebook, Instagram, Twitter, Linkedin, X, MessageSquare } from 'lucide-react';
 import { SEO } from '../components/SEO';
-import { Helmet } from 'react-helmet-async';
+import Cal, { getCalApi } from "@calcom/embed-react";
 
+<<<<<<< HEAD
+export function ContactPage() {
+=======
+<<<<<<< HEAD
+export function ContactPage() {
+=======
 function ContactCard({ icon, title, content, link }: { icon: React.ReactNode; title: string; content: string; link?: string }) {
   const Container = link ? 'a' : 'div';
   return (
@@ -44,11 +49,15 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
 }
 
 export const ContactPage: React.FC = () => {
+>>>>>>> 73056b2bee1fb462aedd795d002a04c2f148942e
+>>>>>>> 88f10b76e8007c00ccacb927a5cf688aad4569fb
   const [showBooking, setShowBooking] = useState(false);
   const [calLoaded, setCalLoaded] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
+    fullName: '',
     email: '',
+    inquiryType: '',
+    subject: '',
     message: ''
   });
 
@@ -72,246 +81,397 @@ export const ContactPage: React.FC = () => {
     }
   }, [showBooking]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the form data to your backend
-    console.log('Form submitted:', formData);
-    // Reset form
-    setFormData({ name: '', email: '', message: '' });
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  // Schema for the contact page
-  const contactPageSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'ContactPage',
-    name: 'Contact Us | Admissions.app',
-    description: 'Get in touch with Admissions.app for any questions about college admissions, consulting services, or platform features.',
-    publisher: {
-      '@type': 'Organization',
-      name: 'Admissions.app',
-      logo: {
-        '@type': 'ImageObject',
-        url: 'https://admissions.app/logo.png'
-      }
-    },
-    mainEntity: {
-      '@type': 'WebPage',
-      '@id': 'https://admissions.app/contact'
-    }
+    console.log(formData);
   };
 
   return (
-    <>
-      <Helmet>
-        <title>Contact Us | Admissions.app - Get in Touch with Study Abroad Experts</title>
-        <meta name="description" content="Connect with Admissions.app for expert study abroad guidance. Book a consultation, get in touch via email, phone, or visit our office. Follow us on social media for study abroad tips." />
-        <meta name="keywords" content="study abroad consultation, international education, university admission, study abroad experts, education consultants, admissions guidance" />
-        <meta property="og:title" content="Contact Admissions.app - Study Abroad Experts" />
-        <meta property="og:description" content="Get expert guidance for your study abroad journey. Connect with our team of experienced education consultants." />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://admissions.app/contact" />
-        <link rel="canonical" href="https://admissions.app/contact" />
-      </Helmet>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <SEO 
+        title="Contact Us | Admissions.app"
+        description="Get in touch with our team for any questions about overseas education"
+        canonicalUrl="/contact"
+      />
 
-      <div className="bg-gray-50 min-h-screen">
-        <SEO 
-          title="Contact Us | Admissions.app"
-          description="Get in touch with Admissions.app for any questions about college admissions, consulting services, or platform features."
-          canonicalUrl="/contact"
-          ogType="website"
-          keywords={['contact admissions.app', 'college admissions help', 'education consultant support']}
-          schema={contactPageSchema}
-        />
-        
-        <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
-          {/* Hero Section */}
-          <div className="bg-gradient-to-r from-blue-800 to-blue-600 text-white py-20">
-            <div className="container mx-auto px-4">
-              <div className="max-w-3xl mx-auto text-center">
-                <h1 className="text-4xl md:text-5xl font-bold mb-6">Contact Admissions.app: Your Study Abroad Partner</h1>
-                <p className="text-xl text-blue-100 mb-8">
-                  Have questions about finding the best college consultants? Reach out to Admissions.app, Hyderabad's trusted platform for overseas education.
-                </p>
-              </div>
-            </div>
+      {/* Header section */}
+      <div className="mb-8 sm:mb-12">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">Contact Us</h1>
+        <p className="text-gray-600 max-w-3xl text-sm sm:text-base">
+          Have questions about studying abroad or need assistance with our platform? We're here to help!
+          Reach out to our team using the contact form below or through our contact information.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6 sm:gap-8 lg:gap-12">
+        {/* Contact Form Section */}
+        <div className="md:col-span-3 bg-white rounded-xl shadow-sm border border-gray-100">
+          <div className="flex flex-col space-y-1.5 p-4 sm:p-6">
+            <div className="text-xl sm:text-2xl font-semibold leading-none tracking-tight">Send Us a Message</div>
+            <div className="text-sm text-muted-foreground">Fill out the form below and we'll get back to you as soon as possible.</div>
           </div>
 
-          {/* Main Content */}
-          <div className="container mx-auto px-4 py-16">
-            <div className="max-w-4xl mx-auto">
-              {/* Welcome Message */}
-              <div className="bg-gradient-to-r from-blue-50 to-white rounded-2xl shadow-lg p-8 mb-16 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-100 rounded-full opacity-20 -translate-y-16 translate-x-16"></div>
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-200 rounded-full opacity-20 -translate-x-12 translate-y-12"></div>
-                <div className="relative text-center">
-                  <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-blue-400 mx-auto mb-6 rounded-full"></div>
-                  <p className="text-xl text-gray-700 leading-relaxed mb-8">
-                    Whether you're a student seeking a visa consultant or an advisor looking to join our platform, we're here to help.
-                  </p>
-                  <button
-                    onClick={() => setShowBooking(true)}
-                    className="bg-gradient-to-r from-blue-800 to-blue-600 text-white px-8 py-3 rounded-lg hover:from-blue-700 hover:to-blue-900 transition-all duration-300 shadow-md hover:shadow-lg flex items-center gap-2 mx-auto"
-                  >
-                    <MessageSquare className="h-5 w-5" />
-                    <span>Book a Call</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Original Contact Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-                <ContactCard
-                  icon={<Phone className="h-8 w-8" />}
-                  title="Phone"
-                  content="+91 6304 666 504"
-                  link="tel:+916304666504"
-                />
-                <ContactCard
-                  icon={<Mail className="h-8 w-8" />}
-                  title="Email"
-                  content="connect@admissions.app"
-                  link="mailto:connect@admissions.app"
-                />
-                <ContactCard
-                  icon={<MapPin className="h-8 w-8" />}
-                  title="Office"
-                  content="Admissions.app, Code For India 3rd Floor, Serene Heights, Humayunnagar, Masab Tank, Hyderabad 500028"
-                  link="https://goo.gl/maps/mdCqMAUEF8pbYgLC7"
-                />
-              </div>
-
-              {/* Contact Form Section */}
-              <div className="bg-white rounded-2xl shadow-xl p-8 mb-16">
-                <h2 className="text-2xl font-semibold mb-6 text-center">Send us a Message</h2>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">Message</label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      value={formData.message}
-                      onChange={handleChange}
-                      rows={4}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      required
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="w-full bg-gradient-to-r from-blue-800 to-blue-600 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-blue-900 transition-all duration-300 shadow-md hover:shadow-lg"
-                  >
-                    Send Message
-                  </button>
-                </form>
-              </div>
-
-              {/* FAQ Section */}
-              <div className="bg-white rounded-2xl shadow-xl p-8 mb-16">
-                <h2 className="text-2xl font-semibold mb-6 text-center">Frequently Asked Questions</h2>
+          <div className="p-4 sm:p-6 pt-0">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div className="space-y-2">
-                  <FAQItem
-                    question="How do I find a study abroad consultant on Admissions.app?"
-                    answer="You can browse our verified consultants by visiting the homepage and using our search filters to find the perfect match for your needs."
+                  <label htmlFor="fullName" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Full Name
+                  </label>
+                  <input
+                    id="fullName"
+                    type="text"
+                    placeholder="Enter your full name"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                    value={formData.fullName}
+                    onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+                    required
                   />
-                  <FAQItem
-                    question="What makes your college consultants trusted?"
-                    answer="All our consultants go through a rigorous verification process, including background checks and verification of their credentials and experience."
-                  />
-                  <FAQItem
-                    question="Can I get help with USA student visas?"
-                    answer="Yes, many of our consultants specialize in USA student visas and can guide you through the entire process."
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="email" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Email
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    required
                   />
                 </div>
               </div>
 
-              {/* Social Media Section */}
-              <div className="bg-white rounded-2xl shadow-xl p-8">
-                <h2 className="text-2xl font-semibold mb-6 text-center">Follow Us for Study Abroad Tips</h2>
-                <div className="flex justify-center space-x-6">
-                  <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 transition-colors">
-                    <Facebook className="h-8 w-8" />
-                  </a>
-                  <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="text-gray-900 hover:text-gray-700 transition-colors">
-                    <X className="h-8 w-8" />
-                  </a>
-                  <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-pink-600 hover:text-pink-800 transition-colors">
-                    <Instagram className="h-8 w-8" />
-                  </a>
-                  <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-blue-700 hover:text-blue-900 transition-colors">
-                    <Linkedin className="h-8 w-8" />
-                  </a>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <div className="space-y-2">
+                  <label htmlFor="inquiryType" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Inquiry Type
+                  </label>
+                  <select
+                    id="inquiryType"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    value={formData.inquiryType}
+                    onChange={(e) => setFormData({...formData, inquiryType: e.target.value})}
+                    required
+                  >
+                    <option value="">Select inquiry type</option>
+                    <option value="general">General Inquiry</option>
+                    <option value="consultant">Consultant Related</option>
+                    <option value="course">Course Information</option>
+                    <option value="scholarship">Scholarship Information</option>
+                    <option value="technical">Technical Support</option>
+                    <option value="feedback">Feedback</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="subject" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Subject
+                  </label>
+                  <input
+                    id="subject"
+                    type="text"
+                    placeholder="Enter subject"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                    value={formData.subject}
+                    onChange={(e) => setFormData({...formData, subject: e.target.value})}
+                    required
+                  />
                 </div>
               </div>
+
+              <div className="space-y-2">
+                <label htmlFor="message" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Message
+                </label>
+                <textarea
+                  id="message"
+                  placeholder="Enter your message"
+                  rows={6}
+                  className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                  value={formData.message}
+                  onChange={(e) => setFormData({...formData, message: e.target.value})}
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-white hover:bg-primary/90 h-10 px-4 py-2 w-full"
+              >
+                Send Message
+              </button>
+            </form>
+          </div>
+
+          {/* Book a Call Section in a separate div */}
+          <div className="bg-gradient-to-r from-blue-50 to-white rounded-2xl shadow-lg p-8 py-28 mb-16 relative overflow-hidden mt-16">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-100 rounded-full opacity-20 -translate-y-16 translate-x-16"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-200 rounded-full opacity-20 -translate-x-12 translate-y-12"></div>
+            
+            <div className="relative text-center py-8">
+              <div className="w-32 h-1.5 bg-gradient-to-r from-blue-600 to-blue-400 mx-auto mb-12 rounded-full"></div>
+              <p className="text-xl text-gray-700 leading-relaxed mb-14 max-w-2xl mx-auto px-4">
+                Whether you're a student seeking a visa consultant or an advisor looking to join our platform, we're here to help.
+              </p>
+              <button
+                onClick={() => setShowBooking(true)}
+                className="bg-primary text-white px-10 py-4 rounded-lg hover:bg-primary/90 transition-all duration-300 shadow-md hover:shadow-lg flex items-center gap-3 mx-auto"
+              >
+                <MessageSquare className="h-5 w-5" />
+                <span>Book a Call</span>
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Booking Modal */}
-        {showBooking && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-            <div className="bg-white w-full max-w-4xl h-[90vh] rounded-lg overflow-hidden flex flex-col">
-              <div className="flex-shrink-0 border-b border-gray-100 flex items-center justify-between p-4">
-                <h3 className="text-lg font-semibold text-gray-900">Schedule a Meeting</h3>
-                <button
-                  onClick={() => {
-                    setShowBooking(false);
-                    setCalLoaded(false);
-                  }}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                  aria-label="Close booking modal"
-                >
-                  <X className="h-6 w-6 text-gray-500" />
-                </button>
+        {/* Contact Information Section */}
+        <div className="md:col-span-2 space-y-6 sm:space-y-8">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+            <div className="flex flex-col space-y-1.5 p-4 sm:p-6">
+              <div className="text-xl sm:text-2xl font-semibold leading-none tracking-tight">Contact Information</div>
+              <div className="text-sm text-muted-foreground">Reach out to us directly using the information below.</div>
+            </div>
+
+            <div className="p-4 sm:p-6 pt-0 space-y-4 sm:space-y-6">
+              <div className="flex items-start gap-3">
+                <MapPin className="h-5 w-5 text-blue-600 mt-1" />
+                <div>
+                  <h3 className="font-medium">Office Address</h3>
+                  <a 
+                    href="https://g.co/kgs/iCzLMJT"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-600 text-sm hover:text-blue-600 transition-colors group"
+                  >
+                    <p className="group-hover:text-blue-600">
+                      Admissions.app, Code For India<br />
+                      3rd Floor, Serene Heights,<br />
+                      Humayunnagar, Masab Tank,<br />
+                      Hyderabad 500028
+                    </p>
+                  </a>
+                </div>
               </div>
-              <div className="flex-1 overflow-hidden">
-                {calLoaded && (
-                  <Cal
-                    namespace="30min"
-                    calLink="forge/30min"
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      overflow: "auto"
-                    }}
-                    config={{
-                      layout: "week_view"
-                    }}
-                  />
-                )}
+
+              <div className="flex items-start gap-3">
+                <Phone className="h-5 w-5 text-blue-600 mt-1" />
+                <div>
+                  <h3 className="font-medium">Phone</h3>
+                  <a 
+                    href="tel:+916304666504"
+                    className="text-gray-600 text-sm hover:text-blue-600 transition-colors group inline-flex items-center gap-1"
+                  >
+                    <span className="group-hover:text-blue-600">+91 6304 666 504</span>
+                  </a>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <Mail className="h-5 w-5 text-blue-600 mt-1" />
+                <div>
+                  <h3 className="font-medium">Email</h3>
+                  <a 
+                    href="mailto:connect@admissions.app?subject=Inquiry about Admissions.app"
+                    className="text-gray-600 text-sm hover:text-blue-600 transition-colors group inline-flex items-center gap-1"
+                  >
+                    <span className="group-hover:text-blue-600">connect@admissions.app</span>
+                  </a>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <Clock className="h-5 w-5 text-blue-600 mt-1" />
+                <div>
+                  <h3 className="font-medium">Business Hours</h3>
+                  <p className="text-gray-600 text-sm">Monday - Friday: 9:00 AM - 6:00 PM</p>
+                  <p className="text-gray-600 text-sm">Saturday: 10:00 AM - 2:00 PM</p>
+                  <p className="text-gray-600 text-sm">Sunday: Closed</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <Globe className="h-5 w-5 text-blue-600 mt-1" />
+                <div>
+                  <h3 className="font-medium">Social Media</h3>
+                  <div className="flex gap-4 mt-2">
+                    <a href="#" className="text-gray-600 hover:text-blue-600">
+                      <Facebook className="w-5 h-5" />
+                    </a>
+                    <a href="#" className="text-gray-600 hover:text-blue-600">
+                      <Instagram className="w-5 h-5" />
+                    </a>
+                    <a href="#" className="text-gray-600 hover:text-blue-600">
+                      <Twitter className="w-5 h-5" />
+                    </a>
+                    <a href="#" className="text-gray-600 hover:text-blue-600">
+                      <Linkedin className="w-5 h-5" />
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        )}
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 88f10b76e8007c00ccacb927a5cf688aad4569fb
+
+          {/* FAQ Section */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+            <div className="flex flex-col space-y-1.5 p-4 sm:p-6">
+              <div className="text-xl sm:text-2xl font-semibold leading-none tracking-tight">Frequently Asked Questions</div>
+            </div>
+            <div className="p-4 sm:p-6 pt-0 space-y-4 sm:space-y-6">
+              <div>
+                <h3 className="font-medium text-gray-900 mb-2">How do I verify a consultant?</h3>
+                <p className="text-gray-600">All consultants on our platform are verified by our team. Look for the "Verified" badge on their profile.</p>
+              </div>
+              <div>
+                <h3 className="font-medium text-gray-900 mb-2">How can I track my application?</h3>
+                <p className="text-gray-600">You can track your applications through our Application Tracker feature after logging in.</p>
+              </div>
+              <div>
+                <h3 className="font-medium text-gray-900 mb-2">Is the service free for students?</h3>
+                <p className="text-gray-600">Yes, basic services are free for students. Premium features may require a subscription.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+<<<<<<< HEAD
+=======
       </div>
-    </>
+
+      {/* Map Section */}
+      <div className="mt-8 sm:mt-12">
+        <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-900">Find Us</h2>
+        <div className="bg-white rounded-xl overflow-hidden h-[300px] sm:h-[400px] shadow-sm border border-gray-100">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3807.3575773447823!2d78.44903799999999!3d17.396272!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb97b14f08a901%3A0x9e3b3704c21efe4b!2sSerene%20Heights%2C%20Humayun%20Nagar%2C%20Masab%20Tank%2C%20Hyderabad%2C%20Telangana%20500028!5e0!3m2!1sen!2sin!4v1709655547039!5m2!1sen!2sin"
+            width="100%"
+            height="100%"
+            style={{ border: 0 }}
+            allowFullScreen={true}
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            title="Admissions.app Office at Serene Heights"
+            className="w-full h-full"
+          />
+        </div>
+        <div className="mt-2 text-xs sm:text-sm text-gray-500 flex items-center gap-2">
+          <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
+          <span>Serene Heights, Humayun Nagar, Masab Tank, Hyderabad, Telangana 500028</span>
+        </div>
+      </div>
+
+      {/* Booking Modal */}
+      {showBooking && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-4xl h-[80vh] sm:h-[90vh] rounded-xl overflow-hidden flex flex-col shadow-xl">
+            <div className="flex-shrink-0 border-b border-gray-100 flex items-center justify-between p-4 sm:p-6">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-900">Schedule a Meeting</h3>
+              <button
+                onClick={() => {
+                  setShowBooking(false);
+                  setCalLoaded(false);
+                }}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                aria-label="Close booking modal"
+              >
+                <X className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              {calLoaded && (
+                <Cal
+                  namespace="30min"
+                  calLink="forge/30min"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    overflow: "auto"
+                  }}
+                  config={{
+                    layout: "week_view"
+                  }}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
+}
+=======
+        )}
+>>>>>>> 88f10b76e8007c00ccacb927a5cf688aad4569fb
+      </div>
+
+      {/* Map Section */}
+      <div className="mt-8 sm:mt-12">
+        <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-900">Find Us</h2>
+        <div className="bg-white rounded-xl overflow-hidden h-[300px] sm:h-[400px] shadow-sm border border-gray-100">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3807.3575773447823!2d78.44903799999999!3d17.396272!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb97b14f08a901%3A0x9e3b3704c21efe4b!2sSerene%20Heights%2C%20Humayun%20Nagar%2C%20Masab%20Tank%2C%20Hyderabad%2C%20Telangana%20500028!5e0!3m2!1sen!2sin!4v1709655547039!5m2!1sen!2sin"
+            width="100%"
+            height="100%"
+            style={{ border: 0 }}
+            allowFullScreen={true}
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            title="Admissions.app Office at Serene Heights"
+            className="w-full h-full"
+          />
+        </div>
+        <div className="mt-2 text-xs sm:text-sm text-gray-500 flex items-center gap-2">
+          <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
+          <span>Serene Heights, Humayun Nagar, Masab Tank, Hyderabad, Telangana 500028</span>
+        </div>
+      </div>
+
+      {/* Booking Modal */}
+      {showBooking && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-4xl h-[80vh] sm:h-[90vh] rounded-xl overflow-hidden flex flex-col shadow-xl">
+            <div className="flex-shrink-0 border-b border-gray-100 flex items-center justify-between p-4 sm:p-6">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-900">Schedule a Meeting</h3>
+              <button
+                onClick={() => {
+                  setShowBooking(false);
+                  setCalLoaded(false);
+                }}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                aria-label="Close booking modal"
+              >
+                <X className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              {calLoaded && (
+                <Cal
+                  namespace="30min"
+                  calLink="forge/30min"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    overflow: "auto"
+                  }}
+                  config={{
+                    layout: "week_view"
+                  }}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+<<<<<<< HEAD
+}
+=======
 };
+>>>>>>> 73056b2bee1fb462aedd795d002a04c2f148942e
+>>>>>>> 88f10b76e8007c00ccacb927a5cf688aad4569fb

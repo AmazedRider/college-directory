@@ -1,1 +1,5 @@
-/* /index.html 200 
+# Netlify SPA routing
+/* /index.html 200
+
+# Redirect /application-tracker to /track
+/application-tracker /track 301! 

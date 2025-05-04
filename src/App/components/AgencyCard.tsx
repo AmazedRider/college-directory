@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Shield, MapPin, Star, StarHalf, ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Shield, MapPin, Star, ChevronRight } from 'lucide-react';
 
 interface AgencyCardProps {
   name: string;
@@ -8,45 +8,32 @@ interface AgencyCardProps {
   description: string;
   rating: number;
   imageUrl: string;
-  trustScore?: number;
+  trustScore: number;
   price: number;
   specializations: string[];
   isVerified: boolean;
   slug: string;
 }
 
-export function AgencyCard({ 
-  name, 
-  location, 
-  description, 
-  rating, 
-  imageUrl, 
-  trustScore = 0,
+export function AgencyCard({
+  name,
+  location,
+  description,
+  rating,
+  imageUrl,
+  trustScore,
   price,
   specializations,
   isVerified,
   slug
 }: AgencyCardProps) {
-  const navigate = useNavigate();
-
-  const handleClick = () => {
-    navigate(`/agency/${slug}`);
-  };
-
   return (
-    <div 
-      className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-transform hover:scale-[1.02]"
-      onClick={handleClick}
-    >
+    <div className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-transform hover:scale-[1.02]">
       <div className="h-48 relative">
         <img 
           src={imageUrl} 
           alt={name} 
           className="w-full h-full object-cover"
-          onError={(e) => {
-            const img = e.target as HTMLImageElement;
-            img.src = 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80';
-          }}
         />
         {isVerified && (
           <div className="absolute top-2 right-2 flex items-center gap-1 bg-green-500 bg-opacity-90 text-white px-2 py-1 rounded-full text-sm font-medium shadow-lg">
@@ -68,27 +55,23 @@ export function AgencyCard({
           <span className="text-sm">{location}</span>
         </div>
         <div className="flex items-center text-yellow-500 mb-3">
-          {Array.from({ length: Math.floor(rating) }).map((_, i) => (
-            <Star key={i} className="h-4 w-4 fill-current" />
-          ))}
-          {rating % 1 !== 0 && (
-            <StarHalf className="h-4 w-4 fill-current" />
-          )}
-          {Array.from({ length: Math.floor(5 - rating) }).map((_, i) => (
-            <Star key={`empty-${i}`} className="h-4 w-4" />
+          {[...Array(5)].map((_, i) => (
+            <Star 
+              key={i} 
+              className={`h-4 w-4 ${i < Math.floor(rating) ? 'fill-current' : ''}`}
+            />
           ))}
         </div>
-        <p className="text-gray-600 text-sm mb-4 line-clamp-3">{description}</p>
-        <div 
+        <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+          {description}
+        </p>
+        <Link 
+          to={`/agency/${slug}`}
           className="flex items-center text-indigo-600 hover:text-indigo-800 transition-colors"
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate(`/agency/${slug}`);
-          }}
         >
           Learn More
           <ChevronRight className="h-4 w-4 ml-1" />
-        </div>
+        </Link>
       </div>
     </div>
   );

@@ -1,0 +1,20 @@
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  Permissions-Policy: document-domain=()
+
+/*.js
+  Content-Type: application/javascript
+
+/*.mjs
+  Content-Type: application/javascript
+
+/*.js.map
+  Content-Type: application/json
+
+/*.css
+  Content-Type: text/css
+
+/*.svg
+  Content-Type: image/svg+xml 

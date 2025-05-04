@@ -2,6 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
 import { SEO } from '../components/SEO';
+import { Calendar, Clock, User } from 'lucide-react';
+import { getBlogTabs } from '../../lib/api';
+
+interface BlogTab {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  display_order: number;
+}
 
 interface BlogPost {
   id: string;
@@ -13,22 +23,41 @@ interface BlogPost {
   image_url: string;
   category: string;
   created_at: string;
+  tab_id: string | null;
+  blog_tabs: {
+    name: string;
+  } | null;
 }
 
 export function BlogPage() {
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [tabs, setTabs] = useState<BlogTab[]>([]);
+  const [activeTab, setActiveTab] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadBlogPosts();
+    Promise.all([loadBlogPosts(), loadTabs()]);
   }, []);
+
+  const loadTabs = async () => {
+    try {
+      const tabsData = await getBlogTabs();
+      setTabs(tabsData);
+      // Set the first tab as active by default
+      if (tabsData.length > 0 && !activeTab) {
+        setActiveTab(tabsData[0].id);
+      }
+    } catch (error) {
+      console.error('Error loading tabs:', error);
+    }
+  };
 
   const loadBlogPosts = async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
         .from('blog_posts')
-        .select('*')
+        .select('*, blog_tabs(name)')
         .order('date', { ascending: false });
 
       if (error) throw error;
@@ -41,9 +70,14 @@ export function BlogPage() {
     }
   };
 
+  // Filter posts by active tab
+  const filteredPosts = activeTab 
+    ? blogPosts.filter(post => post.tab_id === activeTab)
+    : blogPosts;
+
   // Fall back to dummy data if no posts are found
-  const hasPosts = blogPosts.length > 0;
-  const displayPosts = hasPosts ? blogPosts : [
+  const hasPosts = filteredPosts.length > 0;
+  const displayPosts = hasPosts ? filteredPosts : [
     {
       id: '1',
       title: "How to Choose the Right College for Your Future",
@@ -53,7 +87,9 @@ export function BlogPage() {
       date: "2025-02-28",
       image_url: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
       category: "College Selection",
-      created_at: "2025-02-28"
+      created_at: "2025-02-28",
+      tab_id: null,
+      blog_tabs: null
     },
     {
       id: '2',
@@ -64,7 +100,9 @@ export function BlogPage() {
       date: "2025-02-15",
       image_url: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
       category: "Financial Aid",
-      created_at: "2025-02-15"
+      created_at: "2025-02-15",
+      tab_id: null,
+      blog_tabs: null
     },
     {
       id: '3',
@@ -75,7 +113,9 @@ export function BlogPage() {
       date: "2025-02-05",
       image_url: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
       category: "Admissions",
-      created_at: "2025-02-05"
+      created_at: "2025-02-05",
+      tab_id: null,
+      blog_tabs: null
     },
     {
       id: '4',
@@ -86,7 +126,9 @@ export function BlogPage() {
       date: "2025-01-22",
       image_url: "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
       category: "Campus Life",
-      created_at: "2025-01-22"
+      created_at: "2025-01-22",
+      tab_id: null,
+      blog_tabs: null
     },
     {
       id: '5',
@@ -97,7 +139,9 @@ export function BlogPage() {
       date: "2025-01-10",
       image_url: "https://images.unsplash.com/photo-1501504905252-473c47e087f8?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
       category: "Education Trends",
-      created_at: "2025-01-10"
+      created_at: "2025-01-10",
+      tab_id: null,
+      blog_tabs: null
     }
   ];
 
@@ -122,7 +166,7 @@ export function BlogPage() {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <SEO 
         title="Blog | College Admissions Insights & Tips | Admissions.app"
         description="Expert insights, tips, and advice to help you navigate the college admissions process. Read our latest articles on college applications, essays, and more."
@@ -133,24 +177,61 @@ export function BlogPage() {
         schema={blogSchema}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Admissions Blog</h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Expert insights, tips, and advice to help you navigate the college admissions process
-          </p>
+      {/* Hero Section */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary to-primary/90"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+          <div className="text-center">
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              Admissions Blog
+            </h1>
+            <p className="text-xl text-white/90 max-w-3xl mx-auto">
+              Expert insights, tips, and advice to help you navigate the college admissions process
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        {/* Tabs Navigation */}
+        <div className="mb-12">
+          <div className="flex flex-wrap justify-center gap-3">
+            <button
+              className={`px-5 py-2.5 rounded-full font-medium transition-colors ${
+                activeTab === null
+                  ? 'bg-primary text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+              onClick={() => setActiveTab(null)}
+            >
+              All Posts
+            </button>
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                className={`px-5 py-2.5 rounded-full font-medium transition-colors ${
+                  activeTab === tab.id
+                    ? 'bg-primary text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+                onClick={() => setActiveTab(tab.id)}
+              >
+                {tab.name}
+              </button>
+            ))}
+          </div>
         </div>
 
         {loading ? (
           <div className="flex justify-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
           </div>
         ) : (
           <>
             {/* Featured Post */}
             {displayPosts.length > 0 && (
               <div className="mb-16">
-                <div className="bg-white overflow-hidden rounded-2xl shadow-lg transition-shadow hover:shadow-xl">
+                <div className="bg-white rounded-2xl shadow-xl overflow-hidden transition-all hover:shadow-2xl hover:-translate-y-1">
                   <div className="md:flex">
                     <div className="md:flex-shrink-0 md:w-1/2">
                       <img 
@@ -160,43 +241,37 @@ export function BlogPage() {
                       />
                     </div>
                     <div className="p-8 md:w-1/2">
-                      <div className="uppercase tracking-wide text-sm text-blue-600 font-semibold">
-                        {displayPosts[0].category}
+                      <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary">
+                        {displayPosts[0].blog_tabs?.name || displayPosts[0].category}
                       </div>
-                      <a href={`/blog/post/${displayPosts[0].id}`} className="block mt-1 text-2xl leading-tight font-bold text-gray-900 hover:underline">
+                      <a href={`/blog/post/${displayPosts[0].id}`} className="block mt-4 text-2xl leading-tight font-bold text-gray-900 hover:text-primary transition-colors">
                         {displayPosts[0].title}
                       </a>
-                      <p className="mt-2 text-gray-600">
+                      <p className="mt-4 text-gray-600 leading-relaxed">
                         {displayPosts[0].excerpt}
                       </p>
-                      <div className="mt-6 flex items-center">
-                        <div className="flex-shrink-0">
-                          <span className="sr-only">{displayPosts[0].author}</span>
-                          <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                            {displayPosts[0].author.charAt(0)}
-                          </div>
+                      <div className="mt-6 flex items-center space-x-4">
+                        <div className="flex items-center text-sm text-gray-500">
+                          <User className="h-4 w-4 mr-1" />
+                          {displayPosts[0].author}
                         </div>
-                        <div className="ml-3">
-                          <p className="text-sm font-medium text-gray-900">
-                            {displayPosts[0].author}
-                          </p>
-                          <div className="flex space-x-1 text-sm text-gray-500">
-                            <time dateTime={displayPosts[0].date}>
-                              {new Date(displayPosts[0].date).toLocaleDateString('en-US', { 
-                                year: 'numeric', 
-                                month: 'long', 
-                                day: 'numeric' 
-                              })}
-                            </time>
-                            <span aria-hidden="true">&middot;</span>
-                            <span>8 min read</span>
-                          </div>
+                        <div className="flex items-center text-sm text-gray-500">
+                          <Calendar className="h-4 w-4 mr-1" />
+                          {new Date(displayPosts[0].date).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                          })}
+                        </div>
+                        <div className="flex items-center text-sm text-gray-500">
+                          <Clock className="h-4 w-4 mr-1" />
+                          8 min read
                         </div>
                       </div>
                       <div className="mt-6">
                         <a 
                           href={`/blog/post/${displayPosts[0].id}`}
-                          className="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-blue-800 to-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                          className="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary/50 transition-colors"
                         >
                           Read Article
                         </a>
@@ -208,97 +283,62 @@ export function BlogPage() {
             )}
 
             {/* Blog Post Grid */}
-            <div className="grid gap-8 md:grid-cols-2 lg:gri d-cols-3">
-              {displayPosts.slice(1).map((post) => (
-                <div key={post.id} className="bg-white rounded-xl shadow-md overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
-                  <div className="relative h-48">
-                    <img 
-                      className="h-full w-full object-cover" 
-                      src={post.image_url || `https://images.unsplash.com/photo-1501504905252-473c47e087f8?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80`} 
-                      alt={post.title} 
-                    />
-                    <div className="absolute top-4 left-4">
-                      <span className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                        {post.category}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <a href={`/blog/post/${post.id}`} className="block mt-1 text-xl font-semibold text-gray-900 hover:text-blue-600">
-                      {post.title}
-                    </a>
-                    <p className="mt-3 text-base text-gray-500 line-clamp-3">
-                      {post.excerpt}
-                    </p>
-                    <div className="mt-6 flex items-center">
-                      <div className="flex-shrink-0">
-                        <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-sm font-medium text-blue-800">
-                          {post.author.charAt(0)}
-                        </div>
+            {displayPosts.length > 1 ? (
+              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                {displayPosts.slice(1).map((post) => (
+                  <div key={post.id} className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1">
+                    <div className="relative h-48">
+                      <img 
+                        className="h-full w-full object-cover" 
+                        src={post.image_url || `https://images.unsplash.com/photo-1501504905252-473c47e087f8?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80`} 
+                        alt={post.title} 
+                      />
+                      <div className="absolute top-4 left-4">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary">
+                          {post.blog_tabs?.name || post.category}
+                        </span>
                       </div>
-                      <div className="ml-3">
-                        <p className="text-sm font-medium text-gray-900">
+                    </div>
+                    <div className="p-6">
+                      <a href={`/blog/post/${post.id}`} className="block text-xl font-semibold text-gray-900 hover:text-primary transition-colors">
+                        {post.title}
+                      </a>
+                      <p className="mt-3 text-gray-600 leading-relaxed line-clamp-3">
+                        {post.excerpt}
+                      </p>
+                      <div className="mt-6 flex items-center space-x-4">
+                        <div className="flex items-center text-sm text-gray-500">
+                          <User className="h-4 w-4 mr-1" />
                           {post.author}
-                        </p>
-                        <div className="flex space-x-1 text-sm text-gray-500">
-                          <time dateTime={post.date}>
-                            {new Date(post.date).toLocaleDateString('en-US', { 
-                              year: 'numeric', 
-                              month: 'long', 
-                              day: 'numeric' 
-                            })}
-                          </time>
+                        </div>
+                        <div className="flex items-center text-sm text-gray-500">
+                          <Calendar className="h-4 w-4 mr-1" />
+                          {new Date(post.date).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                          })}
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-
-        {/* Newsletter Signup */}
-        <div className="mt-16 bg-gradient-to-r from-blue-800 to-blue-600 rounded-2xl shadow-xl overflow-hidden">
-          <div className="px-6 py-12 sm:px-12 lg:flex lg:items-center lg:py-16">
-            <div className="lg:w-0 lg:flex-1">
-              <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-                Stay updated with admission tips
-              </h2>
-              <p className="mt-4 max-w-3xl text-lg text-blue-100">
-                Subscribe to our newsletter to receive the latest college admission advice, tips, and resources.
-              </p>
-            </div>
-            <div className="mt-8 lg:mt-0 lg:ml-8">
-              <form className="sm:flex">
-                <label htmlFor="email-address" className="sr-only">Email address</label>
-                <input
-                  id="email-address"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  className="w-full px-5 py-3 border-white focus:ring-white focus:border-white rounded-md placeholder-gray-500"
-                  placeholder="Enter your email"
-                />
-                <div className="mt-3 rounded-md shadow sm:mt-0 sm:ml-3 sm:flex-shrink-0">
-                  <button
-                    type="submit"
-                    className="w-full flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-blue-700 focus:ring-white"
+                ))}
+              </div>
+            ) : (
+              displayPosts.length === 0 && (
+                <div className="text-center py-16">
+                  <h3 className="text-xl font-medium text-gray-500">No blog posts found in this category</h3>
+                  <button 
+                    className="mt-4 px-5 py-2 bg-primary text-white rounded-md"
+                    onClick={() => setActiveTab(null)}
                   >
-                    Subscribe
+                    View All Posts
                   </button>
                 </div>
-              </form>
-              <p className="mt-3 text-sm text-blue-100">
-                We care about your data. Read our{' '}
-                <a href="#" className="text-white font-medium underline">
-                  Privacy Policy
-                </a>.
-              </p>
-            </div>
-          </div>
-        </div>
+              )
+            )}
+          </>
+        )}
       </div>
     </div>
   );

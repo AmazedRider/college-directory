@@ -1,17 +1,23 @@
 import React from 'react';
-import { Users, BookOpen, Target } from 'lucide-react';
+import { Search, Star, Globe2, Lightbulb, Users2, HandshakeIcon } from 'lucide-react';
 import { SEO } from '../components/SEO';
+import { Link } from 'react-router-dom';
 
-interface FeatureCardProps {
+interface ValueCardProps {
   icon: React.ReactNode;
   title: string;
   description: string;
 }
 
-function FeatureCard({ icon, title, description }: FeatureCardProps) {
+interface ImpactStatProps {
+  value: string;
+  label: string;
+}
+
+function ValueCard({ icon, title, description }: ValueCardProps) {
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 transition-transform hover:scale-105">
-      <div className="text-blue-600 mb-4">
+    <div className="bg-white rounded-lg shadow p-6 text-center">
+      <div className="flex justify-center mb-4">
         {icon}
       </div>
       <h3 className="text-xl font-semibold mb-2">{title}</h3>
@@ -20,154 +26,132 @@ function FeatureCard({ icon, title, description }: FeatureCardProps) {
   );
 }
 
-export function AboutPage() {
-  // Schema for the about page
-  const aboutPageSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'AboutPage',
-    name: 'About Admissions.app',
-    description: 'Learn about Admissions.app and our mission to connect students with the best college admissions consultants.',
-    publisher: {
-      '@type': 'Organization',
-      name: 'Admissions.app',
-      logo: {
-        '@type': 'ImageObject',
-        url: 'https://admissions.app/logo.png'
-      }
-    },
-    mainEntity: {
-      '@type': 'WebPage',
-      '@id': 'https://admissions.app/about'
-    }
-  };
-
+function ImpactStat({ value, label }: ImpactStatProps) {
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-white rounded-lg shadow p-6 text-center">
+      <div className="text-primary text-4xl font-bold mb-2">{value}</div>
+      <div className="text-gray-600">{label}</div>
+    </div>
+  );
+}
+
+export function AboutPage() {
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <SEO 
         title="About Us | Admissions.app"
-        description="Learn about Admissions.app and our mission to connect students with the best college admissions consultants for their unique needs and goals."
+        description="Learn about Admissions.app and our mission to connect students with the best education consultants worldwide."
         canonicalUrl="/about"
-        ogType="website"
-        keywords={['about admissions.app', 'college admissions platform', 'education consultant directory']}
-        schema={aboutPageSchema}
       />
-      
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
-        {/* Hero Section */}
-        <div className="bg-gradient-to-r from-blue-800 to-blue-600 text-white py-20">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-4xl md:text-5xl font-bold mb-6">Empowering Your Study Abroad Journey</h1>
-              <p className="text-xl text-blue-100">
-                Your trusted partner in the college admissions journey, connecting ambitious students with expert consultants.
-              </p>
-            </div>
-          </div>
+
+      {/* About Section */}
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold mb-6">About Admissions.app</h1>
+        <p className="text-gray-600 max-w-3xl mx-auto">
+          Admissions.app is a comprehensive platform designed to simplify the overseas education journey for students worldwide. Our mission is to connect ambitious students with top-rated education consultants and provide the tools and resources needed for a successful international education experience.
+        </p>
+      </div>
+
+      {/* Our Mission */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+        <div>
+          <h2 className="text-3xl font-bold mb-6">Our Mission</h2>
+          <p className="text-gray-600 mb-6">
+            At Admissions.app, we believe that quality education should be accessible to everyone, regardless of geographical boundaries. Our platform is built to demystify the overseas education process and empower students to make informed decisions about their academic future.
+          </p>
+          <p className="text-gray-600 mb-6">
+            We strive to create a transparent ecosystem where students can find reliable information, connect with verified consultants, and access resources that make their study abroad journey smoother and more successful.
+          </p>
+          <Link to="/agencies" className="inline-block bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors">
+            Find a Consultant
+          </Link>
         </div>
-
-        {/* Mission Section */}
-        <div className="container mx-auto px-4 py-16">
-          <div className="max-w-3xl mx-auto">
-            <div className="bg-white rounded-lg shadow-lg p-8 mb-12 transform -mt-20">
-              <h2 className="text-3xl font-bold mb-6 text-center text-blue-600">Our Mission</h2>
-              <p className="text-lg text-gray-700 leading-relaxed">
-                We believe that every student deserves access to quality college consulting. Our mission is to democratize the college admissions process by making expert guidance accessible to students from all backgrounds. Through our platform, we're breaking down barriers and empowering students to reach their full potential.
-              </p>
-            </div>
-
-            {/* New About Card */}
-            <div className="bg-white rounded-lg shadow-lg p-8 mb-12">
-              <p className="text-lg text-gray-700 leading-relaxed">
-                At Admissions.app, we believe every student deserves expert guidance to achieve their academic dreams. Based in Hyderabad, India, our platform connects students with verified college consultants worldwide, specializing in overseas education, student visas, and university admissions. From engineering to MBA programs, our advisors help you navigate applications, secure scholarships, and prepare for top universities in the USA, UK, Canada, Australia, and beyond.
-              </p>
-            </div>
-          </div>
-
-          {/* Features Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
-            <FeatureCard
-              icon={<Users className="h-8 w-8" />}
-              title="Expert Consultants"
-              description="Access to a network of verified college consultants with proven track records of success."
-            />
-            <FeatureCard
-              icon={<BookOpen className="h-8 w-8" />}
-              title="Application Guidance"
-              description="Personalized support for crafting compelling essays and building strong applications."
-            />
-            <FeatureCard
-              icon={<Target className="h-8 w-8" />}
-              title="Strategic Planning"
-              description="Expert advice on college selection and application strategy tailored to your goals."
-            />
-          </div>
-
-          {/* Stats Section */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 bg-blue-50 rounded-lg p-8">
-            <div className="text-center">
-              <div className="text-4xl font-bold text-blue-600 mb-2">500+</div>
-              <div className="text-gray-600">Successful Applications</div>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-blue-600 mb-2">50+</div>
-              <div className="text-gray-600">Expert Consultants</div>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-blue-600 mb-2">95%</div>
-              <div className="text-gray-600">Satisfaction Rate</div>
-            </div>
-          </div>
-
-          {/* New About Section */}
-          <div className="mt-16">
-            <div className="bg-gradient-to-br from-blue-50 to-white rounded-2xl shadow-xl p-10 relative overflow-hidden">
-              {/* Decorative elements */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-100 rounded-full opacity-20 -translate-y-16 translate-x-16"></div>
-              <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-200 rounded-full opacity-20 -translate-x-12 translate-y-12"></div>
-              
-              <div className="relative">
-                <div className="flex items-center justify-center mb-6">
-                  <div className="w-16 h-1 bg-blue-600 rounded-full"></div>
-                </div>
-                <p className="text-lg text-gray-700 leading-relaxed text-center max-w-3xl mx-auto">
-                  Founded to simplify the complex world of college admissions, Admissions.app combines technology and expertise to make your journey stress-free. Whether you're a high school student in Hyderabad or an international applicant, our platform empowers you to find the best college consultants for your needs. Join thousands of students who've trusted us to turn their study abroad dreams into reality. Explore our platform today!
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Values Section */}
-          <div className="mt-16">
-            <h2 className="text-3xl font-bold mb-8 text-center">Our Values</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h3 className="text-xl font-semibold mb-4 text-blue-600">Excellence</h3>
-                <p className="text-gray-600">
-                  We maintain the highest standards of quality in our consulting services and platform features.
-                </p>
-              </div>
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h3 className="text-xl font-semibold mb-4 text-blue-600">Accessibility</h3>
-                <p className="text-gray-600">
-                  Making quality college consulting available to students regardless of their background.
-                </p>
-              </div>
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h3 className="text-xl font-semibold mb-4 text-blue-600">Transparency</h3>
-                <p className="text-gray-600">
-                  Providing clear, honest information and maintaining an open review system.
-                </p>
-              </div>
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h3 className="text-xl font-semibold mb-4 text-blue-600">Innovation</h3>
-                <p className="text-gray-600">
-                  Continuously improving our platform to better serve students and consultants.
-                </p>
-              </div>
-            </div>
-          </div>
+        <div className="bg-gray-100 rounded-lg min-h-[400px] flex items-center justify-center overflow-hidden">
+          <img 
+            src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+            alt="Students collaborating on a study abroad mission" 
+            className="w-full h-full object-cover"
+          />
         </div>
       </div>
+
+      {/* Our Story */}
+      <section className="mb-16 bg-blue-50 rounded-lg p-8">
+        <h2 className="text-3xl font-bold mb-6">Our Story</h2>
+        <p className="text-gray-600 mb-4">
+          Admissions.app was founded in 2023 by a team of education enthusiasts who experienced firsthand the challenges of navigating the overseas education process. After facing numerous hurdles with unreliable information, questionable consultants, and a lack of structured guidance, they decided to create a solution that addresses these pain points.
+        </p>
+        <p className="text-gray-600 mb-4">
+          Starting from Hyderabad, India, we've grown to connect students with over 250+ verified international education advisors specializing in USA university admissions, UK university applications, Canada study visas, and Australian education pathways.
+        </p>
+        <p className="text-gray-600">
+          Today, Admissions.app serves thousands of students across India, helping them achieve their dreams of studying at prestigious institutions worldwide. Our platform continues to evolve with new features and resources based on student feedback and changing industry needs.
+        </p>
+      </section>
+
+      {/* Our Values */}
+      <section className="mb-16">
+        <h2 className="text-3xl font-bold mb-8">Our Values</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <ValueCard
+            icon={<Search className="w-8 h-8 text-primary" />}
+            title="Transparency"
+            description="We believe in complete transparency in the education consulting industry. Our Trust Score system ensures students can make informed decisions."
+          />
+          <ValueCard
+            icon={<Star className="w-8 h-8 text-yellow-400" />}
+            title="Quality"
+            description="We maintain high standards for consultants on our platform, verifying credentials and monitoring performance to ensure quality service."
+          />
+          <ValueCard
+            icon={<Globe2 className="w-8 h-8 text-green-500" />}
+            title="Accessibility"
+            description="We're committed to making international education accessible to all students, regardless of their background or location."
+          />
+          <ValueCard
+            icon={<Lightbulb className="w-8 h-8 text-yellow-400" />}
+            title="Innovation"
+            description="We continuously innovate to provide cutting-edge tools and resources that simplify the study abroad journey."
+          />
+          <ValueCard
+            icon={<Users2 className="w-8 h-8 text-purple-500" />}
+            title="Community"
+            description="We foster a supportive community where students can connect, share experiences, and help each other navigate their education journey."
+          />
+          <ValueCard
+            icon={<HandshakeIcon className="w-8 h-8 text-orange-400" />}
+            title="Integrity"
+            description="We operate with the highest level of integrity, ensuring that student interests always come first."
+          />
+        </div>
+      </section>
+
+      {/* Join Community Section */}
+      <section className="bg-primary text-white rounded-lg p-8 mb-16 text-center">
+        <h2 className="text-3xl font-bold mb-4">Join the Admissions.app Community</h2>
+        <p className="mb-6">
+          Whether you're a student dreaming of studying abroad or an education consultant looking to expand your reach, Admissions.app has something for you. Join our growing community today!
+        </p>
+        <div className="flex justify-center gap-4">
+          <button className="bg-white text-primary px-6 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+            Sign Up as a Student
+          </button>
+          <button className="border border-white text-white px-6 py-2 rounded-lg hover:bg-white/10 transition-colors">
+            Join as a Consultant
+          </button>
+        </div>
+      </section>
+
+      {/* Our Impact */}
+      <section>
+        <h2 className="text-3xl font-bold mb-8">Our Impact</h2>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <ImpactStat value="10,000+" label="Students Helped" />
+          <ImpactStat value="250+" label="Verified Consultants" />
+          <ImpactStat value="50+" label="Countries Covered" />
+          <ImpactStat value="95%" label="Student Satisfaction" />
+        </div>
+      </section>
     </div>
   );
 } 
