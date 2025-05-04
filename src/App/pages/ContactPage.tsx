@@ -1,14 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Phone, Mail, Clock, Globe, Facebook, Instagram, Twitter, Linkedin, X, MessageSquare } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Globe, Facebook, Instagram, Twitter, Linkedin, X, MessageSquare, ChevronDown } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import Cal, { getCalApi } from "@calcom/embed-react";
 
-<<<<<<< HEAD
-export function ContactPage() {
-=======
-<<<<<<< HEAD
-export function ContactPage() {
-=======
 function ContactCard({ icon, title, content, link }: { icon: React.ReactNode; title: string; content: string; link?: string }) {
   const Container = link ? 'a' : 'div';
   return (
@@ -49,8 +43,6 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
 }
 
 export const ContactPage: React.FC = () => {
->>>>>>> 73056b2bee1fb462aedd795d002a04c2f148942e
->>>>>>> 88f10b76e8007c00ccacb927a5cf688aad4569fb
   const [showBooking, setShowBooking] = useState(false);
   const [calLoaded, setCalLoaded] = useState(false);
   const [formData, setFormData] = useState({
@@ -198,280 +190,149 @@ export const ContactPage: React.FC = () => {
 
               <button
                 type="submit"
-                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-white hover:bg-primary/90 h-10 px-4 py-2 w-full"
+                className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-blue-600 text-primary-foreground hover:bg-blue-700 h-10 px-6 py-2 text-white"
               >
                 Send Message
               </button>
             </form>
           </div>
+        </div>
 
-          {/* Book a Call Section in a separate div */}
-          <div className="bg-gradient-to-r from-blue-50 to-white rounded-2xl shadow-lg p-8 py-28 mb-16 relative overflow-hidden mt-16">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-100 rounded-full opacity-20 -translate-y-16 translate-x-16"></div>
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-200 rounded-full opacity-20 -translate-x-12 translate-y-12"></div>
-            
-            <div className="relative text-center py-8">
-              <div className="w-32 h-1.5 bg-gradient-to-r from-blue-600 to-blue-400 mx-auto mb-12 rounded-full"></div>
-              <p className="text-xl text-gray-700 leading-relaxed mb-14 max-w-2xl mx-auto px-4">
-                Whether you're a student seeking a visa consultant or an advisor looking to join our platform, we're here to help.
+        {/* Contact Info Section */}
+        <div className="md:col-span-2 space-y-4 sm:space-y-6">
+          {/* Book a Meeting */}
+          <div className="bg-blue-50 p-4 sm:p-6 rounded-xl border border-blue-100">
+            <div className="flex flex-col space-y-1.5">
+              <div className="flex items-center">
+                <Clock className="h-5 w-5 text-blue-600 mr-2" />
+                <h3 className="text-xl font-semibold">Book a Meeting</h3>
+              </div>
+              <p className="text-gray-600 text-sm mb-4">
+                Schedule a virtual meeting with one of our advisors to discuss your study abroad options.
               </p>
-              <button
-                onClick={() => setShowBooking(true)}
-                className="bg-primary text-white px-10 py-4 rounded-lg hover:bg-primary/90 transition-all duration-300 shadow-md hover:shadow-lg flex items-center gap-3 mx-auto"
+              
+              <button 
+                onClick={() => setShowBooking(!showBooking)}
+                className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-blue-600 text-primary-foreground hover:bg-blue-700 h-9 px-4 py-2 text-white w-full sm:w-auto"
               >
-                <MessageSquare className="h-5 w-5" />
-                <span>Book a Call</span>
+                {showBooking ? 'Hide Calendar' : 'Open Calendar'}
               </button>
+              
+              {showBooking && (
+                <div className="mt-4 bg-white rounded-lg border overflow-hidden">
+                  <Cal
+                    calLink="team/admissions-app/30min"
+                    style={{ width: "100%", height: calLoaded ? "600px" : "100px", border: "none" }}
+                    config={{ layout: "month_view" }}
+                  />
+                </div>
+              )}
             </div>
           </div>
-        </div>
 
-        {/* Contact Information Section */}
-        <div className="md:col-span-2 space-y-6 sm:space-y-8">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-            <div className="flex flex-col space-y-1.5 p-4 sm:p-6">
-              <div className="text-xl sm:text-2xl font-semibold leading-none tracking-tight">Contact Information</div>
-              <div className="text-sm text-muted-foreground">Reach out to us directly using the information below.</div>
-            </div>
-
-            <div className="p-4 sm:p-6 pt-0 space-y-4 sm:space-y-6">
-              <div className="flex items-start gap-3">
-                <MapPin className="h-5 w-5 text-blue-600 mt-1" />
+          {/* Contact Info */}
+          <div className="bg-white p-4 sm:p-6 rounded-xl border border-gray-100">
+            <h3 className="text-xl font-semibold mb-4">Our Contact Information</h3>
+            <div className="space-y-4">
+              <div className="flex">
+                <Mail className="h-5 w-5 text-blue-600 mr-3 mt-0.5" />
                 <div>
-                  <h3 className="font-medium">Office Address</h3>
-                  <a 
-                    href="https://g.co/kgs/iCzLMJT"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-600 text-sm hover:text-blue-600 transition-colors group"
-                  >
-                    <p className="group-hover:text-blue-600">
-                      Admissions.app, Code For India<br />
-                      3rd Floor, Serene Heights,<br />
-                      Humayunnagar, Masab Tank,<br />
-                      Hyderabad 500028
-                    </p>
-                  </a>
+                  <div className="font-medium">Email</div>
+                  <a href="mailto:connect@admissions.app" className="text-blue-600 hover:underline">connect@admissions.app</a>
                 </div>
               </div>
-
-              <div className="flex items-start gap-3">
-                <Phone className="h-5 w-5 text-blue-600 mt-1" />
+              <div className="flex">
+                <Phone className="h-5 w-5 text-blue-600 mr-3 mt-0.5" />
                 <div>
-                  <h3 className="font-medium">Phone</h3>
-                  <a 
-                    href="tel:+916304666504"
-                    className="text-gray-600 text-sm hover:text-blue-600 transition-colors group inline-flex items-center gap-1"
-                  >
-                    <span className="group-hover:text-blue-600">+91 6304 666 504</span>
-                  </a>
+                  <div className="font-medium">Phone</div>
+                  <a href="tel:+916304666504" className="text-blue-600 hover:underline">+91 6304 666 504</a>
                 </div>
               </div>
-
-              <div className="flex items-start gap-3">
-                <Mail className="h-5 w-5 text-blue-600 mt-1" />
+              <div className="flex">
+                <MapPin className="h-5 w-5 text-blue-600 mr-3 mt-0.5" />
                 <div>
-                  <h3 className="font-medium">Email</h3>
-                  <a 
-                    href="mailto:connect@admissions.app?subject=Inquiry about Admissions.app"
-                    className="text-gray-600 text-sm hover:text-blue-600 transition-colors group inline-flex items-center gap-1"
-                  >
-                    <span className="group-hover:text-blue-600">connect@admissions.app</span>
-                  </a>
+                  <div className="font-medium">Office Address</div>
+                  <p className="text-gray-600">
+                    Plot No. 1280, Road No. 36<br />
+                    Jubilee Hills, Hyderabad<br />
+                    Telangana, India 500033
+                  </p>
                 </div>
               </div>
-
-              <div className="flex items-start gap-3">
-                <Clock className="h-5 w-5 text-blue-600 mt-1" />
+              <div className="flex">
+                <Clock className="h-5 w-5 text-blue-600 mr-3 mt-0.5" />
                 <div>
-                  <h3 className="font-medium">Business Hours</h3>
-                  <p className="text-gray-600 text-sm">Monday - Friday: 9:00 AM - 6:00 PM</p>
-                  <p className="text-gray-600 text-sm">Saturday: 10:00 AM - 2:00 PM</p>
-                  <p className="text-gray-600 text-sm">Sunday: Closed</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <Globe className="h-5 w-5 text-blue-600 mt-1" />
-                <div>
-                  <h3 className="font-medium">Social Media</h3>
-                  <div className="flex gap-4 mt-2">
-                    <a href="#" className="text-gray-600 hover:text-blue-600">
-                      <Facebook className="w-5 h-5" />
-                    </a>
-                    <a href="#" className="text-gray-600 hover:text-blue-600">
-                      <Instagram className="w-5 h-5" />
-                    </a>
-                    <a href="#" className="text-gray-600 hover:text-blue-600">
-                      <Twitter className="w-5 h-5" />
-                    </a>
-                    <a href="#" className="text-gray-600 hover:text-blue-600">
-                      <Linkedin className="w-5 h-5" />
-                    </a>
-                  </div>
+                  <div className="font-medium">Operating Hours</div>
+                  <p className="text-gray-600">Monday - Saturday: 9:00 AM - 7:00 PM IST<br />Sunday: Closed</p>
                 </div>
               </div>
             </div>
-          </div>
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> 88f10b76e8007c00ccacb927a5cf688aad4569fb
 
-          {/* FAQ Section */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-            <div className="flex flex-col space-y-1.5 p-4 sm:p-6">
-              <div className="text-xl sm:text-2xl font-semibold leading-none tracking-tight">Frequently Asked Questions</div>
-            </div>
-            <div className="p-4 sm:p-6 pt-0 space-y-4 sm:space-y-6">
-              <div>
-                <h3 className="font-medium text-gray-900 mb-2">How do I verify a consultant?</h3>
-                <p className="text-gray-600">All consultants on our platform are verified by our team. Look for the "Verified" badge on their profile.</p>
-              </div>
-              <div>
-                <h3 className="font-medium text-gray-900 mb-2">How can I track my application?</h3>
-                <p className="text-gray-600">You can track your applications through our Application Tracker feature after logging in.</p>
-              </div>
-              <div>
-                <h3 className="font-medium text-gray-900 mb-2">Is the service free for students?</h3>
-                <p className="text-gray-600">Yes, basic services are free for students. Premium features may require a subscription.</p>
+            {/* Social Media Links */}
+            <div className="mt-6">
+              <div className="font-medium mb-3">Connect With Us</div>
+              <div className="flex space-x-4">
+                <a href="https://facebook.com/groups/595906066127004" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-gray-100 hover:bg-blue-50 text-gray-600 hover:text-blue-600 transition-colors">
+                  <Facebook className="h-5 w-5" />
+                </a>
+                <a href="https://www.instagram.com/admissions.app?igsh=ZXluOHZ5Z3dwbTJk" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-gray-100 hover:bg-blue-50 text-gray-600 hover:text-blue-600 transition-colors">
+                  <Instagram className="h-5 w-5" />
+                </a>
+                <a href="https://x.com/admissions_app" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-gray-100 hover:bg-blue-50 text-gray-600 hover:text-blue-600 transition-colors">
+                  <X className="h-5 w-5" />
+                </a>
+                <a href="https://www.linkedin.com/in/mohammad-anas-5b99b8363/" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-gray-100 hover:bg-blue-50 text-gray-600 hover:text-blue-600 transition-colors">
+                  <Linkedin className="h-5 w-5" />
+                </a>
               </div>
             </div>
           </div>
         </div>
-<<<<<<< HEAD
-=======
+      </div>
+
+      {/* FAQ Section */}
+      <div className="mt-12 sm:mt-16 bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 lg:p-8">
+        <h2 className="text-2xl font-bold mb-6 text-center">Frequently Asked Questions</h2>
+        <div className="max-w-3xl mx-auto rounded-lg overflow-hidden divide-y">
+          <FAQItem 
+            question="How can I get personalized advice for my study abroad journey?" 
+            answer="You can book a meeting with our advisors using the calendar feature on this page, or fill out the contact form with your specific requirements and questions."
+          />
+          <FAQItem 
+            question="Do you charge any fees for your services?" 
+            answer="Admissions.app is free for students to use. We connect you with verified consultants who may have their own fee structures for premium services."
+          />
+          <FAQItem 
+            question="How do you verify education consultants on your platform?" 
+            answer="Our verification process includes checking business credentials, student reviews, success rates, and in-person visits where possible. We also continuously monitor consultant performance through student feedback."
+          />
+          <FAQItem 
+            question="Can I trust the reviews on the consultant profiles?" 
+            answer="Yes, all reviews on our platform come from verified students who have actually used the consultant's services. We have measures in place to prevent fake reviews."
+          />
+          <FAQItem 
+            question="How quickly will I get a response if I submit a contact form?" 
+            answer="We aim to respond to all inquiries within 24-48 hours during business days. For urgent matters, we recommend using the phone number provided."
+          />
+        </div>
       </div>
 
       {/* Map Section */}
-      <div className="mt-8 sm:mt-12">
-        <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-900">Find Us</h2>
-        <div className="bg-white rounded-xl overflow-hidden h-[300px] sm:h-[400px] shadow-sm border border-gray-100">
+      <div className="mt-12 sm:mt-16">
+        <h2 className="text-2xl font-bold mb-6">Visit Our Office</h2>
+        <div className="aspect-[16/9] w-full rounded-xl overflow-hidden border border-gray-200">
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3807.3575773447823!2d78.44903799999999!3d17.396272!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb97b14f08a901%3A0x9e3b3704c21efe4b!2sSerene%20Heights%2C%20Humayun%20Nagar%2C%20Masab%20Tank%2C%20Hyderabad%2C%20Telangana%20500028!5e0!3m2!1sen!2sin!4v1709655547039!5m2!1sen!2sin"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.184270530832!2d78.39980261460832!3d17.44095058804599!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb93deeb99c8db%3A0x5eefe11e6a0beb97!2sJubilee%20Hills%2C%20Hyderabad%2C%20Telangana!5e0!3m2!1sen!2sin!4v1648526248436!5m2!1sen!2sin"
             width="100%"
             height="100%"
             style={{ border: 0 }}
             allowFullScreen={true}
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
-            title="Admissions.app Office at Serene Heights"
-            className="w-full h-full"
-          />
-        </div>
-        <div className="mt-2 text-xs sm:text-sm text-gray-500 flex items-center gap-2">
-          <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
-          <span>Serene Heights, Humayun Nagar, Masab Tank, Hyderabad, Telangana 500028</span>
+            title="Admissions.app Office Location"
+          ></iframe>
         </div>
       </div>
-
-      {/* Booking Modal */}
-      {showBooking && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-4xl h-[80vh] sm:h-[90vh] rounded-xl overflow-hidden flex flex-col shadow-xl">
-            <div className="flex-shrink-0 border-b border-gray-100 flex items-center justify-between p-4 sm:p-6">
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-900">Schedule a Meeting</h3>
-              <button
-                onClick={() => {
-                  setShowBooking(false);
-                  setCalLoaded(false);
-                }}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                aria-label="Close booking modal"
-              >
-                <X className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500" />
-              </button>
-            </div>
-            <div className="flex-1 overflow-hidden">
-              {calLoaded && (
-                <Cal
-                  namespace="30min"
-                  calLink="forge/30min"
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    overflow: "auto"
-                  }}
-                  config={{
-                    layout: "week_view"
-                  }}
-                />
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
-}
-=======
-        )}
->>>>>>> 88f10b76e8007c00ccacb927a5cf688aad4569fb
-      </div>
-
-      {/* Map Section */}
-      <div className="mt-8 sm:mt-12">
-        <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-900">Find Us</h2>
-        <div className="bg-white rounded-xl overflow-hidden h-[300px] sm:h-[400px] shadow-sm border border-gray-100">
-          <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3807.3575773447823!2d78.44903799999999!3d17.396272!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb97b14f08a901%3A0x9e3b3704c21efe4b!2sSerene%20Heights%2C%20Humayun%20Nagar%2C%20Masab%20Tank%2C%20Hyderabad%2C%20Telangana%20500028!5e0!3m2!1sen!2sin!4v1709655547039!5m2!1sen!2sin"
-            width="100%"
-            height="100%"
-            style={{ border: 0 }}
-            allowFullScreen={true}
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            title="Admissions.app Office at Serene Heights"
-            className="w-full h-full"
-          />
-        </div>
-        <div className="mt-2 text-xs sm:text-sm text-gray-500 flex items-center gap-2">
-          <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
-          <span>Serene Heights, Humayun Nagar, Masab Tank, Hyderabad, Telangana 500028</span>
-        </div>
-      </div>
-
-      {/* Booking Modal */}
-      {showBooking && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-4xl h-[80vh] sm:h-[90vh] rounded-xl overflow-hidden flex flex-col shadow-xl">
-            <div className="flex-shrink-0 border-b border-gray-100 flex items-center justify-between p-4 sm:p-6">
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-900">Schedule a Meeting</h3>
-              <button
-                onClick={() => {
-                  setShowBooking(false);
-                  setCalLoaded(false);
-                }}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                aria-label="Close booking modal"
-              >
-                <X className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500" />
-              </button>
-            </div>
-            <div className="flex-1 overflow-hidden">
-              {calLoaded && (
-                <Cal
-                  namespace="30min"
-                  calLink="forge/30min"
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    overflow: "auto"
-                  }}
-                  config={{
-                    layout: "week_view"
-                  }}
-                />
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-<<<<<<< HEAD
-}
-=======
 };
->>>>>>> 73056b2bee1fb462aedd795d002a04c2f148942e
->>>>>>> 88f10b76e8007c00ccacb927a5cf688aad4569fb
