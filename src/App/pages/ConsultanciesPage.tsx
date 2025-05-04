@@ -136,7 +136,7 @@ export default function ConsultanciesPage() {
     if (filters.minRating > 0) {
       const normalizedRating = Math.round((agency.rating / 100) * 5); // Convert to 0-5 scale
       if (normalizedRating < filters.minRating) {
-        return false;
+      return false;
       }
     }
 
@@ -179,7 +179,7 @@ export default function ConsultanciesPage() {
       return a.name.localeCompare(b.name);
     } else {
       // Default: sort by trust score (highest first)
-      return b.trust_score - a.trust_score;
+    return b.trust_score - a.trust_score;
     }
   });
   

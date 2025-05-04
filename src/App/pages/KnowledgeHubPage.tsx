@@ -80,8 +80,8 @@ export function KnowledgeHubPage() {
         ...blogPosts.map(post => post.category),
         ...blogTabs.map(tab => tab.name)
       ]))
-        .filter(Boolean)
-        .slice(0, 8);
+    .filter(Boolean)
+    .slice(0, 8);
 
   // Format date for blog posts
   const formatDate = (dateString: string) => {
@@ -153,7 +153,7 @@ export function KnowledgeHubPage() {
 
       {/* Combined Tab Navigation */}
       <div className="flex flex-wrap mb-8 gap-2">
-        <button 
+        <button
           className={`px-4 py-2 rounded-full font-medium transition-colors ${activeTab === 'Articles' && activeArticleTab === null ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
           onClick={() => {
             setActiveTab('Articles');
@@ -196,96 +196,96 @@ export function KnowledgeHubPage() {
       {activeTab === 'Articles' && (
         <>
           {/* Articles Content */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            {loading ? (
-              // Loading state
-              Array(6).fill(null).map((_, index) => (
-                <div key={index} className="bg-white rounded-lg shadow-sm border overflow-hidden animate-pulse">
-                  <div className="bg-gray-200 h-48"></div>
-                  <div className="p-6">
-                    <div className="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
-                    <div className="h-6 bg-gray-200 rounded w-3/4 mb-3"></div>
-                    <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded w-2/3 mb-4"></div>
-                    <div className="flex justify-between items-center">
-                      <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-                      <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-                    </div>
-                  </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        {loading ? (
+          // Loading state
+          Array(6).fill(null).map((_, index) => (
+            <div key={index} className="bg-white rounded-lg shadow-sm border overflow-hidden animate-pulse">
+              <div className="bg-gray-200 h-48"></div>
+              <div className="p-6">
+                <div className="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
+                <div className="h-6 bg-gray-200 rounded w-3/4 mb-3"></div>
+                <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-2/3 mb-4"></div>
+                <div className="flex justify-between items-center">
+                  <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/4"></div>
                 </div>
-              ))
-            ) : tabFilteredBlogPosts.length > 0 ? (
-              tabFilteredBlogPosts.map((post) => (
-                <div key={post.id} className="bg-white rounded-lg shadow-sm border overflow-hidden">
-                  <div className="bg-gray-200 h-48 flex items-center justify-center">
-                    {post.image_url ? (
-                      <img 
-                        src={post.image_url} 
-                        alt={post.title} 
-                        className="w-full h-full object-cover" 
-                      />
-                    ) : (
-                      <div className="text-gray-400">
-                        <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                    )}
+              </div>
+            </div>
+          ))
+        ) : tabFilteredBlogPosts.length > 0 ? (
+          tabFilteredBlogPosts.map((post) => (
+            <div key={post.id} className="bg-white rounded-lg shadow-sm border overflow-hidden">
+              <div className="bg-gray-200 h-48 flex items-center justify-center">
+                {post.image_url ? (
+                  <img 
+                    src={post.image_url} 
+                    alt={post.title} 
+                    className="w-full h-full object-cover" 
+                  />
+                ) : (
+                  <div className="text-gray-400">
+                    <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
                   </div>
-                  <div className="p-6">
-                    <span className="inline-block px-3 py-1 text-xs font-medium bg-blue-50 text-primary rounded-full mb-2">
-                      {post.blog_tabs?.name || post.category}
-                    </span>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{post.title}</h3>
-                    <p className="text-gray-600 mb-4 truncate">{post.excerpt}</p>
-                    <div className="flex justify-between items-center text-sm text-gray-500">
-                      <div className="flex items-center">
-                        <User className="h-4 w-4 mr-1" />
-                        <span>{post.author}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        <span>{formatDate(post.date)}</span>
-                      </div>
-                    </div>
-                    <div className="mt-4">
-                      <Link 
-                        to={`/blog/post/${post.id}`} 
-                        className="inline-flex items-center text-primary font-medium"
-                      >
-                        Read Article
-                        <ArrowRight className="ml-1 h-4 w-4" />
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              // No articles found state
-              <div className="col-span-3 text-center py-16">
-                <div className="text-gray-400 mb-4">
-                  <svg className="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 13a1 1 0 100-2 1 1 0 000 2z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-700">
-                  {activeArticleTab ? 'No articles found in this category' : 'No articles found'}
-                </h3>
-                <p className="text-gray-600 mt-1">
-                  {activeArticleTab 
-                    ? 'Try selecting a different category or viewing all articles' 
-                    : 'Try adjusting your search terms or check back later for new content'}
-                </p>
-                {activeArticleTab && (
-                  <button 
-                    className="mt-4 px-4 py-2 bg-primary text-white rounded-md"
-                    onClick={() => setActiveArticleTab(null)}
-                  >
-                    View All Articles
-                  </button>
                 )}
               </div>
+              <div className="p-6">
+                <span className="inline-block px-3 py-1 text-xs font-medium bg-blue-50 text-primary rounded-full mb-2">
+                  {post.blog_tabs?.name || post.category}
+                </span>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{post.title}</h3>
+                <p className="text-gray-600 mb-4 truncate">{post.excerpt}</p>
+                <div className="flex justify-between items-center text-sm text-gray-500">
+                  <div className="flex items-center">
+                    <User className="h-4 w-4 mr-1" />
+                    <span>{post.author}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Calendar className="h-4 w-4 mr-1" />
+                    <span>{formatDate(post.date)}</span>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <Link 
+                    to={`/blog/post/${post.id}`} 
+                    className="inline-flex items-center text-primary font-medium"
+                  >
+                    Read Article
+                    <ArrowRight className="ml-1 h-4 w-4" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+          // No articles found state
+          <div className="col-span-3 text-center py-16">
+            <div className="text-gray-400 mb-4">
+              <svg className="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 13a1 1 0 100-2 1 1 0 000 2z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-700">
+              {activeArticleTab ? 'No articles found in this category' : 'No articles found'}
+            </h3>
+            <p className="text-gray-600 mt-1">
+              {activeArticleTab 
+                ? 'Try selecting a different category or viewing all articles' 
+                : 'Try adjusting your search terms or check back later for new content'}
+            </p>
+            {activeArticleTab && (
+              <button 
+                className="mt-4 px-4 py-2 bg-primary text-white rounded-md"
+                onClick={() => setActiveArticleTab(null)}
+              >
+                View All Articles
+              </button>
             )}
+          </div>
+        )}
           </div>
         </>
       )}
@@ -583,7 +583,7 @@ export function KnowledgeHubPage() {
                     <span>Practice Test Resources</span>
                   </li>
                 </ul>
-              </div>
+      </div>
               
               <div className="bg-blue-50 rounded-lg p-6">
                 <div className="flex items-center mb-3">
@@ -814,9 +814,9 @@ export function KnowledgeHubPage() {
 
       {/* Popular Topics Section - Only show if we have topics */}
       {popularTopics.length > 0 && (
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Popular Topics</h2>
-          <div className="flex flex-wrap gap-3">
+      <div className="mb-12">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Popular Topics</h2>
+        <div className="flex flex-wrap gap-3">
             {popularTopics.map((topic, index) => (
               <Link 
                 key={index} 

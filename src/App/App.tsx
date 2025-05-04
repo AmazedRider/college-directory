@@ -50,47 +50,47 @@ export function App() {
   const TrackPageElement = <TrackPage />;
   
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navigation 
-        isSuperAdmin={false}
-        isAdmin={false}
-        showDashboard={showDashboard}
-        showProfile={showProfile}
-        setShowDashboard={setShowDashboard}
-        setShowProfile={setShowProfile}
+      <div className="min-h-screen bg-gray-50">
+        <Navigation 
+          isSuperAdmin={false}
+          isAdmin={false}
+          showDashboard={showDashboard}
+          showProfile={showProfile}
+          setShowDashboard={setShowDashboard}
+          setShowProfile={setShowProfile}
         setShowAuth={handleSetShowAuth}
-      />
-      
+        />
+        
       {showAuth && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <Auth onClose={() => setShowAuth(false)} initialIsSignUp={authIsSignUp} />
         </div>
       )}
-      
-      <Routes>
+        
+        <Routes>
         <Route path="/" element={<HomePage setShowAuth={handleSetShowAuth} />} />
-        <Route path="/agencies" element={<ConsultanciesPage />} />
-        <Route path="/agency/:slug" element={<AgencyPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/blog" element={<BlogPage />} />
-        <Route path="/scholarships" element={<ScholarshipFinderPage />} />
-        <Route path="/track" element={TrackPageElement} />
+          <Route path="/agencies" element={<ConsultanciesPage />} />
+          <Route path="/agency/:slug" element={<AgencyPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/scholarships" element={<ScholarshipFinderPage />} />
+          <Route path="/track" element={TrackPageElement} />
         <Route path="/application-tracker" element={<Navigate to="/track" replace />} />
-        <Route path="/course-finder" element={<CourseFinderPage />} />
-        <Route path="/knowledge-hub" element={<KnowledgeHubPage />} />
-        <Route path="/knowledge-hub/:slug" element={<GuidePage />} />
+          <Route path="/course-finder" element={<CourseFinderPage />} />
+          <Route path="/knowledge-hub" element={<KnowledgeHubPage />} />
+          <Route path="/knowledge-hub/:slug" element={<GuidePage />} />
         <Route path="/signin" element={<SignInPage />} />
         <Route path="/create-account" element={<CreateAccountPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/signup" element={<Navigate to="/create-account" replace />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       
       <Toaster position="top-center" />
-    </div>
+      </div>
   );
-}
+} 
 
 // Add default export for compatibility with import in main.tsx
 export default App; 

@@ -46,10 +46,10 @@ export function AboutPage() {
 
       {/* About Section */}
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-6">About Admissions.app</h1>
+      <h1 className="text-4xl font-bold mb-6">About Admissions.app</h1>
         <p className="text-gray-600 max-w-3xl mx-auto">
-          Admissions.app is a comprehensive platform designed to simplify the overseas education journey for students worldwide. Our mission is to connect ambitious students with top-rated education consultants and provide the tools and resources needed for a successful international education experience.
-        </p>
+        Admissions.app is a comprehensive platform designed to simplify the overseas education journey for students worldwide. Our mission is to connect ambitious students with top-rated education consultants and provide the tools and resources needed for a successful international education experience.
+      </p>
       </div>
 
       {/* Our Mission */}
