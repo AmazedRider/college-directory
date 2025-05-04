@@ -2,6 +2,9 @@
   command = "npm run build"
   publish = "dist"
 
+[build.environment]
+  GO_VERSION = "1.21.7"
+
 # Handle SPA routing - redirect all paths to index.html
 [[redirects]]
   from = "/*"
