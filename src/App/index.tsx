@@ -25,7 +25,11 @@ import { KnowledgeHubPage } from './pages/KnowledgeHubPage';
 import { GuidePage } from './pages/GuidePage';
 import { ScholarshipFinderPage } from './pages/ScholarshipFinderPage';
 import { VisaInfoPage } from './pages/VisaInfoPage';
-import { FindBuddyPage } from './pages/FindBuddyPage';
+import DashboardPage from './pages/DashboardPage';
+import { ExamBlogsPage } from './pages/ExamBlogsPage';
+import AIAssistantPage from './pages/AIAssistantPage';
+import { Typewriter } from 'react-simple-typewriter';
+// import { FindBuddyPage } from './pages/FindBuddyPage';
 
 // Define page components directly to avoid import errors
 // Commented out as we now have the proper component
@@ -46,11 +50,11 @@ function App() {
   const { user, loading, error } = useAuth();
   const [showAuth, setShowAuth] = useState(false);
   const [authIsSignUp, setAuthIsSignUp] = useState(false);
-  const [showDashboard, setShowDashboard] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Initialize Google Analytics
   useGoogleAnalytics();
@@ -72,6 +76,12 @@ function App() {
       setIsCheckingAdmin(false);
     }
   }, [user]);
+
+  useEffect(() => {
+    // Show loading screen for 2.5 seconds
+    const timer = setTimeout(() => setIsLoading(false), 2500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const checkAdminStatus = async () => {
     try {
@@ -104,6 +114,25 @@ function App() {
     }
   };
 
+  // Modern animated loading screen
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black transition-opacity duration-700" style={{ opacity: isLoading ? 1 : 0 }}>
+        <h1 className="text-3xl md:text-4xl font-extrabold text-white drop-shadow-lg text-center animate-typewriter overflow-hidden whitespace-nowrap border-r-4 border-white pr-2" style={{ maxWidth: 'min(90vw, 700px)' }}>
+          <Typewriter
+            words={[`"if it's not here, it's not there!!!"`]}
+            loop={0}
+            cursor
+            cursorStyle="|"
+            typeSpeed={60}
+            deleteSpeed={40}
+            delaySpeed={1800}
+          />
+        </h1>
+      </div>
+    );
+  }
+
   if (loading || isCheckingAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -131,62 +160,13 @@ function App() {
     );
   }
 
-  // If trying to access dashboard but not authorized
-  if (showDashboard && !user?.email) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">Access Denied</p>
-          <p className="text-gray-600 mb-4">
-            Please sign in to access the dashboard.
-          </p>
-          <button
-            onClick={() => {
-              setShowDashboard(false);
-              setShowAuth(true);
-            }}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
-          >
-            Sign In
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // If trying to access super admin dashboard but not a super admin
-  if (
-    showDashboard &&
-    !isSuperAdmin &&
-    user?.email === 'superadmin@superadmin.com'
-  ) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">Access Denied</p>
-          <p className="text-gray-600 mb-4">
-            You do not have permission to access the Super Admin Dashboard.
-          </p>
-          <button
-            onClick={() => setShowDashboard(false)}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
-          >
-            Return to Home
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <ChatbotProvider>
       <div className="min-h-screen flex flex-col bg-gray-50">
         <Navigation
           isSuperAdmin={isSuperAdmin}
           isAdmin={isAdmin}
-          showDashboard={showDashboard}
           showProfile={showProfile}
-          setShowDashboard={setShowDashboard}
           setShowProfile={setShowProfile}
           setShowAuth={handleSetShowAuth}
         />
@@ -203,32 +183,39 @@ function App() {
           </div>
         )}
 
-        {showDashboard ? (
-          isSuperAdmin ? (
-            <SuperAdminDashboard />
-          ) : isAdmin ? (
-            <AdminDashboard />
-          ) : (
-            <HomePage setShowAuth={handleSetShowAuth} />
-          )
-        ) : (
-          <Routes>
-            <Route path="/" element={<HomePage setShowAuth={handleSetShowAuth} />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/blog" element={<BlogPage />} />
-            <Route path="/blog/post/:id" element={<BlogPost />} />
-            <Route path="/agency/:slug" element={<AgencyPage />} />
-            <Route path="/agencies" element={<ConsultanciesPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/course-finder" element={<CourseFinderPage />} />
-            <Route path="/knowledge-hub" element={<KnowledgeHubPage />} />
-            <Route path="/language-prep" element={<Navigate to="/knowledge-hub?tab=exam" replace />} />
-            <Route path="/knowledge-hub/:slug" element={<GuidePage />} />
-            <Route path="/scholarship-finder" element={<ScholarshipFinderPage />} />
-            <Route path="/find-buddy" element={<FindBuddyPage />} />
-            <Route path="/visa-info" element={<VisaInfoPage />} />
-          </Routes>
-        )}
+        <Routes>
+          <Route path="/" element={<HomePage setShowAuth={handleSetShowAuth} />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/post/:id" element={<BlogPost />} />
+          <Route path="/agency/:slug" element={<AgencyPage />} />
+          <Route path="/agencies" element={<ConsultanciesPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/course-finder" element={<CourseFinderPage />} />
+          <Route path="/knowledge-hub" element={<KnowledgeHubPage />} />
+          <Route path="/language-prep" element={<Navigate to="/knowledge-hub?tab=exam" replace />} />
+          <Route path="/knowledge-hub/:slug" element={<GuidePage />} />
+          <Route path="/scholarship-finder" element={<ScholarshipFinderPage />} />
+          <Route path="/visa-info" element={<VisaInfoPage />} />
+          <Route 
+            path="/dashboard" 
+            element={
+              user ? (
+                isSuperAdmin ? (
+                  <SuperAdminDashboard />
+                ) : isAdmin ? (
+                  <AdminDashboard />
+                ) : (
+                  <DashboardPage />
+                )
+              ) : (
+                <Navigate to="/" replace />
+              )
+            } 
+          />
+          <Route path="/exam-blog" element={<ExamBlogsPage />} />
+          <Route path="/ai-assistant" element={<AIAssistantPage />} />
+        </Routes>
 
         <Footer />
         <ChatbotButton />
