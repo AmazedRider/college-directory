@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AgencyCard } from './AgencyCard';
 import { FilterOptions } from './SearchSection';
 import { supabase } from '../../lib/supabase';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Shield } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface AgencyListingsProps {
@@ -29,6 +29,7 @@ interface Agency {
     caption: string;
     is_cover: boolean;
   }>;
+  total_reviews?: number;
 }
 
 export function AgencyListings({ searchQuery, filters, itemsPerPage = 12 }: AgencyListingsProps) {
@@ -64,7 +65,8 @@ export function AgencyListings({ searchQuery, filters, itemsPerPage = 12 }: Agen
             url,
             caption,
             is_cover
-          )
+          ),
+          total_reviews
         `)
         .eq('status', 'approved')
         .order('trust_score', { ascending: false });
@@ -72,10 +74,11 @@ export function AgencyListings({ searchQuery, filters, itemsPerPage = 12 }: Agen
       if (agenciesError) throw agenciesError;
 
       // Process the data with photos included in the initial query
-      const processedAgencies = agenciesData.map(agency => ({
+      const processedAgencies = agenciesData.map((agency: any) => ({
         ...agency,
         specializations: agency.agency_services?.map((s: any) => s.name) || [],
-        photos: agency.agency_photos || []
+        photos: agency.agency_photos || [],
+        total_reviews: agency.total_reviews || 0
       }));
 
       setAgencies(processedAgencies);
@@ -219,28 +222,99 @@ export function AgencyListings({ searchQuery, filters, itemsPerPage = 12 }: Agen
 
   if (loading) {
     return (
-      <div className="flex justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      <div className="space-y-8">
+        <div className="text-center mb-8">
+          <h3 className="text-2xl font-bold text-gray-900 mb-2">Loading Consultants</h3>
+          <p className="text-gray-600">Finding the best education consultants for you...</p>
+        </div>
+        
+        {/* Loading Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, index) => (
+            <div key={index} className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden animate-pulse">
+              <div className="h-48 bg-gray-200"></div>
+              <div className="p-6 space-y-4">
+                <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                <div className="flex gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="h-4 w-4 bg-gray-200 rounded"></div>
+                  ))}
+                </div>
+                <div className="space-y-2">
+                  <div className="h-4 bg-gray-200 rounded"></div>
+                  <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                </div>
+                <div className="flex gap-2">
+                  <div className="h-6 bg-gray-200 rounded w-16"></div>
+                  <div className="h-6 bg-gray-200 rounded w-20"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-8">
+      {/* Results Header */}
+      <div className="max-w-7xl mx-auto -mt-4 mb-4">
+        <div className="bg-white/30 backdrop-blur-md rounded-2xl shadow-lg border border-white/40 px-6 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-1">
+              {filteredAgencies.length === 0 
+                ? 'No Consultants Found' 
+                : `${filteredAgencies.length} Consultant${filteredAgencies.length === 1 ? '' : 's'} Found`
+              }
+            </h3>
+            <p className="text-gray-600 text-sm">
+              {filteredAgencies.length === 0 
+                ? 'Try adjusting your search criteria or filters.'
+                : `Showing ${startIndex + 1}-${Math.min(endIndex, filteredAgencies.length)} of ${filteredAgencies.length} consultants.`
+              }
+            </p>
+          </div>
+          {filteredAgencies.length > 0 && (
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <span>Sorted by:</span>
+              <span className="font-medium text-gray-900">
+                {filters.sortBy === 'rating' ? 'Rating' : 
+                 filters.sortBy === 'price' ? 'Price' : 
+                 filters.sortBy === 'trustScore' ? 'Trust Score' : 'Name'}
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Results Grid or Empty State */}
       {filteredAgencies.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500">No consultants found matching your criteria.</p>
+        <div className="flex flex-col items-center justify-center py-20">
+          <div className="bg-white/60 backdrop-blur-md rounded-full p-6 mb-6 shadow-lg border border-white/40">
+            <svg width="48" height="48" fill="none" viewBox="0 0 24 24"><path d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm7 4-4.35-4.35M21 12A9 9 0 1 1 3 12a9 9 0 0 1 18 0Z" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </div>
+          <h4 className="text-xl font-semibold text-gray-900 mb-2">No Consultants Found</h4>
+          <p className="text-gray-600 mb-6 text-center max-w-xs">
+            We couldn't find any consultants matching your current search criteria. Try adjusting your filters or search terms.
+          </p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-xl font-medium transition-colors shadow-lg"
+          >
+            Refresh Page
+          </button>
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="bg-gradient-to-br from-blue-50 via-white to-purple-50 rounded-3xl p-2 md:p-8 flex flex-col gap-8 border border-white/40 shadow-xl">
             {currentAgencies.map((agency) => (
               <AgencyCard
                 key={agency.id}
                 name={agency.name}
                 location={agency.location}
                 description={agency.description}
-                rating={agency.rating}
                 imageUrl={getAgencyImage(agency)}
                 trustScore={agency.trust_score}
                 price={agency.price}
@@ -251,19 +325,21 @@ export function AgencyListings({ searchQuery, filters, itemsPerPage = 12 }: Agen
             ))}
           </div>
 
-          {/* Only show pagination if itemsPerPage is not 3 */}
-          {itemsPerPage !== 3 && (
-            <div className="flex flex-col items-center space-y-4 mt-8">
-              <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2 max-w-full px-2">
+          {/* Pagination Divider */}
+          {itemsPerPage !== 3 && totalPages > 1 && (
+            <div className="flex flex-col items-center space-y-4 mt-12">
+              <div className="w-full flex justify-center mb-2">
+                <div className="h-1 w-32 bg-gradient-to-r from-blue-200 via-purple-200 to-blue-200 rounded-full opacity-60"></div>
+              </div>
+              <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2 max-w-full px-2 bg-white/30 backdrop-blur-md rounded-xl shadow border border-white/40 py-2">
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-1.5 sm:p-2 rounded-lg hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   aria-label="Previous page"
                 >
-                  <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 </button>
-                
                 {getVisiblePageNumbers(currentPage, totalPages).map((pageNumber, index) => (
                   <React.Fragment key={index}>
                     {pageNumber === '...' ? (
@@ -271,10 +347,10 @@ export function AgencyListings({ searchQuery, filters, itemsPerPage = 12 }: Agen
                     ) : (
                       <button
                         onClick={() => handlePageChange(Number(pageNumber))}
-                        className={`min-w-[2rem] sm:min-w-[2.5rem] px-2 sm:px-4 py-1 sm:py-2 rounded-lg text-sm sm:text-base ${
+                        className={`min-w-[2rem] sm:min-w-[2.5rem] px-2 sm:px-4 py-1 sm:py-2 rounded-lg text-sm sm:text-base transition-colors font-semibold ${
                           currentPage === pageNumber
-                            ? 'bg-indigo-600 text-white'
-                            : 'hover:bg-gray-100'
+                            ? 'bg-primary text-white shadow-lg'
+                            : 'hover:bg-primary/10 text-primary'
                         }`}
                       >
                         {pageNumber}
@@ -282,17 +358,15 @@ export function AgencyListings({ searchQuery, filters, itemsPerPage = 12 }: Agen
                     )}
                   </React.Fragment>
                 ))}
-
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-1.5 sm:p-2 rounded-lg hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   aria-label="Next page"
                 >
-                  <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 </button>
               </div>
-
               <div className="text-center text-sm text-gray-500 px-4">
                 Showing <span className="font-medium">{startIndex + 1}</span> to{' '}
                 <span className="font-medium">

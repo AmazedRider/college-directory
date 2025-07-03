@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { MapPin, Phone, Mail, Clock, Globe, Facebook, Instagram, Twitter, Linkedin, X, MessageSquare, ChevronDown } from 'lucide-react';
 import { SEO } from '../components/SEO';
-import Cal, { getCalApi } from "@calcom/embed-react";
+import Cal from "@calcom/embed-react";
 
 function ContactCard({ icon, title, content, link }: { icon: React.ReactNode; title: string; content: string; link?: string }) {
   const Container = link ? 'a' : 'div';
@@ -44,7 +44,6 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
 
 export const ContactPage: React.FC = () => {
   const [showBooking, setShowBooking] = useState(false);
-  const [calLoaded, setCalLoaded] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -52,26 +51,6 @@ export const ContactPage: React.FC = () => {
     subject: '',
     message: ''
   });
-
-  useEffect(() => {
-    if (showBooking) {
-      (async function () {
-        try {
-          const cal = await getCalApi({ "namespace": "30min" });
-          cal("ui", {
-            hideEventTypeDetails: false,
-            layout: "month_view",
-            styles: {
-              branding: { brandColor: "#1e40af" }, // blue-800
-            }
-          });
-          setCalLoaded(true);
-        } catch (error) {
-          console.error('Error loading Cal.com:', error);
-        }
-      })();
-    }
-  }, [showBooking]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -210,23 +189,19 @@ export const ContactPage: React.FC = () => {
               <p className="text-gray-600 text-sm mb-4">
                 Schedule a virtual meeting with one of our advisors to discuss your study abroad options.
               </p>
-              
               <button 
-                onClick={() => setShowBooking(!showBooking)}
+                onClick={() => setShowBooking(true)}
                 className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-blue-600 text-primary-foreground hover:bg-blue-700 h-9 px-4 py-2 text-white w-full sm:w-auto"
               >
-                {showBooking ? 'Hide Calendar' : 'Open Calendar'}
+                Open Calendar
               </button>
-              
-              {showBooking && (
-                <div className="mt-4 bg-white rounded-lg border overflow-hidden">
-                  <Cal
-                    calLink="team/admissions-app/30min"
-                    style={{ width: "100%", height: calLoaded ? "600px" : "100px", border: "none" }}
-                    config={{ layout: "month_view" }}
-                  />
-                </div>
-              )}
+              <a
+                href="tel:+916304666504"
+                className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-green-600 text-white hover:bg-green-700 h-9 px-4 py-2 w-full sm:w-auto mt-3"
+                style={{ textDecoration: 'none' }}
+              >
+                Call Me
+              </a>
             </div>
           </div>
 
@@ -333,6 +308,33 @@ export const ContactPage: React.FC = () => {
           ></iframe>
         </div>
       </div>
+
+      {/* Booking Modal */}
+      {showBooking && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-hidden">
+          <div className="h-full w-full flex flex-col">
+            <div className="bg-white w-full flex-1 flex flex-col">
+              <div className="flex-shrink-0 border-b border-gray-100 flex items-center justify-between p-4">
+                <h3 className="text-lg font-semibold text-gray-900">Book a Consultation</h3>
+                <button
+                  onClick={() => setShowBooking(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  aria-label="Close booking modal"
+                >
+                  <X className="h-6 w-6 text-gray-500" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto -webkit-overflow-scrolling-touch">
+                <Cal
+                  calLink="forge/consultation"
+                  style={{ width: "100%", height: "100vh", overflow: "auto" }}
+                  config={{ layout: "month_view", hideEventTypeDetails: "false" }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

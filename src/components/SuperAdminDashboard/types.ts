@@ -4,12 +4,20 @@ export interface Agency {
   location: string;
   description: string;
   status: 'pending' | 'approved' | 'rejected';
-  trust_score: number;
-  is_verified: boolean;
-  owner: {
+  trust_score?: number;
+  is_verified?: boolean;
+  owner?: {
     email: string;
   } | null;
   created_at: string;
+  contact_email?: string;
+  contact_phone?: string;
+  website?: string;
+  business_hours?: string;
+  image_url?: string;
+  brochure_url?: string;
+  verification_code?: string;
+  owner_id?: string | null;
 }
 
 export interface CSVAgency {

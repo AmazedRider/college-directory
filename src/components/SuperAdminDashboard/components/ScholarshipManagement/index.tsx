@@ -12,6 +12,9 @@ interface Scholarship {
   deadline: string;
   chance: 'High Chance' | 'Medium Chance' | 'Low Chance';
   competition: 'High Competition' | 'Medium Competition' | 'Low Competition';
+  application_url?: string;
+  countries?: string[];
+  country?: string;
 }
 
 export function ScholarshipManagement() {
@@ -27,7 +30,10 @@ export function ScholarshipManagement() {
     eligibility: '',
     deadline: '',
     chance: 'Medium Chance',
-    competition: 'Medium Competition'
+    competition: 'Medium Competition',
+    application_url: '',
+    countries: [],
+    country: ''
   });
 
   // Load scholarships on component mount
@@ -76,7 +82,10 @@ export function ScholarshipManagement() {
       eligibility: '',
       deadline: '',
       chance: 'Medium Chance',
-      competition: 'Medium Competition'
+      competition: 'Medium Competition',
+      application_url: '',
+      countries: [],
+      country: ''
     });
     setShowDialog(true);
   };
@@ -91,7 +100,10 @@ export function ScholarshipManagement() {
       eligibility: scholarship.eligibility,
       deadline: scholarship.deadline,
       chance: scholarship.chance,
-      competition: scholarship.competition
+      competition: scholarship.competition,
+      application_url: scholarship.application_url || '',
+      countries: scholarship.countries || [],
+      country: scholarship.country || ''
     });
     setShowDialog(true);
   };
@@ -323,6 +335,18 @@ export function ScholarshipManagement() {
                   onChange={handleChange}
                   rows={2}
                   placeholder="Eligibility requirements"
+                  className="w-full p-1.5 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                />
+              </div>
+
+              <div className="grid gap-1.5">
+                <label htmlFor="application_url" className="font-medium text-xs text-gray-700">Application URL</label>
+                <input
+                  id="application_url"
+                  name="application_url"
+                  value={formData.application_url}
+                  onChange={handleChange}
+                  placeholder="https://example.com/apply"
                   className="w-full p-1.5 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 />
               </div>

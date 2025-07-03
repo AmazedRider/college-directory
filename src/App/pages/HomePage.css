@@ -1,0 +1,28 @@
+/* HomePage.css */
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+.animate-float {
+  animation: float 2.5s ease-in-out infinite;
+}
+
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.testimonials-bg {
+  background: linear-gradient(135deg, #f8f6ff 60%, #e9edfb 100%);
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 32px 0 rgba(124, 99, 255, 0.07);
+}
+.testimonial-card {
+  animation: fadeInUp 1s ease both;
+  border-left-width: 8px !important;
+  box-shadow: 0 4px 24px 0 rgba(124, 99, 255, 0.09);
+  position: relative;
+}
+.testimonial-card:hover {
+  box-shadow: 0 8px 32px 0 rgba(124, 99, 255, 0.16);
+} 

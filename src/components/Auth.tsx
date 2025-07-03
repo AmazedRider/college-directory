@@ -3,6 +3,8 @@ import { supabase } from '../lib/supabase';
 import { Mail, Lock, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useLocation } from 'react-router-dom';
+import { FcGoogle } from 'react-icons/fc';
+import './AuthModal.css';
 
 interface AuthProps {
   onClose: () => void;
@@ -87,10 +89,27 @@ export function Auth({ onClose, initialIsSignUp }: AuthProps) {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin }
+      });
+      if (error) throw error;
+      // The user will be redirected, so no need to close the modal here
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+      toast.error(error instanceof Error ? error.message : 'Google sign-in failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md animated-auth-modal">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">
+        <h2 className="text-2xl font-bold text-gray-900 animate-fade-in">
           {isSignUp ? 'Create Account' : 'Welcome Back'}
         </h2>
         <button
@@ -100,8 +119,22 @@ export function Auth({ onClose, initialIsSignUp }: AuthProps) {
           <X className="h-5 w-5" />
         </button>
       </div>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Google Sign In Button */}
+      <button
+        type="button"
+        onClick={handleGoogleSignIn}
+        disabled={loading}
+        className="w-full flex items-center justify-center gap-3 py-2 mb-4 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 shadow transition-all duration-300 text-base font-semibold google-auth-btn animate-float"
+      >
+        <FcGoogle size={24} />
+        {loading ? 'Please wait...' : 'Sign in with Google'}
+      </button>
+      <div className="relative flex items-center my-4">
+        <span className="flex-grow border-t border-gray-200"></span>
+        <span className="mx-2 text-gray-400 text-xs">or</span>
+        <span className="flex-grow border-t border-gray-200"></span>
+      </div>
+      <form onSubmit={handleSubmit} className="space-y-4 animate-fade-in">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Email

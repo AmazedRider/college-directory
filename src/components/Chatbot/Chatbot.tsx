@@ -4,7 +4,7 @@ import { useChatbot } from './ChatbotContext';
 import { ChatbotService, ChatMessage } from '../../lib/chatbot';
 import toast from 'react-hot-toast';
 
-export function Chatbot() {
+export function Chatbot({ externalQuestion }: { externalQuestion?: string }) {
   const { isOpen, setIsOpen, sessionId, setSessionId } = useChatbot();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState("");
@@ -327,6 +327,28 @@ export function Chatbot() {
       console.error("Error clearing chat on mount:", err)
     );
   }, []); // Empty dependency array = run once on mount
+
+  useEffect(() => {
+    if (externalQuestion && externalQuestion.trim()) {
+      // Send the external question as a message
+      (async () => {
+        setInputMessage("");
+        setIsLoading(true);
+        setDynamicSuggestions([]);
+        const userMessage: ChatMessage = {
+          id: Date.now(),
+          type: 'user',
+          text: externalQuestion,
+          created_at: new Date().toISOString(),
+          session_id: chatbotService.currentSessionId || ''
+        };
+        setMessages(prev => [...prev, userMessage]);
+        const botMessage = await chatbotService.sendMessage(externalQuestion);
+        setMessages(prev => [...prev, botMessage]);
+        setIsLoading(false);
+      })();
+    }
+  }, [externalQuestion]);
 
   return (
     <div

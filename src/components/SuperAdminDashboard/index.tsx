@@ -10,12 +10,55 @@ import { UserAdminManagement } from './components/UserAdminManagement';
 import { BlogManagement } from './components/BlogManagement';
 import { CourseManagement } from './components/CourseManagement';
 import { ScholarshipManagement } from './components/ScholarshipManagement';
-import { BuddyManagement } from './components/BuddyManagement';
+// import { BuddyManagement } from './components/BuddyManagement';
 import { Header } from './components/Header';
 import { AddAdminModal } from './components/AddAdminModal';
-import { Agency, CSVAgency } from './types';
+// import { Agency, CSVAgency } from './types';
 import toast from 'react-hot-toast';
-import { LayoutGrid, Users, BookOpen, Filter, Plus, Shield, Settings, Search, GraduationCap, Award, UserPlus } from 'lucide-react';
+import { LayoutGrid, Users, BookOpen, Filter, Plus, Shield, Settings, Search, GraduationCap, Award, UserPlus, Star } from 'lucide-react';
+import { ReviewsList } from '../AdminDashboard/components/ReviewsList';
+import { Review, ReviewResponse } from '../AdminDashboard/types';
+
+export interface Agency {
+  id: string;
+  name: string;
+  location: string;
+  description: string;
+  status: 'pending' | 'approved' | 'rejected';
+  trust_score?: number;
+  is_verified?: boolean;
+  owner?: {
+    email: string;
+  } | null;
+  created_at: string;
+  contact_email?: string;
+  contact_phone?: string;
+  website?: string;
+  business_hours?: string;
+  image_url?: string;
+  brochure_url?: string;
+  verification_code?: string;
+  owner_id: string | null;
+}
+
+export interface CSVAgency {
+  name: string;
+  location: string;
+  description: string;
+  contact_email: string;
+  trust_score?: number;
+  price?: number;
+  contact_phone?: string;
+  website?: string;
+  business_hours?: string;
+}
+
+export interface UploadStatus {
+  total: number;
+  processed: number;
+  success: number;
+  failed: number;
+}
 
 export function SuperAdminDashboard() {
   const { user } = useAuth();
@@ -27,7 +70,7 @@ export function SuperAdminDashboard() {
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showAddAdminModal, setShowAddAdminModal] = useState(false);
-  const [activeTab, setActiveTab] = useState<'agencies' | 'courses' | 'scholarships' | 'blog' | 'buddies'>('agencies');
+  const [activeTab, setActiveTab] = useState<'agencies' | 'courses' | 'scholarships' | 'blog' | 'buddies' | 'reviews'>('agencies');
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 12;
   const [uploadStatus, setUploadStatus] = useState({
@@ -36,6 +79,12 @@ export function SuperAdminDashboard() {
     success: 0,
     failed: 0
   });
+
+  // Reviews state
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviewResponses, setReviewResponses] = useState<Record<string, ReviewResponse>>({});
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [showAddReviewModal, setShowAddReviewModal] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -120,25 +169,23 @@ export function SuperAdminDashboard() {
       
       if (response.error) throw response.error;
       
-      // Cast the response data to the Agency type
-      const agencyData = response.data as Agency[] || [];
-      
+      // Cast the response data to the Agency type and ensure owner_id is never undefined
+      const agencyData = (response.data as Agency[] || []).map(a => ({
+        ...a,
+        owner_id: typeof a.owner_id === 'undefined' ? null : a.owner_id ?? null
+      }));
       // Custom sorting function to put numbers and special characters at the end
       const sortedAgencies = agencyData.sort((a: Agency, b: Agency) => {
         // Function to check if a string starts with a letter
         const startsWithLetter = (str: string) => /^[A-Za-z]/.test(str);
-        
         const aStartsWithLetter = startsWithLetter(a.name);
         const bStartsWithLetter = startsWithLetter(b.name);
-        
         // If one starts with letter and other doesn't, prioritize the letter
         if (aStartsWithLetter && !bStartsWithLetter) return -1;
         if (!aStartsWithLetter && bStartsWithLetter) return 1;
-        
         // If both start with letters or both don't, sort alphabetically
         return a.name.localeCompare(b.name);
       });
-
       setAgencies(sortedAgencies);
     } catch (error) {
       console.error('Failed to load agencies:', error);
@@ -305,6 +352,71 @@ export function SuperAdminDashboard() {
     setCurrentPage(1);
   }, [searchQuery, filter]);
 
+  // Load all reviews and responses
+  const loadReviews = async () => {
+    setReviewsLoading(true);
+    try {
+      const { data: reviewsData, error: reviewsError } = await supabase
+        .from('reviews')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (reviewsError) throw reviewsError;
+      setReviews(reviewsData || []);
+
+      // Load responses
+      const { data: responsesData, error: responsesError } = await supabase
+        .from('review_responses')
+        .select('*');
+      if (responsesError) throw responsesError;
+      const responsesMap: Record<string, ReviewResponse> = {};
+      (responsesData || []).forEach((resp: any) => {
+        const response: ReviewResponse = resp;
+        responsesMap[response.review_id] = response;
+      });
+      setReviewResponses(responsesMap);
+    } catch (error) {
+      toast.error('Failed to load reviews');
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'reviews') {
+      loadReviews();
+    }
+  }, [activeTab]);
+
+  // Approve/Reject review
+  const handleReviewAction = async (reviewId: string, status: 'approved' | 'rejected') => {
+    try {
+      const { error } = await supabase
+        .from('reviews')
+        .update({ status })
+        .eq('id', reviewId);
+      if (error) throw error;
+      loadReviews();
+      toast.success(`Review ${status}`);
+    } catch (error) {
+      toast.error('Failed to update review');
+    }
+  };
+
+  // Submit or update response
+  const handleResponseSubmit = async (reviewId: string, content: string) => {
+    try {
+      // Upsert response
+      const { error } = await supabase
+        .from('review_responses')
+        .upsert({ review_id: reviewId, content });
+      if (error) throw error;
+      loadReviews();
+      toast.success('Response saved');
+    } catch (error) {
+      toast.error('Failed to save response');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-50 to-white">
@@ -383,17 +495,6 @@ export function SuperAdminDashboard() {
                 Course Management
               </button>
               <button
-                onClick={() => setActiveTab('buddies')}
-                className={`${
-                  activeTab === 'buddies'
-                    ? 'border-white text-white'
-                    : 'border-transparent text-blue-100 hover:text-white hover:border-white/50'
-                } flex items-center whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
-              >
-                <UserPlus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                Buddy Management
-              </button>
-              <button
                 onClick={() => setActiveTab('scholarships')}
                 className={`${
                   activeTab === 'scholarships'
@@ -415,6 +516,17 @@ export function SuperAdminDashboard() {
                 <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                 Blog Management
               </button>
+              <button
+                onClick={() => setActiveTab('reviews')}
+                className={`${
+                  activeTab === 'reviews'
+                    ? 'border-white text-white'
+                    : 'border-transparent text-blue-100 hover:text-white hover:border-white/50'
+                } flex items-center whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
+              >
+                <Star className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                Reviews
+              </button>
             </nav>
           </div>
         </div>
@@ -432,15 +544,24 @@ export function SuperAdminDashboard() {
                       <LayoutGrid className="h-5 w-5 text-blue-600" />
                       Agency Management
                     </h2>
-                    <div className="relative flex-1 sm:max-w-xs">
-                      <input
-                        type="text"
-                        placeholder="Search agencies..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                      />
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <div className="flex gap-2 items-center w-full sm:w-auto">
+                      <button
+                        onClick={() => setShowUploadModal(true)}
+                        className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm text-sm font-medium hover:bg-blue-700 transition-colors"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Agency
+                      </button>
+                      <div className="relative flex-1 sm:max-w-xs">
+                        <input
+                          type="text"
+                          placeholder="Search agencies..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -581,18 +702,6 @@ export function SuperAdminDashboard() {
                 <CourseManagement />
               </div>
             </div>
-          ) : activeTab === 'buddies' ? (
-            <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow duration-300">
-              <div className="px-4 sm:px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-                <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                  <UserPlus className="h-5 w-5 text-blue-600" />
-                  Buddy Management
-                </h2>
-              </div>
-              <div className="overflow-x-auto">
-                <BuddyManagement />
-              </div>
-            </div>
           ) : activeTab === 'scholarships' ? (
             <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow duration-300">
               <div className="px-4 sm:px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
@@ -605,7 +714,7 @@ export function SuperAdminDashboard() {
                 <ScholarshipManagement />
               </div>
             </div>
-          ) : (
+          ) : activeTab === 'blog' ? (
             <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow duration-300">
               <div className="px-4 sm:px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
                 <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
@@ -616,6 +725,45 @@ export function SuperAdminDashboard() {
               <div className="overflow-x-auto">
                 <BlogManagement />
               </div>
+            </div>
+          ) : (
+            <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow duration-300">
+              <div className="px-4 sm:px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <Star className="h-5 w-5 text-yellow-500" />
+                  Reviews Management
+                </h2>
+                <button
+                  onClick={() => setShowAddReviewModal(true)}
+                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm text-sm font-medium hover:bg-blue-700 transition-colors"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Review
+                </button>
+              </div>
+              <div className="overflow-x-auto">
+                <ReviewsList
+                  reviews={reviews as import('../AdminDashboard/types').Review[]}
+                  responses={reviewResponses}
+                  loading={reviewsLoading}
+                  onReviewAction={handleReviewAction}
+                  onResponseSubmit={handleResponseSubmit}
+                />
+              </div>
+              {showAddReviewModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center">
+                  <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full relative">
+                    <button
+                      onClick={() => setShowAddReviewModal(false)}
+                      className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+                    >
+                      &times;
+                    </button>
+                    <h3 className="text-xl font-bold mb-4">Add Review</h3>
+                    <p className="text-gray-500">(Review form implementation goes here.)</p>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

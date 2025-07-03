@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scholarship Application Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .scholarship-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e5e7eb;
+        }
+        .scholarship-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .scholarship-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        .scholarship-foundation {
+            color: #3b82f6;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+        .scholarship-amount {
+            font-size: 1.25rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #3b82f6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+        .scholarship-eligibility {
+            color: #6b7280;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        .scholarship-badges {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-chance-high {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .badge-chance-medium {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .badge-chance-low {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        .badge-deadline {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        .badge-country {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .apply-button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .apply-button-available {
+            background: linear-gradient(135deg, #3b82f6, #ec4899);
+            color: white;
+        }
+        .apply-button-available:hover {
+            background: linear-gradient(135deg, #2563eb, #db2777);
+            transform: translateY(-1px);
+        }
+        .apply-button-unavailable {
+            background: linear-gradient(135deg, #9ca3af, #6b7280);
+            color: white;
+            cursor: not-allowed;
+        }
+        .apply-online-indicator {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #059669;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .amount-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .test-info {
+            background: #dbeafe;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        .test-info h2 {
+            color: #1e40af;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-info">
+        <h2>Scholarship Application Test</h2>
+        <p>This page demonstrates the scholarship application functionality. Click the "Apply" buttons to test the redirect behavior:</p>
+        <ul>
+            <li><strong>Available scholarships:</strong> Will open the application URL in a new tab</li>
+            <li><strong>Unavailable scholarships:</strong> Will show an alert message</li>
+        </ul>
+    </div>
+
+    <div class="scholarship-card">
+        <div class="scholarship-name">Global Excellence Scholarship</div>
+        <div class="scholarship-foundation">International Education Foundation</div>
+        <div class="amount-row">
+            <div class="scholarship-amount">$20,000</div>
+        </div>
+        <div class="scholarship-eligibility">International students with a minimum GPA of 3.8 and demonstrated leadership skills</div>
+        <div class="scholarship-badges">
+            <span class="badge badge-chance-high">High Chance</span>
+            <span class="badge badge-deadline">Deadline: Oct 15, 2025</span>
+            <span class="badge badge-country">United States, UK, Canada</span>
+        </div>
+        <button class="apply-button apply-button-available" onclick="handleApply('https://www.internationaleducationfoundation.org/apply', 'Global Excellence Scholarship')">
+            Apply Now
+        </button>
+    </div>
+
+    <div class="scholarship-card">
+        <div class="scholarship-name">Future Leaders Grant</div>
+        <div class="scholarship-foundation">Leadership Academy</div>
+        <div class="amount-row">
+            <div class="scholarship-amount">$15,000</div>
+        </div>
+        <div class="scholarship-eligibility">Students with leadership positions and community service experience</div>
+        <div class="scholarship-badges">
+            <span class="badge badge-chance-medium">Medium Chance</span>
+            <span class="badge badge-deadline">Deadline: Nov 30, 2025</span>
+            <span class="badge badge-country">Australia, New Zealand</span>
+        </div>
+        <button class="apply-button apply-button-available" onclick="handleApply('https://www.leadershipacademy.org/future-leaders-grant', 'Future Leaders Grant')">
+            Apply Now
+        </button>
+    </div>
+
+    <div class="scholarship-card">
+        <div class="scholarship-name">STEM Innovation Award</div>
+        <div class="scholarship-foundation">Science & Technology Fund</div>
+        <div class="amount-row">
+            <div class="scholarship-amount">$25,000</div>
+        </div>
+        <div class="scholarship-eligibility">Students pursuing degrees in STEM fields with research experience</div>
+        <div class="scholarship-badges">
+            <span class="badge badge-chance-low">Low Chance</span>
+            <span class="badge badge-deadline">Deadline: Sep 1, 2025</span>
+            <span class="badge badge-country">United States, Germany</span>
+        </div>
+        <button class="apply-button apply-button-unavailable" onclick="handleApply(null, 'STEM Innovation Award')">
+            Application Link Coming Soon
+        </button>
+    </div>
+
+    <div class="scholarship-card">
+        <div class="scholarship-name">Arts & Humanities Scholarship</div>
+        <div class="scholarship-foundation">Cultural Heritage Foundation</div>
+        <div class="amount-row">
+            <div class="scholarship-amount">$10,000</div>
+        </div>
+        <div class="scholarship-eligibility">Students in arts, literature, or humanities with creative portfolio</div>
+        <div class="scholarship-badges">
+            <span class="badge badge-chance-medium">Medium Chance</span>
+            <span class="badge badge-deadline">Deadline: Dec 15, 2025</span>
+            <span class="badge badge-country">United Kingdom, France</span>
+        </div>
+        <button class="apply-button apply-button-available" onclick="handleApply('https://www.culturalheritage.org/arts-humanities-scholarship', 'Arts & Humanities Scholarship')">
+            Apply Now
+        </button>
+    </div>
+
+    <script>
+        function handleApply(applicationUrl, scholarshipName) {
+            if (applicationUrl) {
+                // Open the application URL in a new tab
+                window.open(applicationUrl, '_blank', 'noopener,noreferrer');
+                console.log(`Opening application for ${scholarshipName}: ${applicationUrl}`);
+            } else {
+                // If no application URL is available, show an alert
+                alert(`Application link for ${scholarshipName} is not available yet. Please check back later or contact the foundation directly.`);
+                console.log(`No application URL available for ${scholarshipName}`);
+            }
+        }
+    </script>
+</body>
+</html> 

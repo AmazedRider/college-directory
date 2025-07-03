@@ -196,16 +196,7 @@ export function GuidePage() {
                 </p>
               </div>
             </Link>
-            <Link to="/application-tracker" className="group block">
-              <div className="bg-white p-6 rounded-lg border hover:shadow-md transition-shadow">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-primary">
-                  Application Tracker
-                </h3>
-                <p className="text-gray-600">
-                  Keep track of your university applications in one place.
-                </p>
-              </div>
-            </Link>
+            {/* Application Tracker */}
           </div>
         </div>
       </div>

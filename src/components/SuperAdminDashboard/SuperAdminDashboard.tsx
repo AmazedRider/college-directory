@@ -5,7 +5,7 @@ import { GuideManagement } from './components/GuideManagement';
 import { BlogManagement } from './components/BlogManagement';
 import { TabsManagement } from './components/TabsManagement';
 import { CourseManagement } from './components/CourseManagement';
-import { BuddyManagement } from './components/BuddyManagement';
+// import { BuddyManagement } from './components/BuddyManagement';
 
 export function SuperAdminDashboard() {
   // Set the initial tab to 'courses' to show the course management first
@@ -14,7 +14,6 @@ export function SuperAdminDashboard() {
   const tabs = [
     { id: 'users', label: 'Users', icon: UsersIcon },
     { id: 'courses', label: 'Courses', icon: GraduationCap },
-    { id: 'buddies', label: 'Buddy System', icon: UserPlus },
     { id: 'guides', label: 'Guides', icon: FileIcon },
     { id: 'blogs', label: 'Blogs', icon: BookIcon },
     { id: 'blogTabs', label: 'Blog Tabs', icon: LayoutIcon },
@@ -51,7 +50,6 @@ export function SuperAdminDashboard() {
       <div className="w-full overflow-hidden">
         {active === 'users' && <UserManagement />}
         {active === 'courses' && <CourseManagement />}
-        {active === 'buddies' && <BuddyManagement />}
         {active === 'guides' && <GuideManagement />}
         {active === 'blogs' && <BlogManagement />}
         {active === 'blogTabs' && <TabsManagement />}

@@ -1,29 +1,11 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import {
-  Search,
-  X,
-  Filter,
-  MapPin,
-  Star,
-  DollarSign,
-  Shield,
-  Check,
-  GraduationCap,
-  Globe,
-  Hash,
-} from 'lucide-react';
+import React, { useState } from 'react';
+import { Search, Filter, MapPin, Star, Shield } from 'lucide-react';
 
 interface SearchSectionProps {
   onSearch: (query: string) => void;
   onFilterChange: (filters: FilterOptions) => void;
   searchInputRef?: React.RefObject<HTMLInputElement>;
   filters: FilterOptions;
-}
-
-interface SearchSuggestion {
-  type: string;
-  value: string;
-  icon: React.ReactNode;
 }
 
 export interface FilterOptions {
@@ -43,693 +25,140 @@ export function SearchSection({
 }: SearchSectionProps) {
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [filteredSuggestions, setFilteredSuggestions] = useState<
-    SearchSuggestion[]
-  >([]);
-  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
-
-  const searchInputRefLocal = useRef<HTMLInputElement>(null);
-  const suggestionsRef = useRef<HTMLDivElement>(null);
-
-  const handleClickOutside = useCallback((e: MouseEvent) => {
-    if (
-      suggestionsRef.current &&
-      !suggestionsRef.current.contains(e.target as Node)
-    ) {
-      setShowSuggestions(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [handleClickOutside]);
-
-  // Define searchable items
-  const searchSuggestions: SearchSuggestion[] = [
-    // Countries
-    {
-      type: 'country',
-      value: 'United States',
-      icon: <Globe className="h-4 w-4" />,
-    },
-    {
-      type: 'country',
-      value: 'United Kingdom',
-      icon: <Globe className="h-4 w-4" />,
-    },
-    { type: 'country', value: 'Canada', icon: <Globe className="h-4 w-4" /> },
-    {
-      type: 'country',
-      value: 'Australia',
-      icon: <Globe className="h-4 w-4" />,
-    },
-    { type: 'country', value: 'Germany', icon: <Globe className="h-4 w-4" /> },
-    { type: 'country', value: 'France', icon: <Globe className="h-4 w-4" /> },
-    { type: 'country', value: 'Japan', icon: <Globe className="h-4 w-4" /> },
-    { type: 'country', value: 'India', icon: <Globe className="h-4 w-4" /> },
-
-    // Locations
-    {
-      type: 'location',
-      value: 'New York, USA',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'London, UK',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'Toronto, Canada',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'Sydney, Australia',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'Berlin, Germany',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'Paris, France',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'Tokyo, Japan',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'Bangalore, India',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'Hyderabad, India',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    // Hyderabad Areas
-    {
-      type: 'location',
-      value: 'Malakpet',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'Mehdipatnam',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'Tolichowki',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'Banjara Hills',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'Jubilee Hills',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'HITEC City',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'Gachibowli',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'Secunderabad',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'Kukatpally',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'Ameerpet',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'Dilsukhnagar',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'Begumpet',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'Madhapur',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'Kondapur',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'Santosh Nagar',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'Masab Tank',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'Uppal',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'LB Nagar',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'Miyapur',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'Manikonda',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-    {
-      type: 'location',
-      value: 'Attapur',
-      icon: <MapPin className="h-4 w-4" />,
-    },
-
-    // Courses
-    {
-      type: 'course',
-      value: 'Computer Science',
-      icon: <Hash className="h-4 w-4" />,
-    },
-    {
-      type: 'course',
-      value: 'Machine Learning',
-      icon: <Hash className="h-4 w-4" />,
-    },
-    {
-      type: 'course',
-      value: 'Medical',
-      icon: <Hash className="h-4 w-4" />,
-    },
-    {
-      type: 'course',
-      value: 'Business Administration',
-      icon: <Hash className="h-4 w-4" />,
-    },
-    {
-      type: 'course',
-      value: 'Engineering',
-      icon: <Hash className="h-4 w-4" />,
-    },
-    { type: 'course', value: 'Medicine', icon: <Hash className="h-4 w-4" /> },
-    { type: 'course', value: 'Law', icon: <Hash className="h-4 w-4" /> },
-    { type: 'course', value: 'Psychology', icon: <Hash className="h-4 w-4" /> },
-    {
-      type: 'course',
-      value: 'Data Science',
-      icon: <Hash className="h-4 w-4" />,
-    },
-
-    // Specializations
-    {
-      type: 'specialization',
-      value: 'Ivy League Admissions',
-      icon: <GraduationCap className="h-4 w-4" />,
-    },
-    {
-      type: 'specialization',
-      value: 'Medical School Admissions',
-      icon: <GraduationCap className="h-4 w-4" />,
-    },
-    {
-      type: 'specialization',
-      value: 'Law School Admissions',
-      icon: <GraduationCap className="h-4 w-4" />,
-    },
-    {
-      type: 'specialization',
-      value: 'MBA Admissions',
-      icon: <GraduationCap className="h-4 w-4" />,
-    },
-    {
-      type: 'specialization',
-      value: 'Undergraduate Admissions',
-      icon: <GraduationCap className="h-4 w-4" />,
-    },
-    {
-      type: 'specialization',
-      value: 'Graduate Program Admissions',
-      icon: <GraduationCap className="h-4 w-4" />,
-    },
-    {
-      type: 'specialization',
-      value: 'International Student Admissions',
-      icon: <GraduationCap className="h-4 w-4" />,
-    },
-  ];
-
-  useEffect(() => {
-    if (searchQuery.length > 0) {
-      const filtered = searchSuggestions.filter(
-        (suggestion) =>
-          suggestion.value.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (suggestion.type === 'location' &&
-            suggestion.value
-              .split(',')[0]
-              .toLowerCase()
-              .includes(searchQuery.toLowerCase()))
-      );
-      setFilteredSuggestions(filtered);
-      setShowSuggestions(true);
-    } else {
-      setShowSuggestions(false);
-    }
-  }, [searchQuery]);
-
-  const groupedSuggestions = filteredSuggestions.reduce((acc, suggestion) => {
-    if (!acc[suggestion.type]) {
-      acc[suggestion.type] = [];
-    }
-    acc[suggestion.type].push(suggestion);
-    return acc;
-  }, {} as Record<string, SearchSuggestion[]>);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setShowSuggestions(false);
-    onSearch(searchQuery.trim());
-    if (showFilters) {
-      setShowFilters(false);
-    }
-  };
-
-  const handleSuggestionClick = (suggestion: SearchSuggestion) => {
-    setSearchQuery(suggestion.value);
-    onSearch(suggestion.value);
-    setShowSuggestions(false);
+    onSearch(searchQuery);
   };
 
   const handleFilterChange = (newFilters: Partial<FilterOptions>) => {
-    const updatedFilters = { ...filters, ...newFilters };
-    onFilterChange(updatedFilters);
+    onFilterChange({ ...filters, ...newFilters });
   };
 
-  // Handle keyboard navigation for suggestions
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearchSubmit(e as any);
-    }
-  };
-
-  const getSuggestionIconBackground = (type: string) => {
-    switch (type) {
-      case 'country':
-        return 'bg-blue-100';
-      case 'location':
-        return 'bg-red-100';
-      case 'course':
-        return 'bg-green-100';
-      case 'specialization':
-        return 'bg-yellow-100';
-      default:
-        return 'bg-gray-100';
-    }
+  const resetFilters = () => {
+    const resetFilters = {
+      location: '',
+      minRating: 0,
+      maxPrice: '',
+      verifiedOnly: false,
+      specializations: [],
+      sortBy: 'name' as const
+    };
+    onFilterChange(resetFilters);
   };
 
   return (
-    <div className="relative">
-      <div className="bg-gradient-to-r from-blue-800 to-blue-600 py-10 px-6 md:py-16 md:px-12">
-        <div className="max-w-5xl mx-auto">
-          <h1 className="text-2xl md:text-3xl font-bold text-white mb-4 whitespace-nowrap">
-            Admissions.app: Your Trusted Study Abroad Platform
-          </h1>
-          <p className="text-blue-100/90 text-base md:text-lg mb-8 leading-relaxed max-w-3xl">
-            Welcome to Hyderabad's premier study abroad platform, connecting ambitious students with top-rated overseas education consultants. Our network of 250+ verified international education advisors specializes in USA university admissions, UK university applications, Canada study visas, and Australian education pathways. Expert guidance available for engineering, MBA, medical, and other courses worldwide. Get personalized assistance with university selection, visa processing, scholarship applications, and admission essay editing. From HITEC City to Banjara Hills, find local study abroad consultants who understand your goals. Start your international education journey today with Admissions.app - your gateway to academic success abroad!
-          </p>
-
-          <div className="relative">
-            <div className="flex flex-col md:flex-row gap-2">
-              <div className="flex-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Search className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  ref={searchInputRef || searchInputRefLocal}
-                  type="text"
-                  placeholder="Search by country, course, or specialization..."
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setShowSuggestions(true);
-                    onSearch(e.target.value);
-                  }}
-                  className="w-full pl-12 pr-4 py-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-white/50 border-0 bg-white/10 backdrop-blur-sm text-white placeholder-blue-200 shadow-lg"
-                  onFocus={() => setShowSuggestions(true)}
-                  onBlur={() => {
-                    setTimeout(() => {
-                      if (!suggestionsRef.current?.contains(document.activeElement)) {
-                        setShowSuggestions(false);
-                      }
-                    }, 200);
-                  }}
-                  onKeyDown={handleKeyDown}
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSearchQuery('');
-                      setShowSuggestions(false);
-                      onSearch('');
-                    }}
-                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-blue-200 hover:text-white"
-                    aria-label="Clear search"
-                  >
-                    <X className="h-5 w-5" />
-                  </button>
-                )}
-              </div>
-
-              <button
-                type="button"
-                onClick={handleSearchSubmit}
-                className="md:w-auto px-6 py-4 bg-white rounded-xl text-blue-800 font-medium hover:bg-blue-50 transition-colors shadow-lg"
-              >
-                Search
-              </button>
-
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="md:w-auto px-6 py-4 rounded-xl font-medium transition-colors shadow-lg flex items-center justify-center gap-2 border-2 border-white/30 hover:bg-white/10 text-white"
-              >
-                {showFilters ? (
-                  <X className="h-5 w-5" />
-                ) : (
-                  <Filter className="h-5 w-5" />
-                )}
-                {showFilters ? 'Close' : 'Filter'}
-              </button>
-            </div>
-
-            {/* Suggestions Dropdown */}
-            {showSuggestions &&
-              searchQuery &&
-              filteredSuggestions.length > 0 && (
-                <div
-                  ref={suggestionsRef}
-                  className="absolute left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-blue-100 overflow-hidden z-10"
-                >
-                  <div className="p-2">
-                    <h3 className="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Suggestions
-                    </h3>
-                    <div className="divide-y divide-gray-100">
-                      {filteredSuggestions.map((suggestion, index) => (
-                        <button
-                          key={`${suggestion.type}-${suggestion.value}`}
-                          className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-blue-50 ${
-                            index === activeSuggestionIndex ? 'bg-blue-50' : ''
-                          }`}
-                          onClick={() => handleSuggestionClick(suggestion)}
-                          onMouseEnter={() => setActiveSuggestionIndex(index)}
-                        >
-                          <div
-                            className={`p-2 rounded-lg ${getSuggestionIconBackground(
-                              suggestion.type
-                            )}`}
-                          >
-                            {suggestion.icon}
-                          </div>
-                          <div>
-                            <span className="block font-medium text-gray-900">
-                              {suggestion.value}
-                            </span>
-                            <span className="block text-xs text-gray-500 capitalize">
-                              {suggestion.type}
-                            </span>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
+    <div className="space-y-6">
+      {/* Main Search Bar */}
+      <form onSubmit={handleSearchSubmit} className="relative">
+        <div className="flex gap-3">
+          <div className="flex-1 relative">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <input
+              ref={searchInputRef}
+              type="text"
+              placeholder="Search consultants by name, location, or specialization..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-12 pr-4 py-4 text-lg border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all duration-200 bg-white shadow-sm"
+            />
           </div>
-
-          {showFilters && (
-            <div className="mt-6 bg-white rounded-xl p-0 shadow-xl border border-blue-50 overflow-hidden transition-all duration-300 transform">
-              {/* Filter Header with Gradient */}
-              <div className="bg-gradient-to-r from-blue-800 to-blue-600 p-6 text-white">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold">Filter Options</h3>
-                  <button
-                    onClick={() => {
-                      const resetFilters = {
-                        location: '',
-                        minRating: 0,
-                        maxPrice: '',
-                        verifiedOnly: false,
-                        specializations: [],
-                        sortBy: undefined
-                      };
-
-                      onFilterChange(resetFilters);
-                    }}
-                    className="px-4 py-1 bg-white/20 hover:bg-white/30 text-white text-sm font-medium rounded-full transition-colors"
-                  >
-                    Reset All
-                  </button>
-                </div>
-                <p className="text-blue-100 text-sm mt-1">
-                  Refine your consultant search
-                </p>
-              </div>
-
-              {/* Filter Content */}
-              <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Left Column */}
-                  <div className="space-y-6">
-                    {/* Location Filter */}
-                    <div className="bg-gray-50 p-5 rounded-xl shadow-sm hover:shadow transition-shadow duration-300">
-                      <label className="block">
-                        <span className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
-                          <div className="bg-red-100 p-2 rounded-lg">
-                            <MapPin className="h-4 w-4 text-red-500" />
-                          </div>
-                          Location
-                        </span>
-                        <input
-                          type="text"
-                          value={filters.location}
-                          onChange={(e) =>
-                            handleFilterChange({ location: e.target.value })
-                          }
-                          className="mt-2 block w-full pl-3 pr-10 py-3 text-base border-0 bg-white rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                        />
-                      </label>
-                    </div>
-
-                    {/* Rating Filter */}
-                    <div className="bg-gray-50 p-5 rounded-xl shadow-sm hover:shadow transition-shadow duration-300">
-                      <label className="block">
-                        <span className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
-                          <div className="bg-yellow-100 p-2 rounded-lg">
-                            <Star className="h-4 w-4 text-yellow-500" />
-                          </div>
-                          Minimum Rating
-                        </span>
-                        <div className="mt-2 flex items-center space-x-2">
-                          {[0, 3, 4, 5].map((rating) => (
-                            <button
-                              key={rating}
-                              onClick={() =>
-                                handleFilterChange({ minRating: rating })
-                              }
-                              className={`flex-1 py-2 rounded-lg font-medium transition-colors ${
-                                filters.minRating === rating
-                                  ? 'bg-blue-600 text-white'
-                                  : 'bg-white text-gray-700 border border-gray-200 hover:border-blue-400'
-                              }`}
-                            >
-                              {rating === 0 ? 'Any' : `${rating}+`}
-                            </button>
-                          ))}
-                        </div>
-                      </label>
-                    </div>
-                  </div>
-
-                  {/* Right Column */}
-                  <div className="space-y-6">
-                    {/* Price Range Filter */}
-                    <div className="bg-gray-50 p-5 rounded-xl shadow-sm hover:shadow transition-shadow duration-300">
-                      <label className="block">
-                        <span className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
-                          <div className="bg-green-100 p-2 rounded-lg">
-                            <DollarSign className="h-4 w-4 text-green-500" />
-                          </div>
-                          Price Range
-                        </span>
-                        <input
-                          type="text"
-                          value={filters.maxPrice}
-                          onChange={(e) =>
-                            handleFilterChange({ maxPrice: e.target.value })
-                          }
-                          className="mt-2 block w-full pl-3 pr-10 py-3 text-base border-0 bg-white rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                        />
-                      </label>
-                    </div>
-
-                    {/* Verified Only Filter */}
-                    <div className="bg-gray-50 p-5 rounded-xl shadow-sm hover:shadow transition-shadow duration-300">
-                      <label className="flex cursor-pointer group">
-                        <div className="flex items-start gap-3">
-                          <div className="pt-0.5">
-                            <div
-                              className={`w-10 h-6 rounded-full p-1 transition-colors duration-300 ${
-                                filters.verifiedOnly
-                                  ? 'bg-blue-600'
-                                  : 'bg-gray-300'
-                              }`}
-                            >
-                              <div
-                                className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
-                                  filters.verifiedOnly ? 'translate-x-4' : ''
-                                }`}
-                              ></div>
-                            </div>
-                          </div>
-                          <div>
-                            <span className="text-sm font-medium text-gray-900 flex items-center gap-2">
-                              <div className="bg-blue-100 p-2 rounded-lg">
-                                <Shield className="h-4 w-4 text-blue-600" />
-                              </div>
-                              Verified Consultants Only
-                            </span>
-                            <p className="text-xs text-gray-500 mt-1 group-hover:text-gray-700 transition-colors">
-                              Show only consultants that have been verified by
-                              our team
-                            </p>
-                          </div>
-                        </div>
-                        <input
-                          type="checkbox"
-                          checked={filters.verifiedOnly}
-                          onChange={(e) =>
-                            handleFilterChange({
-                              verifiedOnly: e.target.checked,
-                            })
-                          }
-                          className="sr-only"
-                        />
-                      </label>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Apply Button */}
-                <div className="mt-8">
-                  {/* Sort Options */}
-                  <div className="bg-gray-50 p-5 rounded-xl shadow-sm hover:shadow transition-shadow duration-300 mb-8">
-                    <div className="mb-3">
-                      <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                        <div className="bg-purple-100 p-2 rounded-lg">
-                          <Hash className="h-4 w-4 text-purple-500" />
-                        </div>
-                        Sort Results By
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <button
-                        onClick={() => handleFilterChange({ sortBy: 'name' })}
-                        className={`p-3 rounded-lg font-medium transition-colors flex items-center justify-center ${
-                          filters.sortBy === 'name'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-white text-gray-700 border border-gray-200 hover:border-blue-400'
-                        }`}
-                      >
-                        Alphabetical
-                      </button>
-                      <button
-                        onClick={() => handleFilterChange({ sortBy: 'rating' })}
-                        className={`p-3 rounded-lg font-medium transition-colors flex items-center justify-center ${
-                          filters.sortBy === 'rating'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-white text-gray-700 border border-gray-200 hover:border-blue-400'
-                        }`}
-                      >
-                        Highest Reviews
-                      </button>
-                      <button
-                        onClick={() => handleFilterChange({ sortBy: 'price' })}
-                        className={`p-3 rounded-lg font-medium transition-colors flex items-center justify-center ${
-                          filters.sortBy === 'price'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-white text-gray-700 border border-gray-200 hover:border-blue-400'
-                        }`}
-                      >
-                        Price (Low to High)
-                      </button>
-                      <button
-                        onClick={() => handleFilterChange({ sortBy: 'trustScore' })}
-                        className={`p-3 rounded-lg font-medium transition-colors flex items-center justify-center ${
-                          filters.sortBy === 'trustScore'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-white text-gray-700 border border-gray-200 hover:border-blue-400'
-                        }`}
-                      >
-                        Trust Score
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className="flex justify-end">
-                    <button
-                      onClick={() => setShowFilters(false)}
-                      className="bg-gradient-to-r from-blue-700 to-blue-500 text-white px-8 py-3 rounded-lg font-medium hover:from-blue-800 hover:to-blue-600 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
-                    >
-                      <Check className="h-5 w-5" />
-                      Apply Filters
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+          <button
+            type="submit"
+            className="px-8 py-4 bg-primary hover:bg-primary/90 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
+          >
+            Search
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowFilters(!showFilters)}
+            className={`px-6 py-4 rounded-xl font-semibold transition-all duration-200 flex items-center gap-2 ${
+              showFilters 
+                ? 'bg-gray-100 text-gray-700 border-2 border-gray-200' 
+                : 'bg-white text-primary border-2 border-primary hover:bg-primary hover:text-white'
+            }`}
+          >
+            <Filter className="h-5 w-5" />
+            Filters
+          </button>
         </div>
-      </div>
+      </form>
+
+      {/* Simple Filters */}
+      {showFilters && (
+        <div className="mt-6 bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/30 transition-all duration-300">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-white/90">Quick Filters</h3>
+            <button
+              onClick={resetFilters}
+              className="text-sm text-primary hover:text-primary/80 font-medium bg-white/20 px-4 py-1.5 rounded-full"
+            >
+              Reset All
+            </button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Location Filter */}
+            <div>
+              <label className="block text-sm font-medium text-white/90 mb-2">
+                Location
+              </label>
+              <input
+                type="text"
+                placeholder="Enter city or country"
+                value={filters.location}
+                onChange={(e) => handleFilterChange({ location: e.target.value })}
+                className="w-full px-4 py-3 border-0 rounded-xl focus:outline-none focus:ring-4 focus:ring-white/20 bg-white/90 backdrop-blur-sm transition-all duration-200 text-gray-900"
+              />
+            </div>
+            {/* Rating Filter */}
+            <div>
+              <label className="block text-sm font-medium text-white/90 mb-2">
+                Minimum Rating
+              </label>
+              <select
+                value={filters.minRating}
+                onChange={(e) => handleFilterChange({ minRating: parseInt(e.target.value) })}
+                className="w-full px-4 py-3 text-base rounded-xl border border-pink-100 bg-pink-50 text-gray-900 shadow focus:outline-none focus:ring-2 focus:ring-pink-200 focus:border-pink-300 transition-all duration-200 hover:border-pink-300"
+              >
+                <option value={0}>Any Rating</option>
+                <option value={3}>3+ Stars</option>
+                <option value={4}>4+ Stars</option>
+                <option value={5}>5 Stars</option>
+              </select>
+            </div>
+            {/* Sort By */}
+            <div>
+              <label className="block text-sm font-medium text-white/90 mb-2">
+                Sort By
+              </label>
+              <select
+                value={filters.sortBy || 'name'}
+                onChange={(e) => handleFilterChange({ sortBy: e.target.value as any })}
+                className="w-full px-4 py-3 text-base rounded-xl border border-pink-100 bg-pink-50 text-gray-900 shadow focus:outline-none focus:ring-2 focus:ring-pink-200 focus:border-pink-300 transition-all duration-200 hover:border-pink-300"
+              >
+                <option value="name">Name</option>
+                <option value="rating">Rating</option>
+                <option value="trustScore">Trust Score</option>
+                <option value="price">Price</option>
+              </select>
+            </div>
+          </div>
+          {/* Verified Only Toggle */}
+          <div className="mt-4 flex items-center">
+            <input
+              id="verified-only"
+              type="checkbox"
+              checked={filters.verifiedOnly}
+              onChange={(e) => handleFilterChange({ verifiedOnly: e.target.checked })}
+              className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+            />
+            <label htmlFor="verified-only" className="ml-2 flex items-center gap-2 text-sm text-white/90">
+              <Shield className="h-4 w-4 text-primary" />
+              Show verified consultants only
+            </label>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

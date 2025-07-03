@@ -41,7 +41,7 @@ export function ReviewsList({
         <div className="text-center py-4 text-gray-500">No reviews yet</div>
       ) : (
         <div className="space-y-6">
-          {reviews.map((review) => (
+          {reviews.map((review: Review) => (
             <div key={review.id} className="border rounded-lg p-4">
               <div className="flex justify-between items-start mb-4">
                 <div>

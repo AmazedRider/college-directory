@@ -1,0 +1,32 @@
+-- Migration: Insert international scholarships with application URLs
+
+INSERT INTO scholarships (name, application_url, chance, competition, amount, foundation, eligibility, deadline)
+VALUES
+  ('CM Overseas Scholarship Scheme For Minorities', 'https://telanganaepass.cgg.gov.in/OverseasReg.do?stu_details(studentAction)=unspecified&dept=7', 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('Open Doors Russian Scholarship Project', 'https://od.globaluni.ru/en/', 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('NRF Free-standing Scholarships', 'https://www.nrf.ac.za', 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('Science Without Borders Program', 'https://www.gov.br/cnpq/pt-br', 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('Türkiye Scholarships', 'https://www.turkiyeburslari.gov.tr', 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('KAUST Fellowship', 'https://www.kaust.edu.sa/en/study/fellowships', 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('Khalifa University Graduate Scholarships', 'https://www.ku.ac.ae/scholarships', 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('Thailand International Postgraduate Programme (TIPP)', 'https://tica-th.org/en/page.php?page=328', 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('Malaysian International Scholarship (MIS)', 'https://biasiswa.mohe.gov.my/INTER/', 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('Government of Ireland International Education Scholarships', 'https://hea.ie/funding-governance/international/', 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('Swiss Government Excellence Scholarships', 'https://www.sbfi.admin.ch/sbfi/en/home/education/scholarships-and-grants/swiss-government-excellence-scholarships.html', 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('Singapore International Graduate Award (SINGA)', 'https://www.a-star.edu.sg/singa', 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('Swedish Institute Scholarships for Global Professionals', 'https://si.se/en/apply/scholarships/', 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('Holland Scholarship', 'https://www.studyinholland.nl/finances/holland-scholarship', 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('Eiffel Excellence Scholarship Program', 'https://www.campusfrance.org/en/eiffel-scholarship-program-of-excellence', 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('Australia Awards Scholarships', 'https://www.dfat.gov.au/people-to-people/australia-awards', 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('Chinese Government Scholarship (CSC)', 'https://www.campuschina.org', 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('Global Korea Scholarship (GKS)', 'https://studyinkorea.go.kr/en/sub/gks/allnew_invite.do', 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('MEXT Scholarship', 'https://www.studyinjapan.go.jp/en/smap-stopj-applications-scholarships.html', 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('DAAD Scholarships', 'https://www.daad.de/en/study-and-research-in-germany/scholarships/', 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('Chevening Scholarships', 'https://www.chevening.org/apply/', 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('Vanier Canada Graduate Scholarships', 'https://vanier.gc.ca/en/home-accueil.html', 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('Fulbright Foreign Student Program', 'https://foreign.fulbrightonline.org/', 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('Future Leaders Grant', NULL, 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('First Generation Scholarship', NULL, 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('Arts & Humanities Scholarship', NULL, 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('STEM Innovation Award', NULL, 'Medium Chance', 'Medium Competition', '', '', '', ''),
+  ('Global Excellence Scholarship', NULL, 'Medium Chance', 'Medium Competition', '', '', '', ''); 

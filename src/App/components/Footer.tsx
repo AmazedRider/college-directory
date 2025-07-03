@@ -1,59 +1,77 @@
 import React from 'react';
-import { Mail, Phone, Facebook, Instagram, Linkedin } from 'lucide-react';
+import { Mail, Phone, MapPin, GraduationCap, MessageSquare, Award, Book, Users } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export function Footer() {
   return (
-    <footer className="bg-gray-800 text-white py-8 mt-auto">
+    <footer className="bg-[#101828] text-white pt-12 pb-6 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div>
-            <h3 className="text-lg font-semibold mb-4">About Us</h3>
-            <p className="text-gray-400">
-              Connecting students with the best college consultants to help achieve their academic goals.
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+          {/* Logo and Description */}
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="bg-gradient-to-br from-[#6366f1] to-[#14b8a6] p-2 rounded-xl">
+                <GraduationCap className="w-8 h-8 text-white" />
+              </div>
+              <span className="text-2xl font-extrabold">admissions.app</span>
+            </div>
+            <p className="text-gray-400 text-base max-w-xs">
+              India's most trusted overseas education platform connecting students with global opportunities.
             </p>
           </div>
+          {/* Services */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Services</h3>
+            <ul className="space-y-2 text-gray-300">
+              <li><Link to="/agencies" className="hover:underline">Consultancy Directory</Link></li>
+              <li><Link to="/scholarship-finder" className="hover:underline">Scholarship Finder</Link></li>
+              <li><Link to="/course-finder" className="hover:underline">University Search</Link></li>
+              <li><Link to="/visa-info" className="hover:underline">Visa Guidance</Link></li>
+              <li><Link to="/ai-planner" className="hover:underline">AI Assistant</Link></li>
+            </ul>
+          </div>
+          {/* Support */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Support</h3>
+            <ul className="space-y-2 text-gray-300">
+              <li><Link to="/contact" className="hover:underline">Help Center</Link></li>
+              <li><Link to="/contact" className="hover:underline">Contact Us</Link></li>
+              <li><Link to="/blog" className="hover:underline">Blog</Link></li>
+            </ul>
+          </div>
+          {/* Contact */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Contact</h3>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-gray-400">
-                <Mail className="h-5 w-5" />
-                <span>connect@admissions.app</span>
-              </div>
-              <div className="flex items-center gap-2 text-gray-400">
-                <Phone className="h-5 w-5" />
-                <span>+91 6304 666 504</span>
-              </div>
-            </div>
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Follow Us</h3>
-            <div className="flex gap-4 mt-2">
-              <a href="https://www.facebook.com/groups/595906066127004" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a href="https://www.instagram.com/admissions.app?igsh=ZXluOHZ5Z3dwbTJk" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a href="https://www.reddit.com/r/Admissions_app/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-                  <g>
-                    <path d="M18.67,12A2.13,2.13,0,0,0,16.54,9.9a2.19,2.19,0,0,0-1.28.42,8.68,8.68,0,0,0-3.26-.56l.77-2.4,2.14.45A1.51,1.51,0,1,0,16.33,6a1.52,1.52,0,0,0-1.36.81l-2.66-.56a.4.4,0,0,0-.47.24l-1,3.12a8.75,8.75,0,0,0-3.32.56A2.19,2.19,0,0,0,6.29,9.9,2.14,2.14,0,0,0,6,14.08l.09.09a3.86,3.86,0,0,0,0,.76c0,2.76,3.21,5,7.15,5s7.15-2.24,7.15-5a3.86,3.86,0,0,0,0-.76,2.13,2.13,0,0,0,.28-2.17ZM8.92,13.39a1.54,1.54,0,1,1,1.4,1.55A1.48,1.48,0,0,1,8.92,13.39Zm6.65,3.43A4.33,4.33,0,0,1,12,17.7a4.33,4.33,0,0,1-3.54-.88.4.4,0,0,1,0-.56.39.39,0,0,1,.56,0A3.7,3.7,0,0,0,12,17a3.7,3.7,0,0,0,2.95-.75.39.39,0,0,1,.56,0A.4.4,0,0,1,15.57,16.82Zm-.11-2.93a1.54,1.54,0,0,1,0-3.07,1.48,1.48,0,0,1,1.4,1.52A1.48,1.48,0,0,1,15.46,13.89Z"/>
-                  </g>
-                </svg>
-              </a>
-              <a href="https://x.com/admissions_app" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-                  <path d="M18 6L6 18M6 6l12 12" />
-                </svg>
-              </a>
-              <a href="https://www.linkedin.com/in/mohammad-anas-5b99b8363/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
-                <Linkedin className="w-5 h-5" />
-              </a>
-            </div>
+            <ul className="space-y-3 text-gray-300">
+              <li className="flex items-center gap-2"><Mail className="w-5 h-5 text-blue-300" /> contact@admissions.app</li>
+              <li className="flex items-center gap-2"><Phone className="w-5 h-5 text-pink-300" /> +91  6304666504</li>
+              <li className="flex items-center gap-2"><MapPin className="w-5 h-5 text-red-300" /> Hyderabad, India</li>
+            </ul>
           </div>
         </div>
-        <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-          <p>&copy; 2025 Admissions.app. All rights reserved.</p>
+        <div className="border-t border-gray-700 mt-10 pt-8 text-center text-gray-400 text-sm">
+          <p>&copy; 2025 Admissions.app. All rights reserved. Made In india
+            <span style={{ display: 'inline-block', verticalAlign: 'middle', margin: '0 0.25em' }}>
+              <svg width="20" height="14" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg" style={{ display: 'inline' }}>
+                <rect width="20" height="14" fill="#FF9933"/>
+                <rect y="4.67" width="20" height="4.66" fill="#fff"/>
+                <rect y="9.33" width="20" height="4.67" fill="#138808"/>
+                <circle cx="10" cy="7" r="1.4" fill="none" stroke="#000080" strokeWidth="0.7"/>
+                <g stroke="#000080" strokeWidth="0.2">
+                  {[...Array(24)].map((_, i) => (
+                    <line
+                      key={i}
+                      x1="10"
+                      y1="7"
+                      x2={10 + 1.4 * Math.cos((i * 15 * Math.PI) / 180)}
+                      y2={7 + 1.4 * Math.sin((i * 15 * Math.PI) / 180)}
+                    />
+                  ))}
+                </g>
+              </svg>
+            </span>
+            for the world 🌎
+          </p>
         </div>
       </div>
     </footer>

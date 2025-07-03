@@ -1,344 +1,195 @@
-import React, { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabase';
-import toast from 'react-hot-toast';
-import { SEO } from '../components/SEO';
-import { Calendar, Clock, User } from 'lucide-react';
-import { getBlogTabs } from '../../lib/api';
-
-interface BlogTab {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  display_order: number;
-}
-
-interface BlogPost {
-  id: string;
-  title: string;
-  excerpt: string;
-  content: string;
-  author: string;
-  date: string;
-  image_url: string;
-  category: string;
-  created_at: string;
-  tab_id: string | null;
-  blog_tabs: {
-    name: string;
-  } | null;
-}
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { BookOpen, Book, FileText, ArrowRight, Sparkles, Star } from 'lucide-react';
 
 export function BlogPage() {
-  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
-  const [tabs, setTabs] = useState<BlogTab[]>([]);
-  const [activeTab, setActiveTab] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    Promise.all([loadBlogPosts(), loadTabs()]);
-  }, []);
-
-  const loadTabs = async () => {
-    try {
-      const tabsData = await getBlogTabs();
-      setTabs(tabsData);
-      // Set the first tab as active by default
-      if (tabsData.length > 0 && !activeTab) {
-        setActiveTab(tabsData[0].id);
-      }
-    } catch (error) {
-      console.error('Error loading tabs:', error);
-    }
-  };
-
-  const loadBlogPosts = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('blog_posts')
-        .select('*, blog_tabs(name)')
-        .order('date', { ascending: false });
-
-      if (error) throw error;
-      setBlogPosts(data || []);
-    } catch (error) {
-      console.error('Failed to load blog posts:', error);
-      toast.error('Failed to load blog posts');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Filter posts by active tab
-  const filteredPosts = activeTab 
-    ? blogPosts.filter(post => post.tab_id === activeTab)
-    : blogPosts;
-
-  // Fall back to dummy data if no posts are found
-  const hasPosts = filteredPosts.length > 0;
-  const displayPosts = hasPosts ? filteredPosts : [
+  const blogCategories = [
     {
-      id: '1',
-      title: "How to Choose the Right College for Your Future",
-      excerpt: "Deciding which college to attend is one of the most significant decisions you'll make. Here's how to navigate the selection process effectively.",
-      content: "Full article content would go here...",
-      author: "Dr. Sarah Johnson",
-      date: "2025-02-28",
-      image_url: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      category: "College Selection",
-      created_at: "2025-02-28",
-      tab_id: null,
-      blog_tabs: null
+      icon: <BookOpen className="w-12 h-12 text-blue-500" />,
+      title: "Knowledge Hub",
+      description: "Comprehensive guides, tips, and resources for studying abroad. Everything you need to know about international education.",
+      link: "/knowledge-hub",
+      color: "from-blue-500 to-blue-600",
+      bgColor: "bg-blue-50",
+      borderColor: "border-blue-200",
+      textColor: "text-blue-700",
+      features: ["Study guides", "Application tips", "Country insights", "Student resources"]
     },
     {
-      id: '2',
-      title: "Financial Aid Opportunities You Might Be Missing",
-      excerpt: "Beyond the standard scholarships and loans, there are many lesser-known financial aid options that could significantly reduce your college costs.",
-      content: "Full article content would go here...",
-      author: "Michael Rodriguez",
-      date: "2025-02-15",
-      image_url: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      category: "Financial Aid",
-      created_at: "2025-02-15",
-      tab_id: null,
-      blog_tabs: null
+      icon: <Book className="w-12 h-12 text-purple-500" />,
+      title: "Exam Blog",
+      description: "Exam preparation strategies, study materials, and success stories from students who've achieved their academic goals.",
+      link: "/exam-blog",
+      color: "from-purple-500 to-purple-600",
+      bgColor: "bg-purple-50",
+      borderColor: "border-purple-200",
+      textColor: "text-purple-700",
+      features: ["Test strategies", "Study materials", "Success stories", "Practice resources"]
     },
     {
-      id: '3',
-      title: "The Growing Importance of Extracurricular Activities in College Applications",
-      excerpt: "Learn why colleges are increasingly looking beyond academic achievements to evaluate prospective students.",
-      content: "Full article content would go here...",
-      author: "Jennifer Lee",
-      date: "2025-02-05",
-      image_url: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      category: "Admissions",
-      created_at: "2025-02-05",
-      tab_id: null,
-      blog_tabs: null
-    },
-    {
-      id: '4',
-      title: "Making the Most of Your College Campus Visit",
-      excerpt: "A campus visit can make or break your college decision. Here's how to ensure you get the most valuable insights during your tour.",
-      content: "Full article content would go here...",
-      author: "David Wilson",
-      date: "2025-01-22",
-      image_url: "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      category: "Campus Life",
-      created_at: "2025-01-22",
-      tab_id: null,
-      blog_tabs: null
-    },
-    {
-      id: '5',
-      title: "The Digital Revolution in College Learning: What to Expect",
-      excerpt: "How technology is reshaping the college education experience and preparing students for the future workforce.",
-      content: "Full article content would go here...",
-      author: "Dr. Robert Chang",
-      date: "2025-01-10",
-      image_url: "https://images.unsplash.com/photo-1501504905252-473c47e087f8?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      category: "Education Trends",
-      created_at: "2025-01-10",
-      tab_id: null,
-      blog_tabs: null
+      icon: <FileText className="w-12 h-12 text-green-500" />,
+      title: "Visa Information",
+      description: "Detailed visa requirements, application processes, and country-specific information for international students.",
+      link: "/visa-info",
+      color: "from-green-500 to-green-600",
+      bgColor: "bg-green-50",
+      borderColor: "border-green-200",
+      textColor: "text-green-700",
+      features: ["Visa requirements", "Application guides", "Country info", "Documentation help"]
     }
   ];
 
-  // Generate schema for blog page
-  const blogSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'Blog',
-    headline: 'Admissions Blog',
-    description: 'Expert insights, tips, and advice to help you navigate the college admissions process',
-    url: 'https://admissions.app/blog',
-    blogPost: displayPosts.map(post => ({
-      '@type': 'BlogPosting',
-      headline: post.title,
-      description: post.excerpt,
-      datePublished: post.date,
-      author: {
-        '@type': 'Person',
-        name: post.author
-      },
-      image: post.image_url || 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'
-    }))
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <SEO 
-        title="Blog | College Admissions Insights & Tips | Admissions.app"
-        description="Expert insights, tips, and advice to help you navigate the college admissions process. Read our latest articles on college applications, essays, and more."
-        canonicalUrl="/blog"
-        ogType="website"
-        ogImage={displayPosts[0]?.image_url}
-        keywords={['college admissions blog', 'college application tips', 'admissions advice', 'college essay tips']}
-        schema={blogSchema}
-      />
-
+    <div className="min-h-screen bg-gradient-to-br from-[#f4f8fb] via-[#f6fbfa] to-[#eaf6fa]">
       {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary to-primary/90"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Admissions Blog
-            </h1>
-            <p className="text-xl text-white/90 max-w-3xl mx-auto">
-              Expert insights, tips, and advice to help you navigate the college admissions process
-            </p>
-          </div>
+      <div className="w-full flex flex-col items-center justify-center min-h-[60vh] relative overflow-hidden py-0 px-2">
+        {/* Blurred Gradient Blobs */}
+        <div className="absolute left-[-10vw] top-[-10vh] w-[400px] h-[400px] bg-[#e0e7ff] rounded-full blur-3xl opacity-40 z-0" />
+        <div className="absolute right-[-8vw] bottom-[-8vh] w-[350px] h-[350px] bg-[#99f6e4] rounded-full blur-3xl opacity-30 z-0" />
+        {/* Greenish Tint Blob (left side) */}
+        <div className="absolute left-[-15vw] top-1/4 w-[500px] h-[500px] bg-gradient-to-br from-[#6ee7b7] via-[#a7f3d0] to-transparent rounded-full blur-3xl opacity-50 z-0" />
+        {/* Badge */}
+        <div className="flex items-center gap-2 px-6 py-2 bg-white border border-[#e0e7ff] rounded-full shadow text-[#6366f1] font-semibold text-base mb-8 mt-8 max-w-fit mx-auto animate-fade-in z-10">
+          <BookOpen className="w-5 h-5 text-[#6366f1]" />
+          Blogs & Resources
+        </div>
+        {/* Heading */}
+        <h1 className="text-4xl md:text-6xl font-extrabold text-center mb-6 leading-tight text-[#181c2a] z-10">
+          Your Gateway to <span className="bg-gradient-to-r from-[#6366f1] via-[#6366f1] to-[#14b8a6] bg-clip-text text-transparent">Expert Insights</span>
+        </h1>
+        {/* Description */}
+        <p className="text-[#475569] text-center text-xl md:text-2xl mb-10 max-w-3xl font-medium z-10">
+          Access expert insights, comprehensive guides, and valuable resources to support your international education journey.
+        </p>
+        {/* CTA Button */}
+        <div className="flex flex-row gap-4 mb-4 w-full max-w-md justify-center z-10">
+          <Link
+            to="/knowledge-hub"
+            className="flex-1 flex items-center justify-center gap-2 px-8 py-4 bg-[#2563eb] text-white font-semibold rounded-xl shadow-lg text-lg transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-[#60a5fa] text-center hover:bg-[#1d4ed8] hover:scale-105 hover:shadow-2xl"
+          >
+            Explore Knowledge Hub
+          </Link>
         </div>
       </div>
 
+      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Tabs Navigation */}
-        <div className="mb-12">
-          <div className="flex flex-wrap justify-center gap-3">
-            <button
-              className={`px-5 py-2.5 rounded-full font-medium transition-colors ${
-                activeTab === null
-                  ? 'bg-primary text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-              onClick={() => setActiveTab(null)}
-            >
-              All Posts
-            </button>
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                className={`px-5 py-2.5 rounded-full font-medium transition-colors ${
-                  activeTab === tab.id
-                    ? 'bg-primary text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-                onClick={() => setActiveTab(tab.id)}
-              >
-                {tab.name}
-              </button>
-            ))}
-          </div>
+        {/* Section Header */}
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Choose Your Resource Category
+          </h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Each section is carefully curated to provide you with the most relevant and up-to-date information for your study abroad journey.
+          </p>
         </div>
 
-        {loading ? (
-          <div className="flex justify-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        {/* Blog Categories Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+          {blogCategories.map((category, index) => (
+            <Link
+              key={index}
+              to={category.link}
+              className="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:scale-105"
+            >
+              {/* Card Header */}
+              <div className={`bg-gradient-to-r ${category.color} p-8 text-white relative overflow-hidden`}>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12"></div>
+                <div className="relative z-10">
+                  <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 w-fit mb-4">
+                    {category.icon}
           </div>
-        ) : (
-          <>
-            {/* Featured Post */}
-            {displayPosts.length > 0 && (
-              <div className="mb-16">
-                <div className="bg-white rounded-2xl shadow-xl overflow-hidden transition-all hover:shadow-2xl hover:-translate-y-1">
-                  <div className="md:flex">
-                    <div className="md:flex-shrink-0 md:w-1/2">
-                      <img 
-                        className="h-64 w-full object-cover md:h-full" 
-                        src={displayPosts[0].image_url || 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'} 
-                        alt={displayPosts[0].title} 
-                      />
-                    </div>
-                    <div className="p-8 md:w-1/2">
-                      <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary">
-                        {displayPosts[0].blog_tabs?.name || displayPosts[0].category}
-                      </div>
-                      <a href={`/blog/post/${displayPosts[0].id}`} className="block mt-4 text-2xl leading-tight font-bold text-gray-900 hover:text-primary transition-colors">
-                        {displayPosts[0].title}
-                      </a>
-                      <p className="mt-4 text-gray-600 leading-relaxed">
-                        {displayPosts[0].excerpt}
-                      </p>
-                      <div className="mt-6 flex items-center space-x-4">
-                        <div className="flex items-center text-sm text-gray-500">
-                          <User className="h-4 w-4 mr-1" />
-                          {displayPosts[0].author}
-                        </div>
-                        <div className="flex items-center text-sm text-gray-500">
-                          <Calendar className="h-4 w-4 mr-1" />
-                          {new Date(displayPosts[0].date).toLocaleDateString('en-US', { 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric' 
-                          })}
-                        </div>
-                        <div className="flex items-center text-sm text-gray-500">
-                          <Clock className="h-4 w-4 mr-1" />
-                          8 min read
+                  <h3 className="text-2xl font-bold mb-2">{category.title}</h3>
+                  <p className="text-white/90 text-sm leading-relaxed">
+                    {category.description}
+                  </p>
                         </div>
                       </div>
-                      <div className="mt-6">
-                        <a 
-                          href={`/blog/post/${displayPosts[0].id}`}
-                          className="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary/50 transition-colors"
-                        >
-                          Read Article
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
 
-            {/* Blog Post Grid */}
-            {displayPosts.length > 1 ? (
-              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                {displayPosts.slice(1).map((post) => (
-                  <div key={post.id} className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1">
-                    <div className="relative h-48">
-                      <img 
-                        className="h-full w-full object-cover" 
-                        src={post.image_url || `https://images.unsplash.com/photo-1501504905252-473c47e087f8?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80`} 
-                        alt={post.title} 
-                      />
-                      <div className="absolute top-4 left-4">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary">
-                          {post.blog_tabs?.name || post.category}
-                        </span>
+              {/* Card Body */}
+              <div className="p-8">
+                <div className="mb-6">
+                  <h4 className="font-semibold text-gray-900 mb-3">What you'll find:</h4>
+                  <ul className="space-y-2">
+                    {category.features.map((feature, featureIndex) => (
+                      <li key={featureIndex} className="flex items-center gap-2 text-sm text-gray-600">
+                        <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${category.color}`}></div>
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
                       </div>
-                    </div>
-                    <div className="p-6">
-                      <a href={`/blog/post/${post.id}`} className="block text-xl font-semibold text-gray-900 hover:text-primary transition-colors">
-                        {post.title}
-                      </a>
-                      <p className="mt-3 text-gray-600 leading-relaxed line-clamp-3">
-                        {post.excerpt}
-                      </p>
-                      <div className="mt-6 flex items-center space-x-4">
-                        <div className="flex items-center text-sm text-gray-500">
-                          <User className="h-4 w-4 mr-1" />
-                          {post.author}
-                        </div>
-                        <div className="flex items-center text-sm text-gray-500">
-                          <Calendar className="h-4 w-4 mr-1" />
-                          {new Date(post.date).toLocaleDateString('en-US', { 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric' 
-                          })}
-                        </div>
-                      </div>
-                    </div>
+
+                {/* CTA Button */}
+                <div className="flex items-center justify-between">
+                  <span className={`text-sm font-medium ${category.textColor}`}>
+                    Explore {category.title}
+                  </span>
+                  <div className={`p-2 rounded-full bg-gradient-to-r ${category.color} text-white group-hover:scale-110 transition-transform duration-200`}>
+                    <ArrowRight className="w-4 h-4" />
                   </div>
-                ))}
-              </div>
-            ) : (
-              displayPosts.length === 0 && (
-                <div className="text-center py-16">
-                  <h3 className="text-xl font-medium text-gray-500">No blog posts found in this category</h3>
-                  <button 
-                    className="mt-4 px-5 py-2 bg-primary text-white rounded-md"
-                    onClick={() => setActiveTab(null)}
-                  >
-                    View All Posts
-                  </button>
                 </div>
-              )
-            )}
-          </>
-        )}
+              </div>
+
+              {/* Hover Effect Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-purple-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </Link>
+          ))}
+                      </div>
+
+        {/* Additional Resources Section */}
+        <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-3xl p-8 md:p-12 border border-gray-100">
+          <div className="text-center mb-8">
+            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+              Need More Help?
+            </h3>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Our comprehensive platform offers additional tools and resources to support your international education journey.
+            </p>
+                        </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Link
+              to="/course-finder"
+              className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 hover:border-primary/20 group"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
+                  <BookOpen className="w-5 h-5 text-blue-600" />
+                        </div>
+                <h4 className="font-semibold text-gray-900">Course Finder</h4>
+                      </div>
+              <p className="text-sm text-gray-600">Search thousands of international courses and programs.</p>
+            </Link>
+            
+            <Link
+              to="/scholarship-finder"
+              className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 hover:border-primary/20 group"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
+                  <FileText className="w-5 h-5 text-green-600" />
+                    </div>
+                <h4 className="font-semibold text-gray-900">Scholarship Finder</h4>
+              </div>
+              <p className="text-sm text-gray-600">Discover funding opportunities for your education.</p>
+            </Link>
+            
+            <Link
+              to="/agencies"
+              className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 hover:border-primary/20 group"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
+                  <Book className="w-5 h-5 text-purple-600" />
+                </div>
+                <h4 className="font-semibold text-gray-900">Consultancy Directory</h4>
+              </div>
+              <p className="text-sm text-gray-600">Connect with verified education consultants.</p>
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, MapPin, Star, Phone, Mail, Globe, Clock } from 'lucide-react';
+import { Shield, MapPin, Star, Phone, Mail, Globe, Clock, CheckCircle } from 'lucide-react';
 import { ReviewForm } from './ReviewForm';
 import { ReviewsList } from './ReviewsList';
 import { PhotoGalleryModal } from './PhotoGalleryModal';
@@ -88,43 +88,114 @@ export function AgencyDetails({ agency }: AgencyDetailsProps) {
     setSelectedPhotoIndex(index);
   };
 
+  // Key services (mock, as on card)
+  const keyServices = [
+    "Visa Assistance",
+    "Scholarship Guidance",
+    "Personalized Counseling",
+    "Application Process",
+    "IELTS/TOEFL Prep",
+    "Predeparture Support",
+    "University Selection",
+    "Financial Aid Help",
+    "Career Counseling",
+    "SOP/Essay Review",
+    "Accommodation Help",
+    "Mock Interviews",
+    "End-to-End Support",
+    "Trusted by 1000+ Students",
+    "24/7 Chat Support"
+  ];
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div className="relative h-96">
-          <img 
-            src={coverPhoto?.url || agency.image_url} 
-            alt={agency.name} 
-            className="w-full h-full object-cover cursor-pointer"
-            onClick={() => coverPhoto && handlePhotoClick(0)}
-            onError={(e) => {
-              const img = e.target as HTMLImageElement;
-              img.src = 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80';
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
-            <h1 className="text-4xl font-bold mb-2">{agency.name}</h1>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center">
+        <div className="flex flex-col md:flex-row items-center justify-between bg-gradient-to-br from-blue-50 via-white to-pink-50 p-8 pb-0 md:pb-0">
+          {/* Left: Name and details */}
+          <div className="flex-1 flex flex-col justify-center items-start md:items-start mb-6 md:mb-0">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-3">{agency.name}</h1>
+            <div className="flex items-center gap-4 mb-2">
+              <div className="flex items-center text-gray-700">
                 <MapPin className="h-5 w-5 mr-1" />
                 {agency.location}
               </div>
               {agency.is_verified && (
-                <div className="flex items-center bg-green-500/20 px-3 py-1 rounded-full">
+                <div className="flex items-center bg-green-500 px-3 py-1 rounded-full text-white">
                   <Shield className="h-4 w-4 mr-1" />
                   Verified
                 </div>
               )}
             </div>
           </div>
+          {/* Right: Image */}
+          <div className="flex-shrink-0 flex items-center justify-center md:justify-end w-full md:w-64 h-48 md:h-64">
+            <img
+              src={coverPhoto?.url || agency.image_url}
+              alt={agency.name}
+              className="rounded-2xl border-4 border-white shadow-lg object-cover w-full h-full max-w-xs max-h-64 cursor-pointer"
+              onClick={() => coverPhoto && handlePhotoClick(0)}
+              onError={(e) => {
+                const img = e.target as HTMLImageElement;
+                img.src = 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80';
+              }}
+            />
+          </div>
         </div>
-
         <div className="p-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+            <div>
+              <h1 className="text-4xl font-bold mb-2">{agency.name}</h1>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center">
+                  <MapPin className="h-5 w-5 mr-1" />
+                  {agency.location}
+                </div>
+                {agency.is_verified && (
+                  <div className="flex items-center bg-green-500/20 px-3 py-1 rounded-full">
+                    <Shield className="h-4 w-4 mr-1" />
+                    Verified
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="md:col-span-2">
-              <h2 className="text-2xl font-semibold mb-4">About Us</h2>
-              <p className="text-gray-600 mb-6">{agency.description}</p>
+              {/* --- Pink Glassmorphism About Section --- */}
+              <div className="mb-8 rounded-2xl bg-gradient-to-br from-pink-50 via-white to-pink-100/80 backdrop-blur-md border border-pink-100 shadow-lg p-6">
+                <h2 className="text-2xl font-bold text-pink-700 mb-3">About {agency.name}</h2>
+                <div className="text-pink-600 text-base leading-relaxed space-y-3">
+                  {agency.description.split(/\n|\r|\.|\!|\?/).filter(Boolean).map((line, idx) => (
+                    <p key={idx} className="mb-1">{line.trim()}</p>
+                  ))}
+                </div>
+              </div>
+
+              {/* --- Key Services Section (green ticks) --- */}
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold mb-3 text-green-700">Key Services</h3>
+                <ul className="space-y-2">
+                  {keyServices.slice(0, 5).map((service, idx) => (
+                    <li key={idx} className="flex items-center gap-2 text-green-700 text-base font-medium">
+                      <CheckCircle className="h-5 w-5 text-green-400" />
+                      {service}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* --- Specializations as Pink Bullets --- */}
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold mb-3 text-pink-700">Our Specializations</h3>
+                <ul className="space-y-2">
+                  {agency.specializations.map((spec, idx) => (
+                    <li key={idx} className="flex items-center gap-2 text-pink-600 text-base font-medium">
+                      <span className="h-3 w-3 bg-pink-400 rounded-full inline-block"></span>
+                      {spec}
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
               {galleryPhotos.length > 0 && (
                 <div className="mb-8">
@@ -156,50 +227,8 @@ export function AgencyDetails({ agency }: AgencyDetailsProps) {
                 </div>
               )}
 
-              <h3 className="text-xl font-semibold mb-3">Our Specializations</h3>
-              <div className="flex flex-wrap gap-2 mb-6">
-                {agency.specializations.map((specialization) => (
-                  <span
-                    key={specialization}
-                    className="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-sm"
-                  >
-                    {specialization}
-                  </span>
-                ))}
-              </div>
-
               <h3 className="text-xl font-semibold mb-3">Contact Information</h3>
               <div className="space-y-3 mb-6">
-                {agency.contact_phone && (
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Phone className="h-5 w-5" />
-                    <span>{agency.contact_phone}</span>
-                  </div>
-                )}
-                {agency.contact_email && (
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Mail className="h-5 w-5" />
-                    <a 
-                      href={`mailto:${agency.contact_email}`}
-                      className="text-indigo-600 hover:text-indigo-800"
-                    >
-                      {agency.contact_email}
-                    </a>
-                  </div>
-                )}
-                {agency.website && (
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Globe className="h-5 w-5" />
-                    <a 
-                      href={agency.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-indigo-600 hover:text-indigo-800"
-                    >
-                      Visit Website
-                    </a>
-                  </div>
-                )}
                 {agency.business_hours && (
                   <div className="flex items-center gap-2 text-gray-600">
                     <Clock className="h-5 w-5" />

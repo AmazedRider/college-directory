@@ -18,6 +18,16 @@ import { CreateAccountPage } from './pages/CreateAccountPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { Auth } from '../components/Auth';
 import { Toaster } from 'react-hot-toast';
+import { VisaInfoPage } from './pages/VisaInfoPage';
+import { Typewriter } from 'react-simple-typewriter';
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  React.useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [pathname]);
+  return null;
+}
 
 export function App() {
   const [showDashboard, setShowDashboard] = useState(false);
@@ -25,6 +35,7 @@ export function App() {
   const [showAuth, setShowAuth] = useState(false);
   const [authIsSignUp, setAuthIsSignUp] = useState(false);
   const location = useLocation();
+  const [isLoading, setIsLoading] = useState(true);
   
   // Define a function to handle both showing auth and setting the signup/signin mode
   const handleSetShowAuth = (show: boolean, isSignUp?: boolean) => {
@@ -46,20 +57,44 @@ export function App() {
     }
   }, [location]);
   
+  useEffect(() => {
+    // Show loading screen for 1.5 seconds
+    const timer = setTimeout(() => setIsLoading(false), 1500);
+    return () => clearTimeout(timer);
+  }, []);
+  
   // Create a TrackPageElement that can be reused for both routes
   const TrackPageElement = <TrackPage />;
+  
+  // Modern animated loading screen
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 animate-fadeIn">
+        <h1 className="text-3xl md:text-4xl font-extrabold text-white drop-shadow-lg text-center animate-slideInUp">
+          <Typewriter
+            words={["if its not here its not there"]}
+            loop={0}
+            cursor
+            cursorStyle="|"
+            typeSpeed={60}
+            deleteSpeed={40}
+            delaySpeed={1800}
+          />
+        </h1>
+      </div>
+    );
+  }
   
   return (
       <div className="min-h-screen bg-gray-50">
         <Navigation 
           isSuperAdmin={false}
           isAdmin={false}
-          showDashboard={showDashboard}
           showProfile={showProfile}
-          setShowDashboard={setShowDashboard}
           setShowProfile={setShowProfile}
-        setShowAuth={handleSetShowAuth}
+          setShowAuth={handleSetShowAuth}
         />
+        <ScrollToTop />
         
       {showAuth && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -75,11 +110,13 @@ export function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/scholarships" element={<ScholarshipFinderPage />} />
+          <Route path="/scholarship-finder" element={<ScholarshipFinderPage />} />
           <Route path="/track" element={TrackPageElement} />
         <Route path="/application-tracker" element={<Navigate to="/track" replace />} />
           <Route path="/course-finder" element={<CourseFinderPage />} />
           <Route path="/knowledge-hub" element={<KnowledgeHubPage />} />
           <Route path="/knowledge-hub/:slug" element={<GuidePage />} />
+          <Route path="/visa-info" element={<VisaInfoPage />} />
         <Route path="/signin" element={<SignInPage />} />
         <Route path="/create-account" element={<CreateAccountPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />

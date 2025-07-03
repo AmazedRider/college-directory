@@ -1,585 +1,124 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { AgencyListings } from '../components/AgencyListings';
+import { SearchSection } from '../components/SearchSection';
+import { FilterOptions } from '../components/SearchSection';
+import { Users, Star, Shield, MapPin, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { MapPin, Globe, Phone, Star, Shield, ChevronLeft, ChevronRight } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
-import toast from 'react-hot-toast';
-
-interface Agency {
-  id: string;
-  name: string;
-  slug: string;
-  location: string;
-  description: string;
-  rating: number;
-  trust_score: number;
-  image_url: string;
-  price: number;
-  is_verified: boolean;
-  specializations: string[];
-  photos?: Array<{
-    id: string;
-    url: string;
-    caption: string;
-    is_cover: boolean;
-  }>;
-}
 
 export default function ConsultanciesPage() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [agencies, setAgencies] = useState<Agency[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedLocation, setSelectedLocation] = useState('');
-  const [selectedSpecializations, setSelectedSpecializations] = useState<string[]>([]);
-  const [selectedTrustScore, setSelectedTrustScore] = useState('');
-  const [verifiedOnly, setVerifiedOnly] = useState(false);
-  const [sortBy, setSortBy] = useState<'trust_score' | 'rating' | 'name'>('trust_score');
-  const itemsPerPage = 5;
-
-  // Filter options state
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<FilterOptions>({
     location: '',
     minRating: 0,
     maxPrice: '',
-    specializations: [] as string[],
-    verifiedOnly: false
+    specializations: [],
+    verifiedOnly: false,
+    sortBy: 'name'
   });
-
-  useEffect(() => {
-    loadAgencies();
-  }, []);
-
-  const loadAgencies = async () => {
-    try {
-      setLoading(true);
-      // First fetch basic agency data
-      const { data: agenciesData, error: agenciesError } = await supabase
-        .from('agencies')
-        .select(`
-          id,
-          name,
-          slug,
-          location,
-          description,
-          rating,
-          trust_score,
-          image_url,
-          price,
-          is_verified,
-          agency_services (
-            name
-          ),
-          agency_photos (
-            id,
-            url,
-            caption,
-            is_cover
-          )
-        `)
-        .eq('status', 'approved')
-        .order('trust_score', { ascending: false });
-
-      if (agenciesError) throw agenciesError;
-
-      // Process the data with photos included in the initial query
-      const processedAgencies = agenciesData.map(agency => ({
-        ...agency,
-        specializations: agency.agency_services?.map((s: any) => s.name) || [],
-        photos: agency.agency_photos || []
-      }));
-
-      setAgencies(processedAgencies);
-    } catch (error) {
-      console.error('Error loading agencies:', error);
-      toast.error('Failed to load agencies. Please try refreshing the page.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Reset to first page when filters, search, or sort changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, selectedLocation, selectedSpecializations, selectedTrustScore, verifiedOnly, sortBy]);
-
-  // Update the filters object when individual filter states change
-  useEffect(() => {
-    setFilters(prevFilters => ({
-      ...prevFilters,
-      location: selectedLocation,
-      specializations: selectedSpecializations,
-      verifiedOnly: verifiedOnly
-    }));
-  }, [selectedLocation, selectedSpecializations, verifiedOnly]);
-
-  const filteredAgencies = agencies.filter(agency => {
-    // Search query filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      const matchesSearch = 
-        agency.name.toLowerCase().includes(query) ||
-        agency.location.toLowerCase().includes(query) ||
-        agency.description.toLowerCase().includes(query) ||
-        agency.specializations.some(s => s.toLowerCase().includes(query));
-      
-      if (!matchesSearch) return false;
-    }
-
-    // Location filter
-    if (filters.location && filters.location !== '') {
-      if (!agency.location.toLowerCase().includes(filters.location.toLowerCase())) {
-        return false;
-      }
-    }
-
-    // Rating filter - Convert rating to 5-star scale
-    if (filters.minRating > 0) {
-      const normalizedRating = Math.round((agency.rating / 100) * 5); // Convert to 0-5 scale
-      if (normalizedRating < filters.minRating) {
-      return false;
-      }
-    }
-
-    // Specializations filter
-    if (filters.specializations && filters.specializations.length > 0) {
-      const hasSpecialization = filters.specializations.some(s => 
-        agency.specializations.includes(s)
-      );
-      if (!hasSpecialization) return false;
-    }
-
-    // Verified filter
-    if (filters.verifiedOnly && !agency.is_verified) {
-      return false;
-    }
-
-    // Trust score filter
-    if (selectedTrustScore) {
-      const minScore = parseInt(selectedTrustScore);
-      if (agency.trust_score < minScore) {
-        return false;
-      }
-    }
-
-    return true;
-  });
-
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredAgencies.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  
-  // Sort agencies based on selected sort criteria
-  const sortedAgencies = [...filteredAgencies].sort((a, b) => {
-    if (sortBy === 'rating') {
-      // Sort by rating (highest first)
-      return b.rating - a.rating;
-    } else if (sortBy === 'name') {
-      // Sort alphabetically by name
-      return a.name.localeCompare(b.name);
-    } else {
-      // Default: sort by trust score (highest first)
-    return b.trust_score - a.trust_score;
-    }
-  });
-  
-  const currentAgencies = sortedAgencies.slice(startIndex, endIndex);
-
-  // Handle page changes
-  const handlePageChange = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  // Helper function to get the display image for an agency
-  const getAgencyImage = (agency: Agency): string => {
-    // First try to find the cover photo
-    const coverPhoto = agency.photos?.find(photo => photo.is_cover);
-    if (coverPhoto) return coverPhoto.url;
-
-    // Then try the first photo
-    if (agency.photos?.[0]) return agency.photos[0].url;
-
-    // Finally fall back to the default image_url or a placeholder
-    return agency.image_url || 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80';
-  };
-
-  // Add this helper function before the return statement
-  const getVisiblePageNumbers = (currentPage: number, totalPages: number) => {
-    if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1);
-    
-    if (currentPage <= 3) {
-      return [1, 2, 3, 4, '...', totalPages];
-    }
-    
-    if (currentPage >= totalPages - 2) {
-      return [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
-    }
-    
-    return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
-  };
-
-  const handleSpecializationToggle = (specialization: string) => {
-    if (selectedSpecializations.includes(specialization)) {
-      setSelectedSpecializations(selectedSpecializations.filter(s => s !== specialization));
-    } else {
-      setSelectedSpecializations([...selectedSpecializations, specialization]);
-    }
-  };
-
-  const renderStars = (score: number) => {
-    const normalizedRating = Math.min(5, Math.max(0, Math.round(score / 20))); // Convert to 0-5 scale
-    return (
-      <div className="flex">
-        {[...Array(5)].map((_, i) => (
-          <Star 
-            key={`star-${i}`} 
-            className={`h-5 w-5 text-yellow-400 ${i < normalizedRating ? 'fill-yellow-400' : ''}`} 
-          />
-        ))}
-      </div>
-    );
-  };
-
-  const handleFilterChange = (newFilters: Partial<typeof filters>) => {
-    if (newFilters.minRating !== undefined) {
-      // Update the filters object with the new minimum rating
-      const updatedFilters = {
-        ...filters,
-        minRating: newFilters.minRating
-      };
-      
-      // Apply the updated filters
-      setCurrentPage(1);
-      
-      // This will trigger the filtering logic when rendering
-      // Note: We're not actually changing the state object directly, just setting a new value
-      setFilters(updatedFilters);
-    }
-  };
 
   return (
-    <div className="flex-1 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Consultancy Directory</h1>
-        <p className="text-lg text-gray-600 mb-8">
-          Find verified overseas education consultants to guide your study abroad journey.
+    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-[#f4f8fb] via-[#f6fbfa] to-[#eaf6fa] relative overflow-hidden py-0 px-2">
+      {/* Blurred Gradient Blobs */}
+      <div className="absolute left-[-10vw] top-[-10vh] w-[400px] h-[400px] bg-[#e0e7ff] rounded-full blur-3xl opacity-40 z-0" />
+      <div className="absolute right-[-8vw] bottom-[-8vh] w-[350px] h-[350px] bg-[#99f6e4] rounded-full blur-3xl opacity-30 z-0" />
+      {/* Greenish Tint Blob (left side) */}
+      <div className="absolute left-[-15vw] top-1/4 w-[500px] h-[500px] bg-gradient-to-br from-[#6ee7b7] via-[#a7f3d0] to-transparent rounded-full blur-3xl opacity-50 z-0" />
+      {/* Hero Section */}
+      <div className="w-full flex flex-col items-center justify-center min-h-[80vh] z-10">
+        {/* Badge */}
+        <div className="flex items-center gap-2 px-6 py-2 bg-white border border-[#e0e7ff] rounded-full shadow text-[#6366f1] font-semibold text-base mb-8 mt-8 max-w-fit mx-auto animate-fade-in">
+          <svg className="w-5 h-5 text-[#6366f1]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 17.75l-6.172 3.247 1.179-6.873L2 9.753l6.914-1.004L12 2.25l3.086 6.499L22 9.753l-5.007 4.371 1.179 6.873z" /></svg>
+          India's Most Trusted Consultancy Directory
+          <svg className="w-4 h-4 text-yellow-400 ml-1" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.178c.969 0 1.371 1.24.588 1.81l-3.385 2.46a1 1 0 00-.364 1.118l1.287 3.966c.3.922-.755 1.688-1.54 1.118l-3.385-2.46a1 1 0 00-1.175 0l-3.385 2.46c-.784.57-1.838-.196-1.54-1.118l1.287-3.966a1 1 0 00-.364-1.118l-3.385-2.46c-.783-.57-.38-1.81.588-1.81h4.178a1 1 0 00.95-.69l1.286-3.967z" /></svg>
+        </div>
+        {/* Heading */}
+        <h1 className="text-4xl md:text-6xl font-extrabold text-center mb-6 leading-tight text-[#181c2a]">
+          Find Your <span className="bg-gradient-to-r from-[#6366f1] via-[#6366f1] to-[#14b8a6] bg-clip-text text-transparent">Perfect Consultant</span>
+        </h1>
+        {/* Description */}
+        <p className="text-[#475569] text-center text-xl md:text-2xl mb-10 max-w-3xl font-medium">
+          Connect with verified education consultants who can guide you through your study abroad journey. Compare ratings, services, and expertise to find the right partner for your success.
         </p>
-        
-        {/* Search and Filter Area */}
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Filters Sidebar */}
-          <div className="w-full lg:w-1/4">
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
-              <h2 className="text-xl font-bold mb-6">Filters</h2>
+        {/* Details Bar */}
+        <div className="flex flex-wrap justify-center gap-4 mb-8 z-10">
+          <span className="inline-flex items-center px-5 py-2 rounded-full bg-green-100 text-green-800 font-semibold text-base shadow-sm border border-green-200">Verified Agencies <span className="font-bold ml-1">(20+)</span></span>
+          <span className="inline-flex items-center px-5 py-2 rounded-full bg-blue-100 text-blue-800 font-semibold text-base shadow-sm border border-blue-200">Top Rated <span className="font-bold ml-1">(10+)</span></span>
+          <span className="inline-flex items-center px-5 py-2 rounded-full bg-yellow-100 text-yellow-800 font-semibold text-base shadow-sm border border-yellow-200">Budget Friendly <span className="font-bold ml-1">(7+)</span></span>
+          <span className="inline-flex items-center px-5 py-2 rounded-full bg-pink-100 text-pink-800 font-semibold text-base shadow-sm border border-pink-200">Most Reviewed <span className="font-bold ml-1">(15+)</span></span>
+        </div>
+        {/* Buttons */}
+        {/* Removed CTA buttons as requested */}
+      </div>
 
-              {/* Location Filter */}
-              <div className="mb-6">
-                <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                <select 
-                  id="location" 
-                  className="block w-full px-3 py-2 text-base border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-                  value={selectedLocation}
-                  onChange={(e) => setSelectedLocation(e.target.value)}
-                >
-                  <option value="">All locations</option>
-                  {Array.from(new Set(agencies.map(a => a.location)))
-                    .sort()
-                    .map(location => (
-                      <option key={location} value={location}>{location}</option>
-                    ))
-                  }
-                </select>
-              </div>
-              
-              {/* Specialization Filter */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Specialization</label>
-                <div className="space-y-2">
-                  {['USA', 'UK', 'Canada', 'Australia', 'Europe'].map(spec => (
-                    <div key={spec} className="flex items-center">
-                      <input 
-                        id={`spec-${spec}`} 
-                        type="checkbox" 
-                        className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                        checked={selectedSpecializations.includes(spec)}
-                        onChange={() => handleSpecializationToggle(spec)}
-                      />
-                      <label htmlFor={`spec-${spec}`} className="ml-2 block text-sm text-gray-700">{spec}</label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Trust Score Filter */}
-              <div className="mb-6">
-                <label htmlFor="trust-score" className="block text-sm font-medium text-gray-700 mb-1">Trust Score</label>
-                <select 
-                  id="trust-score" 
-                  className="block w-full px-3 py-2 text-base border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-                  value={selectedTrustScore}
-                  onChange={(e) => setSelectedTrustScore(e.target.value)}
-                >
-                  <option value="">All scores</option>
-                  <option value="90">90+</option>
-                  <option value="80">80+</option>
-                  <option value="70">70+</option>
-                  <option value="60">60+</option>
-                  <option value="50">50+</option>
-                </select>
-              </div>
-              
-              {/* Minimum Rating Filter */}
-              <div className="mb-6">
-                <label className="block">
-                  <span className="text-sm font-medium text-gray-700 mb-1">
-                    Minimum Rating
-                  </span>
-                  <div className="mt-2 flex items-center space-x-2">
-                    <button
-                      onClick={() => handleFilterChange({ minRating: 0 })}
-                      className={`flex-1 py-2 rounded-lg font-medium transition-colors ${
-                        filters.minRating === 0
-                          ? 'bg-primary text-white'
-                          : 'bg-white text-gray-700 border border-gray-300 hover:border-primary'
-                      }`}
-                    >
-                      Any
-                    </button>
-                    <button
-                      onClick={() => handleFilterChange({ minRating: 3 })}
-                      className={`flex-1 py-2 rounded-lg font-medium transition-colors ${
-                        filters.minRating === 3
-                          ? 'bg-primary text-white'
-                          : 'bg-white text-gray-700 border border-gray-300 hover:border-primary'
-                      }`}
-                    >
-                      3+
-                    </button>
-                    <button
-                      onClick={() => handleFilterChange({ minRating: 4 })}
-                      className={`flex-1 py-2 rounded-lg font-medium transition-colors ${
-                        filters.minRating === 4
-                          ? 'bg-primary text-white'
-                          : 'bg-white text-gray-700 border border-gray-300 hover:border-primary'
-                      }`}
-                    >
-                      4+
-                    </button>
-                    <button
-                      onClick={() => handleFilterChange({ minRating: 5 })}
-                      className={`flex-1 py-2 rounded-lg font-medium transition-colors ${
-                        filters.minRating === 5
-                          ? 'bg-primary text-white'
-                          : 'bg-white text-gray-700 border border-gray-300 hover:border-primary'
-                      }`}
-                    >
-                      5+
-                    </button>
-                  </div>
-                </label>
-              </div>
-              
-              {/* Verified Only */}
-              <div className="mb-6">
-                <div className="flex items-center">
-                  <input 
-                    id="verified-only" 
-                    type="checkbox" 
-                    className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                    checked={verifiedOnly}
-                    onChange={() => setVerifiedOnly(!verifiedOnly)}
-                  />
-                  <label htmlFor="verified-only" className="ml-2 flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-700">Verified Only</span>
-                    <Shield className="h-4 w-4 text-blue-600" />
-                  </label>
-                </div>
-              </div>
-              
-              <button 
-                className="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg"
-                onClick={() => setCurrentPage(1)}
-              >
-                Apply Filters
-              </button>
-            </div>
+      {/* Search and Filters Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-8">
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 md:p-8">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Find Your Consultant</h2>
+            <p className="text-gray-600">Use our advanced search and filters to find the perfect education consultant for your needs.</p>
+          </div>
+          <SearchSection 
+            onSearch={(query) => {
+              setSearchQuery(query);
+            }}
+            onFilterChange={(newFilters) => {
+              setFilters(newFilters);
+            }}
+            filters={filters}
+          />
+        </div>
+      </div>
+
+      {/* Agency Listings */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <AgencyListings 
+          searchQuery={searchQuery}
+          filters={filters}
+        />
+      </div>
+
+      {/* Why Choose Us Section */}
+      <div className="bg-gradient-to-br from-gray-50 to-blue-50 border-t border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Why Choose Our Platform?
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              We've built the most comprehensive directory of verified education consultants to help you make informed decisions.
+            </p>
           </div>
           
-          {/* Main Content */}
-          <div className="w-full lg:w-3/4">
-            {/* Search Bar */}
-            <div className="flex mb-6">
-              <input
-                type="text"
-                placeholder="Search consultants by name, location, or specialization..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-primary focus:border-primary"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-                <button 
-                className="bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-r-lg"
-                onClick={() => setCurrentPage(1)}
-                >
-                Search
-                </button>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 text-center">
+              <div className="bg-blue-100 rounded-2xl p-4 w-fit mx-auto mb-4">
+                <Shield className="w-8 h-8 text-blue-600" />
               </div>
-            
-            {/* Results Info and Sort */}
-            <div className="flex justify-between items-center mb-6">
-              <p className="text-sm text-gray-500">Showing {filteredAgencies.length} consultants</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Verified Consultants</h3>
+              <p className="text-gray-600">
+                Every consultant on our platform is thoroughly verified and vetted to ensure quality and reliability.
+              </p>
             </div>
             
-            {/* Agency Listings */}
-            {loading ? (
-              <div className="flex justify-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 text-center">
+              <div className="bg-green-100 rounded-2xl p-4 w-fit mx-auto mb-4">
+                <Star className="w-8 h-8 text-green-600" />
               </div>
-            ) : filteredAgencies.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-gray-500">No consultants found matching your criteria.</p>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {currentAgencies.map((agency) => (
-                  <div key={agency.id} className="bg-blue-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                    <div className="grid grid-cols-1 md:grid-cols-4">
-                      <div className="md:col-span-1 p-6 flex items-center justify-center">
-                        <div className="bg-white rounded-full p-4">
-                          <img 
-                            src={getAgencyImage(agency)} 
-                            alt={agency.name}
-                            className="h-28 w-28 object-cover rounded-full"
-                          />
-                        </div>
-                      </div>
-                      <div className="md:col-span-3 p-6">
-                        <div className="flex flex-col h-full">
-                          <div className="flex justify-between items-start mb-2">
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <h3 className="text-xl font-bold text-gray-900">{agency.name}</h3>
-                                {agency.is_verified && (
-                                  <div className="flex items-center gap-1 bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs font-medium">
-                                    <Shield className="h-3 w-3" />
-                                    <span>Verified</span>
-                                  </div>
-                                )}
-                              </div>
-                              <div className="flex items-center text-gray-600 mt-1">
-                                <MapPin className="h-4 w-4 mr-1" />
-                                <span className="text-sm">{agency.location}</span>
-                              </div>
-                            </div>
-                            <div className="flex flex-col items-end">
-                              <div className="flex items-center mb-1">
-                                {renderStars(agency.trust_score)}
-                                <span className="ml-2 text-gray-600">({Math.floor(Math.random() * 100) + 20} reviews)</span>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div className="my-4">
-                            <p className="text-sm font-medium text-gray-700 mb-2">Trust Score:</p>
-                            <div className="flex items-center">
-                              <div className="flex-1 bg-gray-200 rounded-full h-2.5">
-                                <div 
-                                  className="bg-primary h-2.5 rounded-full" 
-                                  style={{ width: `${agency.trust_score}%` }}
-                                ></div>
-                              </div>
-                              <span className="ml-3 text-sm font-medium">{agency.trust_score}/100</span>
-                            </div>
-                          </div>
-                          
-                          <div className="mb-4">
-                            <p className="text-sm font-medium text-gray-700 mb-2">Specialization</p>
-                            <div className="flex flex-wrap gap-2">
-                              {agency.specializations.map((spec, idx) => (
-                                <span 
-                                  key={idx} 
-                                  className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full"
-                                >
-                                  {spec}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                          
-                          <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                            {agency.description}
-                          </p>
-                          
-                          <div className="flex gap-4 mt-auto">
-                            <Link
-                              to={`/agency/${agency.slug}`}
-                              className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg"
-                            >
-                              View Profile
-                            </Link>
-                            <button className="bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 px-4 py-2 rounded-lg">
-                              Contact Now
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Real Reviews</h3>
+              <p className="text-gray-600">
+                Read authentic reviews from students who have worked with these consultants to make informed decisions.
+              </p>
+            </div>
             
-            {/* Pagination */}
-            {!loading && filteredAgencies.length > 0 && totalPages > 1 && (
-              <div className="flex flex-col items-center space-y-4 mt-8">
-                <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2 max-w-full px-2">
-                  <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                    aria-label="Previous page"
-                  >
-                    <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-                  </button>
-                  
-                  {getVisiblePageNumbers(currentPage, totalPages).map((pageNumber, index) => (
-                    <React.Fragment key={index}>
-                      {pageNumber === '...' ? (
-                        <span className="px-2 py-1 text-gray-500">...</span>
-                      ) : (
-                        <button
-                          onClick={() => handlePageChange(Number(pageNumber))}
-                          className={`min-w-[2rem] sm:min-w-[2.5rem] px-2 sm:px-4 py-1 sm:py-2 rounded-lg text-sm sm:text-base ${
-                            currentPage === pageNumber
-                              ? 'bg-indigo-600 text-white'
-                              : 'hover:bg-gray-100'
-                          }`}
-                        >
-                          {pageNumber}
-                        </button>
-                      )}
-                    </React.Fragment>
-                  ))}
-
-                  <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                    aria-label="Next page"
-                  >
-                    <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
-                  </button>
-                </div>
-
-                <div className="text-center text-sm text-gray-500 px-4">
-                  Showing <span className="font-medium">{startIndex + 1}</span> to{' '}
-                  <span className="font-medium">
-                    {Math.min(endIndex, filteredAgencies.length)}
-                  </span>{' '}
-                  of <span className="font-medium">{filteredAgencies.length}</span> consultants
-                </div>
+            <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 text-center">
+              <div className="bg-purple-100 rounded-2xl p-4 w-fit mx-auto mb-4">
+                <Users className="w-8 h-8 text-purple-600" />
               </div>
-            )}
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Expert Guidance</h3>
+              <p className="text-gray-600">
+                Connect with experienced consultants who specialize in your target country and field of study.
+              </p>
+            </div>
           </div>
         </div>
       </div>

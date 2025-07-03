@@ -50,6 +50,9 @@ export interface Database {
           deadline: string;
           chance: string;
           competition: string;
+          application_url?: string;
+          countries?: string[];
+          country?: string;
           created_at: string;
           updated_at: string;
         };
@@ -62,6 +65,9 @@ export interface Database {
           deadline: string;
           chance: string;
           competition: string;
+          application_url?: string;
+          countries?: string[];
+          country?: string;
           created_at?: string;
           updated_at?: string;
         };
@@ -74,6 +80,9 @@ export interface Database {
           deadline?: string;
           chance?: string;
           competition?: string;
+          application_url?: string;
+          countries?: string[];
+          country?: string;
           created_at?: string;
           updated_at?: string;
         };
